@@ -1,0 +1,11 @@
+name = "qushi-desk-alerts"
+main = "worker/index.js"
+compatibility_date = "2026-09-01"
+
+# wrangler kv namespace create ALERTS
+# wrangler secret put ALERT_SECRET
+# Then fill the id below.
+
+[[kv_namespaces]]
+binding = "ALERTS"
+id = "REPLACE_ME"

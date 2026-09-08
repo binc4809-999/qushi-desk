@@ -1,0 +1,39 @@
+{
+  "updated_at": "2026-09-08T01:10:00+00:00",
+  "count": 3,
+  "items": [
+    {
+      "id": "sys-online-20260908",
+      "ts": "2026-09-08T01:10:00+00:00",
+      "severity": "system",
+      "kind": "system",
+      "symbol": "SITE",
+      "title": "趋势台已上线，等待实盘脚本推送",
+      "body": "OKX BTC/SOL V6 脚本在开仓、止盈止损、数据异常时，会把同一封预警同步到本页。未推送前这里只显示系统状态与回测样本。",
+      "source": "qushi-desk",
+      "live": true
+    },
+    {
+      "id": "bt-btc-30k-sample",
+      "ts": "2026-09-07T12:00:00+00:00",
+      "severity": "info",
+      "kind": "backtest",
+      "symbol": "BTC-USDT-SWAP",
+      "title": "回测样本 · 30K 为空头主贡献",
+      "body": "三年样本 30K 17 笔，净利 +1431.71；5K 19 笔净利 -236.57。实盘 BTC 仍开 5K，与回测贡献不完全一致。",
+      "source": "okx_v6_backtest_3y",
+      "live": false
+    },
+    {
+      "id": "bt-sol-30b-sample",
+      "ts": "2026-09-07T12:00:00+00:00",
+      "severity": "risk",
+      "kind": "backtest",
+      "symbol": "SOL-USDT-SWAP",
+      "title": "回测样本 · SOL 30B 为负贡献",
+      "body": "SOL 三年 30B 79 笔净利 -502；最大回撤 22.76%。实盘已关 5K 与 4H EMA55 止盈，不能把 BTC 的三年曲线套到 SOL 上。",
+      "source": "okx_v6_backtest_3y",
+      "live": false
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "updated_at": "2026-09-07",
+  "range": "2023-09-07 ~ 2026-09-07",
+  "source": "OKX /api/v5/market/history-candles",
+  "fee": "taker 5bps + slip 1bps / side",
+  "notes": [
+    "信号与实盘 V6 价突破条件一致；30m/4H 用上一根已收盘均线对当前价做一步 EMA，模拟未走完 K 线。",
+    "成交按 5m 收盘价；同根既触止损又触止盈时按止损。",
+    "仓位：同账户单币、5x 逐仓、5B/5K=5% 保证金、30B/30K=10%。"
+  ],
+  "symbols": [
+    {
+      "name": "BTC",
+      "instId": "BTC-USDT-SWAP",
+      "ret_pct": 39.56,
+      "ann_pct": 11.74,
+      "maxdd_pct": 13.96,
+      "calmar": 0.84,
+      "trades": 122,
+      "winrate": 13.11,
+      "payoff": 9.92,
+      "pf": 1.5,
+      "params": "止损 3.4% / 止盈 3.5% / 锁盈 1.6% / 4H EMA55 开 / 信号全开",
+      "by_signal": [
+        { "signal": "30B", "n": 69, "pnl": 2215.02, "winrate": 13.04 },
+        { "signal": "5B", "n": 17, "pnl": 545.43, "winrate": 11.76 },
+        { "signal": "5K", "n": 19, "pnl": -236.57, "winrate": 10.53 },
+        { "signal": "30K", "n": 17, "pnl": 1431.71, "winrate": 17.65 }
+      ]
+    },
+    {
+      "name": "SOL",
+      "instId": "SOL-USDT-SWAP",
+      "ret_pct": 9.47,
+      "ann_pct": 3.06,
+      "maxdd_pct": 22.76,
+      "calmar": 0.13,
+      "trades": 103,
+      "winrate": 11.65,
+      "payoff": 8.64,
+      "pf": 1.14,
+      "params": "止损 2.5% / 止盈 12% / 锁盈 2.5% / 4H EMA55 关 / 5K 关",
+      "by_signal": [
+        { "signal": "30B", "n": 79, "pnl": -502.0, "winrate": 10.13 },
+        { "signal": "5B", "n": 13, "pnl": 411.27, "winrate": 15.38 },
+        { "signal": "30K", "n": 11, "pnl": 1037.87, "winrate": 18.18 }
+      ]
+    }
+  ]
+}
