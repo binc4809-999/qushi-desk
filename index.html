@@ -34,7 +34,7 @@
       <header class="view-head">
         <div>
           <h1>投资机会</h1>
-          <p class="lede">全球 / 加密 / A 股调研，加上交易心态与套利方法。先看机制和回撤，再看收益率。</p>
+          <p class="lede">全球 / 加密 / A 股调研。盘前资讯与涨停复盘只放原站链接，在 A 股板块下方。</p>
         </div>
         <div class="filters" id="filters" role="group" aria-label="市场过滤">
           <button type="button" class="chip is-on" data-region="all">全部</button>
@@ -45,7 +45,7 @@
           <button type="button" class="chip" data-region="method">方法</button>
         </div>
       </header>
-      <div class="table-wrap">
+      <div class="table-wrap" id="main-table-wrap">
         <table class="grid">
           <thead>
             <tr>
@@ -61,6 +61,26 @@
           <tbody id="opp-body"></tbody>
         </table>
       </div>
+      <section id="cn-block" class="cn-block">
+        <h2 class="block-title">A股</h2>
+        <div class="table-wrap">
+          <table class="grid">
+            <thead>
+              <tr>
+                <th>优先级</th>
+                <th>机会</th>
+                <th>机制</th>
+                <th>公开收益</th>
+                <th>回撤</th>
+                <th>主要代价</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="cn-body"></tbody>
+          </table>
+        </div>
+        <div class="market" id="market"></div>
+      </section>
       <h2 class="block-title">调研备忘</h2>
       <div class="notes" id="notes"></div>
     </section>

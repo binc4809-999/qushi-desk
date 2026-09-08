@@ -14,6 +14,7 @@ const state = {
   channel: "all",
   opportunities: [],
   notes: [],
+  market: { items: [], note: "" },
   alerts: [],
   strategies: null,
   meta: null,
@@ -62,13 +63,8 @@ function renderTicker() {
   $("#ticker").textContent = row || "暂无预警";
 }
 
-function renderOpps() {
-  const rows = state.opportunities.filter(
-    (o) => state.region === "all" || o.region === state.region
-  );
-  $("#opp-body").innerHTML = rows
-    .map(
-      (o) => `<tr>
+function rowHtml(o) {
+  return `<tr>
         <td class="prio">${esc(o.priority)}</td>
         <td><span class="name">${esc(o.name)}</span><span class="sub">${esc(o.region_label)} · ${esc(o.klass_label)}</span></td>
         <td>${esc(o.thesis)}</td>
@@ -76,8 +72,52 @@ function renderOpps() {
         <td>${esc(o.drawdown)}</td>
         <td>${esc(o.cost)}</td>
         <td><span class="pill ${esc(o.status)}">${esc(o.status_label)}</span></td>
-      </tr>`
-    )
+      </tr>`;
+}
+
+function renderOpps() {
+  const cn = state.opportunities.filter((o) => o.region === "cn");
+  const rest = state.opportunities.filter((o) => o.region !== "cn");
+  const mainWrap = $("#main-table-wrap");
+  const cnBlock = $("#cn-block");
+  const showCn = state.region === "all" || state.region === "cn";
+
+  if (state.region === "all") {
+    $("#opp-body").innerHTML = rest.map(rowHtml).join("");
+    $("#cn-body").innerHTML = cn.map(rowHtml).join("");
+    mainWrap.classList.toggle("is-hidden", rest.length === 0);
+  } else if (state.region === "cn") {
+    $("#opp-body").innerHTML = "";
+    $("#cn-body").innerHTML = cn.map(rowHtml).join("");
+    mainWrap.classList.add("is-hidden");
+  } else {
+    const rows = state.opportunities.filter((o) => o.region === state.region);
+    $("#opp-body").innerHTML = rows.map(rowHtml).join("");
+    mainWrap.classList.remove("is-hidden");
+  }
+
+  cnBlock.classList.toggle("is-hidden", !showCn);
+  renderMarket();
+}
+
+function renderMarket() {
+  const host = $("#market");
+  if (!host) return;
+  const groups = [
+    { kind: "盘前资讯", hint: "原文在韭研公社，点链接去原站。" },
+    { kind: "涨停复盘", hint: "原文含涨停简图，点链接去原站。" },
+  ];
+  const items = state.market.items || [];
+  host.innerHTML = groups
+    .map((g) => {
+      const links = items
+        .filter((x) => x.kind === g.kind)
+        .map(
+          (x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.title)}<span>${esc(x.source)} · ${esc(x.date)}</span></a>`
+        )
+        .join("");
+      return `<section class="market-col"><h2>${esc(g.kind)}</h2><p class="hint">${esc(g.hint)}</p>${links}</section>`;
+    })
     .join("");
 }
 
@@ -175,15 +215,17 @@ async function boot() {
   tickClock();
   setInterval(tickClock, 1000);
 
-  const [meta, opps, alerts, strats] = await Promise.all([
+  const [meta, opps, alerts, strats, market] = await Promise.all([
     loadJson("./data/meta.json"),
     loadJson("./data/opportunities.json"),
     loadJson("./data/alerts.json"),
     loadJson("./data/strategies.json"),
+    loadJson("./data/market-links.json"),
   ]);
   state.meta = meta;
   state.opportunities = opps.items || [];
   state.notes = opps.notes || [];
+  state.market = market;
   state.alerts = alerts.items || [];
   state.strategies = strats;
   $("#disclaimer").textContent = meta.disclaimer;

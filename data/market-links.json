@@ -1,0 +1,38 @@
+{
+  "updated_at": "2026-09-08",
+  "note": "本站不转载正文或配图。点链接去原站阅读。",
+  "items": [
+    {
+      "id": "premarket-0908",
+      "kind": "盘前资讯",
+      "title": "9月8日盘前纪要",
+      "source": "韭研公社 · 盘前纪要",
+      "url": "https://www.jiuyangongshe.com/",
+      "date": "2026-09-08"
+    },
+    {
+      "id": "premarket-feed",
+      "kind": "盘前资讯",
+      "title": "盘前纪要专栏（最新互动）",
+      "source": "韭研公社",
+      "url": "https://www.jiuyangongshe.com/study_action/none_101",
+      "date": "2026-09-08"
+    },
+    {
+      "id": "limitup-0908",
+      "kind": "涨停复盘",
+      "title": "午盘涨停简图（09.08）",
+      "source": "韭研公社 · 异动 / 涨停简图",
+      "url": "https://www.jiuyangongshe.com/action/2026-09-08",
+      "date": "2026-09-08"
+    },
+    {
+      "id": "limitup-0907",
+      "kind": "涨停复盘",
+      "title": "涨停简图（09.07）",
+      "source": "韭研公社 · 异动 / 涨停简图",
+      "url": "https://www.jiuyangongshe.com/action/2026-09-07",
+      "date": "2026-09-07"
+    }
+  ]
+}

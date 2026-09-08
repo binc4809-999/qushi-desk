@@ -184,6 +184,46 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
 }
 .note p { margin: 0; font-size: 13.5px; }
 
+.market {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 0 22px;
+}
+.market-col {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 16px;
+}
+.market-col h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+.market-col .hint {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.market-col a {
+  display: block;
+  color: var(--brass);
+  text-decoration: none;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+.market-col a:hover { color: var(--ink); }
+.market-col a span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.cn-block { margin-top: 8px; }
+.cn-block .market { margin-top: 16px; }
+.is-hidden { display: none; }
+
 .venue { margin-top: 8px; }
 .venue + .venue { margin-top: 32px; }
 .venue h2 {
@@ -270,9 +310,9 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
   .mast { grid-template-columns: 1fr; }
   .mast-right { text-align: left; }
   .view-head { flex-direction: column; align-items: flex-start; }
-  .strat-row, .stats, .notes { grid-template-columns: 1fr 1fr; }
+  .strat-row, .stats, .notes, .market { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 560px) {
   main, .ticker, .mast, .foot { padding-left: 16px; padding-right: 16px; }
-  .stats, .notes { grid-template-columns: 1fr; }
+  .stats, .notes, .market { grid-template-columns: 1fr; }
 }
