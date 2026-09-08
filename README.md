@@ -1,4 +1,4 @@
-# 趋势台
+# 迦南美地 · The Promised Land
 
 公网地址：https://binc4809-999.github.io/qushi-desk/
 

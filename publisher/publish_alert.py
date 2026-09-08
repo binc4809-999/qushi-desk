@@ -110,7 +110,7 @@ def publish_github(event: dict) -> None:
     headers = {
         "Accept": "application/vnd.github+json",
         "Authorization": f"Bearer {token}",
-        "User-Agent": "qushi-desk-publisher",
+        "User-Agent": "promised-land-publisher",
         "X-GitHub-Api-Version": "2022-11-28",
     }
 

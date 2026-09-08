@@ -45,8 +45,8 @@ body {
 .brand {
   margin: 0;
   font-size: 22px;
-  letter-spacing: 0.18em;
-  font-weight: 600;
+  letter-spacing: 0.22em;
+  font-weight: 500;
 }
 .brand-sub {
   margin: 2px 0 0;
@@ -160,6 +160,38 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
 .pill.watch { color: var(--brass); }
 .pill.research { color: var(--info); }
 
+.block-title {
+  margin: 32px 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.notes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.note {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 16px;
+}
+.note h2 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brass);
+}
+.note p { margin: 0; font-size: 13.5px; }
+
+.venue { margin-top: 8px; }
+.venue + .venue { margin-top: 32px; }
+.venue h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
 .feed {
   list-style: none;
   margin: 0;
@@ -238,9 +270,9 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
   .mast { grid-template-columns: 1fr; }
   .mast-right { text-align: left; }
   .view-head { flex-direction: column; align-items: flex-start; }
-  .strat-row, .stats { grid-template-columns: 1fr 1fr; }
+  .strat-row, .stats, .notes { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 560px) {
   main, .ticker, .mast, .foot { padding-left: 16px; padding-right: 16px; }
-  .stats { grid-template-columns: 1fr 1fr; }
+  .stats, .notes { grid-template-columns: 1fr; }
 }

@@ -1,12 +1,12 @@
 {
-  "name": "趋势台",
-  "name_en": "Qushi Desk",
-  "tagline": "投资机会与脚本预警",
-  "updated_at": "2026-09-08T01:10:00+00:00",
+  "name": "迦南美地",
+  "name_en": "The Promised Land",
+  "tagline": "研究与预警",
+  "updated_at": "2026-09-08T04:20:00+00:00",
   "source_date": "2026-09-07",
   "architecture": "static-cdn",
   "alerts_url": "./data/alerts.json",
   "poll_ms": 30000,
   "capacity_note": "静态资源经全球 CDN 分发；阅读流量不打源站。边缘缓存命中后可支撑约 10 万同时在线浏览。",
-  "disclaimer": "本站内容来自公开调研与本账户趋势脚本的预警推送，只作研究备忘，不构成投资建议、募集或荐股。过往回测与指数收益不能外推。"
+  "disclaimer": "本站内容来自公开调研与本账户脚本预警，只作研究备忘，不构成投资建议、募集或荐股。过往回测与指数收益不能外推。"
 }

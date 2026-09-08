@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>趋势台 · 投资机会与脚本预警</title>
-  <meta name="description" content="全球可访问的投资机会与 OKX 趋势跟踪脚本预警台。研究备忘，非投资建议。">
+  <title>迦南美地 · The Promised Land</title>
+  <meta name="description" content="迦南美地 The Promised Land：投资机会、脚本开平仓与选股监控预警。研究备忘，非投资建议。">
   <meta name="theme-color" content="#0e1014">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./css/app.css">
@@ -13,8 +13,8 @@
   <a class="skip" href="#main">跳到正文</a>
   <header class="mast">
     <div class="mast-left">
-      <p class="brand">趋势台</p>
-      <p class="brand-sub">QUSHI DESK · 机会 / 预警</p>
+      <p class="brand">迦南美地</p>
+      <p class="brand-sub">THE PROMISED LAND</p>
     </div>
     <nav class="tabs" aria-label="栏目">
       <button type="button" class="tab is-on" data-view="opps">投资机会</button>
@@ -34,7 +34,7 @@
       <header class="view-head">
         <div>
           <h1>投资机会</h1>
-          <p class="lede">来源：2026-09-07 全球 / 加密 / A 股调研，以及本账户 OKX V6 回测。先看机制和回撤，再看收益率。</p>
+          <p class="lede">全球 / 加密 / A 股调研，加上交易心态与套利方法。先看机制和回撤，再看收益率。</p>
         </div>
         <div class="filters" id="filters" role="group" aria-label="市场过滤">
           <button type="button" class="chip is-on" data-region="all">全部</button>
@@ -42,6 +42,7 @@
           <button type="button" class="chip" data-region="crypto">加密</button>
           <button type="button" class="chip" data-region="cn">A股</button>
           <button type="button" class="chip" data-region="live">本账户</button>
+          <button type="button" class="chip" data-region="method">方法</button>
         </div>
       </header>
       <div class="table-wrap">
@@ -60,27 +61,34 @@
           <tbody id="opp-body"></tbody>
         </table>
       </div>
+      <h2 class="block-title">调研备忘</h2>
+      <div class="notes" id="notes"></div>
     </section>
 
     <section id="view-alerts" class="view">
       <header class="view-head">
         <div>
           <h1>脚本预警</h1>
-          <p class="lede">实盘 V6 在开仓、止盈止损、数据异常时推送到本页。标了「回测样本」的不是实时成交。</p>
+          <p class="lede">开平仓来自 OKX / Binance 趋势脚本；选股监控来自 monitor11 EXPMA 池。标了 SAMPLE 的不是实时成交。</p>
         </div>
         <p class="stamp" id="alert-stamp"></p>
       </header>
+      <div class="filters" id="alert-filters" role="group" aria-label="预警过滤">
+        <button type="button" class="chip is-on" data-channel="all">全部</button>
+        <button type="button" class="chip" data-channel="trade">开平仓</button>
+        <button type="button" class="chip" data-channel="monitor">选股监控</button>
+      </div>
       <ol class="feed" id="alert-feed"></ol>
     </section>
 
     <section id="view-strats" class="view">
       <header class="view-head">
         <div>
-          <h1>OKX 均线趋势实盘</h1>
-          <p class="lede" id="strat-lede">BTC / SOL USDT 永续，5x 逐仓。下列数字是 2023-09-07 至 2026-09-07 的同逻辑回测，不是实盘净值。</p>
+          <h1>实盘策略</h1>
+          <p class="lede" id="strat-lede">上方是 OKX 价突破；下方是仍在币安运行的趋势跟踪与 MACD 脚本。</p>
         </div>
       </header>
-      <div class="strat-row" id="strat-row"></div>
+      <div id="strat-venues"></div>
     </section>
   </main>
 
