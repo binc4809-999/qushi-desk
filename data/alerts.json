@@ -10,10 +10,10 @@
       "channel": "system",
       "venue": "SITE",
       "symbol": "SITE",
-      "title": "迦南美地已上线，等待开平仓与监控推送",
-      "body": "OKX / Binance 趋势脚本的开仓、平仓、止盈止损，以及 monitor11 EXPMA 池点火，都会写到本页。未推送前，下面是记录结构样例。",
+      "title": "迦南美地已上线 · 机会与心跳由脚本发布",
+      "body": "投资机会页顶部是最近一次研究/行情脚本的心跳（成功时间、摘要）。开平仓与选股监控推送到本栏后会盖掉这条系统说明；未推送前，下面仍是字段结构样例。",
       "source": "promised-land",
-      "live": true
+      "live": false
     },
     {
       "id": "trade-btc-30b-open",
