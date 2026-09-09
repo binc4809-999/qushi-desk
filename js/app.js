@@ -80,10 +80,15 @@ function renderOpps() {
   const mainWrap = $("#main-table-wrap");
   const cnBlock = $("#cn-block");
   const showCn = state.region === "cn";
+  // 全球只显示行情面板，不显示机会表
+  const hideOppTable = state.region === "global";
 
   if (state.region === "cn") {
     $("#opp-body").innerHTML = "";
     $("#cn-body").innerHTML = cn.map(rowHtml).join("");
+    mainWrap.classList.add("is-hidden");
+  } else if (hideOppTable) {
+    $("#opp-body").innerHTML = "";
     mainWrap.classList.add("is-hidden");
   } else {
     const rows = state.opportunities.filter((o) => o.region === state.region);
