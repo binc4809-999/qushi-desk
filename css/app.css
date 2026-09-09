@@ -338,6 +338,42 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
 }
 .sig-table th { color: var(--muted); font-weight: 500; }
 
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 14px;
+}
+.contact-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 18px;
+}
+.contact-card h2 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  font-weight: 500;
+}
+.contact-value {
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 18px;
+  word-break: break-all;
+}
+.contact-value:hover { color: var(--brass); }
+.contact-wechat .hint {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.wechat-qr {
+  display: block;
+  width: min(240px, 100%);
+  height: auto;
+  background: #fff;
+}
+
 .foot {
   max-width: 1280px;
   margin: 0 auto;
@@ -351,9 +387,9 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
   .mast { grid-template-columns: 1fr; }
   .mast-right { text-align: left; }
   .view-head { flex-direction: column; align-items: flex-start; }
-  .strat-row, .stats, .notes, .market, .kzz-grid { grid-template-columns: 1fr 1fr; }
+  .strat-row, .stats, .notes, .market, .kzz-grid, .contact-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 560px) {
   main, .ticker, .mast, .foot { padding-left: 16px; padding-right: 16px; }
-  .stats, .notes, .market, .kzz-grid { grid-template-columns: 1fr; }
+  .stats, .notes, .market, .kzz-grid, .contact-grid { grid-template-columns: 1fr; }
 }
