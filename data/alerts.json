@@ -1,4 +1,6 @@
 {
+  "schema_version": 1,
+  "sample": true,
   "updated_at": "2026-09-08T04:20:00+00:00",
   "count": 6,
   "items": [
@@ -16,15 +18,42 @@
       "live": false
     },
     {
-      "id": "trade-btc-30b-open",
-      "ts": "2023-10-18T22:20:00+00:00",
+      "id": "monitor11-sample-top",
+      "ts": "2026-09-08T01:40:00+00:00",
+      "severity": "info",
+      "kind": "monitor",
+      "channel": "monitor",
+      "venue": "A股",
+      "symbol": "monitor11",
+      "title": "EXPMA 池 TOP 邮件同步到本页",
+      "body": "同一脚本还会发点火 TOP5 邮件。为避免每 100 秒刷屏，站点最多约 10 分钟收录一次最新 TOP。字段：代码、名称、现价、涨幅、涨速、量比、结构分。",
+      "source": "monitor11",
+      "live": false
+    },
+    {
+      "id": "monitor11-sample-1",
+      "ts": "2026-09-08T01:35:00+00:00",
+      "severity": "risk",
+      "kind": "monitor",
+      "channel": "monitor",
+      "venue": "A股",
+      "symbol": "monitor11",
+      "title": "EXPMA 池点火 · 量比 + 涨速",
+      "body": "monitor11 在交易时段按「结构 10% + 量比 50% + 涨速 40%」排序。触发条件默认：量比、涨速、涨幅同时过线，且当日未重复报警。实盘打开 --alert 后，具体代码、名称、现价会替换这条样例。",
+      "source": "monitor11",
+      "confidence": 0.72,
+      "live": false
+    },
+    {
+      "id": "trade-sol-30k-note",
+      "ts": "2026-09-07T12:00:00+00:00",
       "severity": "signal",
       "kind": "open",
       "channel": "trade",
       "venue": "OKX",
-      "symbol": "BTC-USDT-SWAP",
-      "title": "开仓 · 30B 做多",
-      "body": "合约 BTC-USDT-SWAP · 信号 30B · 方向 做多 · 开仓价 28322.23 · 5x 逐仓。此条来自三年回测成交样本，用来固定本页的开平仓字段；实盘推送后会变成 LIVE。",
+      "symbol": "SOL-USDT-SWAP",
+      "title": "信号结构 · SOL 以 30K 为主要正贡献",
+      "body": "三年样本 30K 11 笔净利 +1037.87；30B 79 笔净利 -502。实盘 SOL 已关 5K。开平仓推送到位后，这里按时间倒序列出每笔进出场。",
       "source": "okx_v6_backtest_3y",
       "live": false
     },
@@ -42,42 +71,17 @@
       "live": false
     },
     {
-      "id": "trade-sol-30k-note",
-      "ts": "2026-09-07T12:00:00+00:00",
+      "id": "trade-btc-30b-open",
+      "ts": "2023-10-18T22:20:00+00:00",
       "severity": "signal",
       "kind": "open",
       "channel": "trade",
       "venue": "OKX",
-      "symbol": "SOL-USDT-SWAP",
-      "title": "信号结构 · SOL 以 30K 为主要正贡献",
-      "body": "三年样本 30K 11 笔净利 +1037.87；30B 79 笔净利 -502。实盘 SOL 已关 5K。开平仓推送到位后，这里按时间倒序列出每笔进出场。",
+      "symbol": "BTC-USDT-SWAP",
+      "title": "开仓 · 30B 做多",
+      "body": "合约 BTC-USDT-SWAP · 信号 30B · 方向 做多 · 开仓价 28322.23 · 5x 逐仓。此条来自三年回测成交样本，用来固定本页的开平仓字段；实盘推送后会变成 LIVE。",
       "source": "okx_v6_backtest_3y",
-      "live": false
-    },
-    {
-      "id": "monitor11-sample-1",
-      "ts": "2026-09-08T01:35:00+00:00",
-      "severity": "risk",
-      "kind": "monitor",
-      "channel": "monitor",
-      "venue": "A股",
-      "symbol": "monitor11",
-      "title": "EXPMA 池点火 · 量比 + 涨速",
-      "body": "monitor11 在交易时段按「结构 10% + 量比 50% + 涨速 40%」排序。触发条件默认：量比、涨速、涨幅同时过线，且当日未重复报警。实盘打开 --alert 后，具体代码、名称、现价会替换这条样例。",
-      "source": "monitor11",
-      "live": false
-    },
-    {
-      "id": "monitor11-sample-top",
-      "ts": "2026-09-08T01:40:00+00:00",
-      "severity": "info",
-      "kind": "monitor",
-      "channel": "monitor",
-      "venue": "A股",
-      "symbol": "monitor11",
-      "title": "EXPMA 池 TOP 邮件同步到本页",
-      "body": "同一脚本还会发点火 TOP5 邮件。为避免每 100 秒刷屏，站点最多约 10 分钟收录一次最新 TOP。字段：代码、名称、现价、涨幅、涨速、量比、结构分。",
-      "source": "monitor11",
+      "confidence": 0.55,
       "live": false
     }
   ]
