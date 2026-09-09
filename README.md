@@ -27,6 +27,12 @@ python -m http.server 8080
 
 打开 http://127.0.0.1:8080/
 
+## 研究脚本怎么驱动页面
+
+机会表和管道心跳来自 `data/opportunities.json` 与 `data/last_run.json`，不是手写 HTML。合同、字段和发布方式见 [docs/data-contract.md](docs/data-contract.md)。
+
+行情仍由 `publisher/refresh_quotes.py` 写 `data/quotes.json`（成功/失败时会更新心跳）。机会表请用你的 PyCharm 脚本覆盖 JSON 后 push `main`，或走与预警相同的 GitHub Contents API。
+
 ## 脚本怎么推预警
 
 实盘包 `send_email_alert` 会同时调用 `publisher/publish_alert.py`。
