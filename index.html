@@ -34,14 +34,28 @@
       <header class="view-head">
         <div>
           <h1>投资机会</h1>
-          <p class="lede">默认看全球行情；机会表与管道心跳由研究脚本发布。加密 / A 股 / 其他（期货期权等）/ 方法分栏筛选。</p>
+          <p class="lede">默认看全球行情；机会表与管道心跳由研究脚本发布。按市场与状态筛选，点一行看机制、代价与来源。</p>
         </div>
-        <div class="filters" id="filters" role="group" aria-label="市场过滤">
-          <button type="button" class="chip is-on" data-region="global">全球</button>
-          <button type="button" class="chip" data-region="crypto">加密</button>
-          <button type="button" class="chip" data-region="cn">A股</button>
-          <button type="button" class="chip" data-region="other">其他</button>
-          <button type="button" class="chip" data-region="method">方法</button>
+        <div class="filter-stack">
+          <div class="filter-row">
+            <span class="filter-label">市场</span>
+            <div class="filters" id="filters" role="group" aria-label="市场过滤">
+              <button type="button" class="chip is-on" data-region="global">全球</button>
+              <button type="button" class="chip" data-region="crypto">加密</button>
+              <button type="button" class="chip" data-region="cn">A股</button>
+              <button type="button" class="chip" data-region="other">其他</button>
+              <button type="button" class="chip" data-region="method">方法</button>
+            </div>
+          </div>
+          <div class="filter-row">
+            <span class="filter-label">状态</span>
+            <div class="filters" id="status-filters" role="group" aria-label="状态过滤">
+              <button type="button" class="chip is-on" data-status="all">全部</button>
+              <button type="button" class="chip" data-status="watch">观察</button>
+              <button type="button" class="chip" data-status="research">研究</button>
+              <button type="button" class="chip" data-status="live">实盘</button>
+            </div>
+          </div>
         </div>
       </header>
       <aside class="pipeline" id="pipeline" aria-live="polite">
@@ -82,7 +96,10 @@
         </div>
       </section>
       <section id="cn-block" class="cn-block is-hidden">
-        <h2 class="block-title">A股</h2>
+        <div class="quotes-head">
+          <h2 class="block-title">A股</h2>
+          <p class="hint">点一行看详情 · 下方为盘前/涨停与可转债</p>
+        </div>
         <div class="table-wrap">
           <table class="grid">
             <thead>
@@ -202,6 +219,9 @@
       </div>
     </section>
   </main>
+
+  <div id="opp-scrim" class="drawer-scrim is-hidden" hidden></div>
+  <aside id="opp-detail" class="drawer is-hidden" hidden role="dialog" aria-modal="true" aria-labelledby="opp-detail-title"></aside>
 
   <footer class="foot">
     <p id="disclaimer"></p>

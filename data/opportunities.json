@@ -21,7 +21,10 @@
       "status": "watch",
       "status_label": "观察",
       "as_of": "2026-09-07",
-      "source": "Swiss Re / 公开 ILS 指数；调研报告 2026-09-07"
+      "source": "Swiss Re / 公开 ILS 指数；调研报告 2026-09-07",
+      "links": [
+        { "label": "Artemis ILS", "url": "https://www.artemis.bm/" }
+      ]
     },
     {
       "id": "cv-arb-conservative",

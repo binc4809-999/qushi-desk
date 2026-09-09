@@ -89,10 +89,12 @@ python publisher/write_last_run.py --status success --script my_research.py --su
 | `region` | 是 | `global` / `crypto` / `cn` / `other` / `method`（对应页内筛选项） |
 | `region_label` | 建议 | 全球 / 加密 / A股 … |
 | `klass` / `klass_label` | 否 | 副标题第二段 |
-| `as_of` | 否 | 该条数字日期 |
-| `source` | 否 | 短来源说明 |
-| `links` | 否 | `[{"label":"…","url":"https://…"}]` |
-| `evidence` | 否 | 调研备注，当前表不展示 |
+| `as_of` | 否 | 该条数字日期；表内不展开，点一行在详情里看 |
+| `source` | 否 | 短来源说明；同上，详情面板展示 |
+| `links` | 否 | `[{"label":"…","url":"https://…"}]`；详情面板展示 |
+| `evidence` | 否 | 调研备注 / 脚本证据；详情面板展示 |
+
+页面表格只保留可扫读的短列（优先级、名称、截断后的机制/代价、收益、回撤、状态）。点一行打开深色详情抽屉，展示上表字段（有则显示）。状态列是标签，不是按钮；用页头「观察 / 研究 / 实盘」筛选 `status`。
 
 `region=global` 的条目出现在「全球」栏（A1–A3 示例）。不要只改 HTML。
 
