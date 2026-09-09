@@ -1,0 +1,12 @@
+.env
+.env.*
+node_modules/
+.wrangler/
+dist/
+_site/
+*.log
+_push_site.py
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
