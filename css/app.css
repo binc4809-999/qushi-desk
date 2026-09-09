@@ -224,6 +224,47 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
 .cn-block .market { margin-top: 16px; }
 .is-hidden { display: none; }
 
+.kzz-block { margin-top: 24px; }
+.kzz-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.kzz-head .block-title { margin: 0; }
+.kzz-head .hint { margin: 0; color: var(--muted); font-size: 12px; }
+.kzz-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.kzz-panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 12px;
+}
+.kzz-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.kzz-title h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.kzz-title a {
+  color: var(--brass);
+  text-decoration: none;
+  font-size: 12px;
+}
+.kzz-title a:hover { color: var(--ink); }
+.grid.compact { font-size: 12.5px; }
+.grid.compact th, .grid.compact td { padding: 8px 10px; }
+
 .venue { margin-top: 8px; }
 .venue + .venue { margin-top: 32px; }
 .venue h2 {
@@ -310,9 +351,9 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
   .mast { grid-template-columns: 1fr; }
   .mast-right { text-align: left; }
   .view-head { flex-direction: column; align-items: flex-start; }
-  .strat-row, .stats, .notes, .market { grid-template-columns: 1fr 1fr; }
+  .strat-row, .stats, .notes, .market, .kzz-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 560px) {
   main, .ticker, .mast, .foot { padding-left: 16px; padding-right: 16px; }
-  .stats, .notes, .market { grid-template-columns: 1fr; }
+  .stats, .notes, .market, .kzz-grid { grid-template-columns: 1fr; }
 }

@@ -34,7 +34,7 @@
       <header class="view-head">
         <div>
           <h1>投资机会</h1>
-          <p class="lede">全球 / 加密 / A 股调研。盘前资讯与涨停复盘只放原站链接，在 A 股板块下方。</p>
+          <p class="lede">全球 / 加密 / A 股调研。A 股下附盘前/涨停入口，以及可转债申购与待发（同意注册）。</p>
         </div>
         <div class="filters" id="filters" role="group" aria-label="市场过滤">
           <button type="button" class="chip is-on" data-region="all">全部</button>
@@ -80,6 +80,55 @@
           </table>
         </div>
         <div class="market" id="market"></div>
+        <section class="kzz-block" id="kzz-block">
+          <div class="kzz-head">
+            <h2 class="block-title">可转债</h2>
+            <p class="hint" id="kzz-stamp"></p>
+          </div>
+          <div class="kzz-grid">
+            <section class="kzz-panel">
+              <div class="kzz-title">
+                <h3>可转债申购</h3>
+                <a id="kzz-em-link" href="https://data.eastmoney.com/xg/xg/?mkt=kzz" target="_blank" rel="noopener noreferrer">东方财富原站</a>
+              </div>
+              <div class="table-wrap">
+                <table class="grid compact">
+                  <thead>
+                    <tr>
+                      <th>债券</th>
+                      <th>申购代码</th>
+                      <th>申购日</th>
+                      <th>规模(亿)</th>
+                      <th>评级</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kzz-subscribe"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="kzz-panel">
+              <div class="kzz-title">
+                <h3>待发转债 · 同意注册</h3>
+                <a id="kzz-jsl-link" href="https://www.jisilu.cn/web/data/cb/pre" target="_blank" rel="noopener noreferrer">集思录原站</a>
+              </div>
+              <div class="table-wrap">
+                <table class="grid compact">
+                  <thead>
+                    <tr>
+                      <th>转债/正股</th>
+                      <th>方案进程</th>
+                      <th>注册公告日</th>
+                      <th>规模(亿)</th>
+                      <th>评级</th>
+                      <th>正股价</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kzz-approved"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
       </section>
       <h2 class="block-title">调研备忘</h2>
       <div class="notes" id="notes"></div>

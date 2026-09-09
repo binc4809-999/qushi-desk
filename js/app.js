@@ -15,6 +15,7 @@ const state = {
   opportunities: [],
   notes: [],
   market: { items: [], note: "" },
+  kzz: null,
   alerts: [],
   strategies: null,
   meta: null,
@@ -121,6 +122,60 @@ function renderMarket() {
     .join("");
 }
 
+function fmtNum(v, digits = 2) {
+  if (v == null || v === "") return "—";
+  const n = Number(v);
+  if (Number.isNaN(n)) return esc(v);
+  return n.toFixed(digits);
+}
+
+function renderKzz() {
+  const data = state.kzz;
+  const subBody = $("#kzz-subscribe");
+  const appBody = $("#kzz-approved");
+  if (!subBody || !appBody) return;
+  if (!data) {
+    subBody.innerHTML = "";
+    appBody.innerHTML = "";
+    return;
+  }
+  const stamp = $("#kzz-stamp");
+  if (stamp) stamp.textContent = data.updated_at ? `更新 ${fmtTime(data.updated_at)} · 仅展示公开字段` : "";
+  if (data.sources?.eastmoney) $("#kzz-em-link").href = data.sources.eastmoney;
+  if (data.sources?.jisilu) $("#kzz-jsl-link").href = data.sources.jisilu;
+
+  const subscribe = data.subscribe || [];
+  subBody.innerHTML = subscribe.length
+    ? subscribe
+        .map(
+          (r) => `<tr>
+            <td><span class="name">${esc(r.bond_name)}</span><span class="sub">${esc(r.bond_code)} · 正股 ${esc(r.stock_code)}</span></td>
+            <td>${esc(r.apply_code || "—")}</td>
+            <td>${esc(r.apply_date || "—")}</td>
+            <td>${fmtNum(r.issue_scale)}</td>
+            <td>${esc(r.rating || "—")}</td>
+          </tr>`
+        )
+        .join("")
+    : `<tr><td colspan="5">暂无申购数据</td></tr>`;
+
+  const approved = data.approved || [];
+  appBody.innerHTML = approved.length
+    ? approved
+        .map(
+          (r) => `<tr>
+            <td><span class="name">${esc(r.bond_name || r.stock_name)}</span><span class="sub">${esc(r.bond_code || r.stock_code)} · ${esc(r.stock_name)} ${esc(r.stock_code)}</span></td>
+            <td>${esc(r.progress)}</td>
+            <td>${esc(r.reg_date || "—")}</td>
+            <td>${fmtNum(r.issue_scale)}</td>
+            <td>${esc(r.rating || "—")}</td>
+            <td class="${pctClass(Number(r.stock_chg))}">${fmtNum(r.stock_price)} <span class="sub">${fmtNum(r.stock_chg, 2)}%</span></td>
+          </tr>`
+        )
+        .join("")
+    : `<tr><td colspan="6">暂无同意注册标的</td></tr>`;
+}
+
 function renderNotes() {
   const box = $("#notes");
   if (!box) return;
@@ -215,23 +270,26 @@ async function boot() {
   tickClock();
   setInterval(tickClock, 1000);
 
-  const [meta, opps, alerts, strats, market] = await Promise.all([
+  const [meta, opps, alerts, strats, market, kzz] = await Promise.all([
     loadJson("./data/meta.json"),
     loadJson("./data/opportunities.json"),
     loadJson("./data/alerts.json"),
     loadJson("./data/strategies.json"),
     loadJson("./data/market-links.json"),
+    loadJson("./data/kzz.json"),
   ]);
   state.meta = meta;
   state.opportunities = opps.items || [];
   state.notes = opps.notes || [];
   state.market = market;
+  state.kzz = kzz;
   state.alerts = alerts.items || [];
   state.strategies = strats;
   $("#disclaimer").textContent = meta.disclaimer;
   $("#cap").textContent = "CDN 静态分发 · 约 10 万并发阅读";
 
   renderOpps();
+  renderKzz();
   renderNotes();
   renderAlerts();
   renderTicker();
