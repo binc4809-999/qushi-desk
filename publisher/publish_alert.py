@@ -140,8 +140,20 @@ def _write_atomic(path: Path, data: dict) -> None:
 
 def prepend(event: dict, bundle: dict) -> dict:
     items = [event] + [x for x in bundle.get("items", []) if x.get("id") != event.get("id")]
+    items.sort(key=lambda x: str(x.get("ts") or ""), reverse=True)
     items = items[:MAX_ITEMS]
-    return {"updated_at": event.get("ts") or _now_iso(), "count": len(items), "items": items}
+    sample = all(not x.get("live") for x in items) if items else bool(bundle.get("sample"))
+    out = {
+        "schema_version": bundle.get("schema_version") or 1,
+        "updated_at": event.get("ts") or _now_iso(),
+        "count": len(items),
+        "items": items,
+    }
+    if sample:
+        out["sample"] = True
+    else:
+        out["sample"] = False
+    return out
 
 
 def publish_local(event: dict) -> dict:

@@ -14,6 +14,7 @@ const state = {
   statusFilter: "all",
   selectedId: null,
   channel: "all",
+  alertSource: "all",
   opportunities: [],
   opportunitiesMeta: null,
   opportunitiesError: null,
@@ -22,7 +23,10 @@ const state = {
   market: { items: [], note: "" },
   kzz: null,
   alerts: [],
+  alertsMeta: null,
+  alertsError: null,
   strategies: null,
+  strategiesError: null,
   meta: null,
 };
 
@@ -96,9 +100,10 @@ function pctClass(n) {
 }
 
 function renderTicker() {
-  const live = state.alerts.filter((a) => a.live).slice(0, 3);
-  const row = (live.length ? live : state.alerts.slice(0, 3))
-    .map((a) => `${esc(a.symbol)} · ${esc(a.title)}`)
+  const ordered = sortedAlerts();
+  const live = ordered.filter((a) => a.live).slice(0, 3);
+  const row = (live.length ? live : ordered.slice(0, 3))
+    .map((a) => `${esc(a.symbol)} · ${esc(pick(a, "action", "title"))}`)
     .join("    ·    ");
   $("#ticker").textContent = row || "暂无预警";
 }
@@ -284,16 +289,31 @@ function openDetail(id) {
 }
 
 const STATUS_LABEL = { success: "成功", failed: "失败", running: "运行中" };
+const KIND_LABEL = {
+  open: "开仓",
+  close: "平仓",
+  tp: "止盈",
+  sl: "止损",
+  monitor: "监控",
+  system: "系统",
+  info: "信息",
+  data: "数据",
+};
+const CHANNEL_LABEL = { trade: "开平仓", monitor: "选股监控", system: "系统" };
+const SEV_LABEL = { signal: "信号", risk: "风险", info: "信息", system: "系统" };
+const STRAT_STATUS_LABEL = {
+  live: "实盘",
+  paused: "暂停",
+  sample: "样例",
+  watch: "观察",
+  research: "研究",
+};
 
-function renderLastRun() {
-  const host = $("#pipeline");
-  if (!host) return;
+function lastRunHtml() {
   const run = state.lastRun;
   if (!run) {
-    host.dataset.status = "unknown";
     const detail = state.lastRunError || "未读到 data/last_run.json";
-    host.innerHTML = `<span class="pl-kicker">管道</span><span class="pl-line">${esc(detail)}</span>`;
-    return;
+    return { status: "unknown", html: `<span class="pl-kicker">管道</span><span class="pl-line">${esc(detail)}</span>` };
   }
   const status = String(run.status || "unknown").toLowerCase();
   const label = STATUS_LABEL[status] || status;
@@ -316,16 +336,26 @@ function renderLastRun() {
   const summary = run.summary || "";
   const err = run.error ? `<span class="pl-error">${esc(run.error)}</span>` : "";
   const sample = run.sample ? `<span class="pl-note">示例心跳</span>` : "";
-  host.dataset.status = status;
-  host.innerHTML = [
-    `<span class="pl-kicker">管道</span>`,
-    `<span class="pl-status">${esc(label)}</span>`,
-    timeBit ? `<span class="pl-time">${esc(timeBit)}</span>` : "",
-    scripts ? `<span class="pl-scripts">${esc(scripts)}</span>` : "",
-    summary ? `<span class="pl-summary">${esc(summary)}</span>` : "",
-    err,
-    sample,
-  ].join("");
+  return {
+    status,
+    html: [
+      `<span class="pl-kicker">管道</span>`,
+      `<span class="pl-status">${esc(label)}</span>`,
+      timeBit ? `<span class="pl-time">${esc(timeBit)}</span>` : "",
+      scripts ? `<span class="pl-scripts">${esc(scripts)}</span>` : "",
+      summary ? `<span class="pl-summary">${esc(summary)}</span>` : "",
+      err,
+      sample,
+    ].join(""),
+  };
+}
+
+function renderLastRun() {
+  const painted = lastRunHtml();
+  $$(".js-last-run").forEach((host) => {
+    host.dataset.status = painted.status;
+    host.innerHTML = painted.html;
+  });
 }
 
 function renderMarket() {
@@ -404,69 +434,226 @@ function renderKzz() {
 }
 
 
-function renderAlerts() {
-  const stamp = state.alerts[0] ? fmtTime(state.alerts[0].ts || state.meta?.updated_at) : "";
-  $("#alert-stamp").textContent = stamp ? `最近更新 ${stamp}` : "";
-  const rows = state.alerts.filter(
-    (a) => state.channel === "all" || (a.channel || "system") === state.channel
-  );
-  $("#alert-feed").innerHTML = rows
-    .map(
-      (a) => `<li class="card sev-${esc(a.severity || "info")}">
-        <div class="card-top">
-          <span class="tag">${a.live ? "LIVE" : "SAMPLE"} · ${esc(a.kind)} · ${esc(a.venue || a.symbol)}</span>
-          <time datetime="${esc(a.ts)}">${esc(fmtTime(a.ts))}</time>
-        </div>
-        <h2>${esc(a.title)}</h2>
-        <p>${esc(a.body)}</p>
-      </li>`
-    )
-    .join("");
+function alertTs(a) {
+  const t = Date.parse(a?.ts || "");
+  return Number.isNaN(t) ? 0 : t;
 }
 
-function renderSymbol(s) {
-  const rows = (s.by_signal || []).filter((x) => x.n != null);
-  const table = rows.length
-    ? `<table class="sig-table">
-        <thead><tr><th>信号</th><th>笔数</th><th>净利</th><th>胜率</th></tr></thead>
-        <tbody>${rows
-          .map(
-            (x) => `<tr><td>${esc(x.signal)}</td><td>${x.n}</td><td class="${pctClass(x.pnl)}">${num(x.pnl)}</td><td>${num(x.winrate, 1, "%")}</td></tr>`
-          )
-          .join("")}</tbody>
-      </table>`
-    : "";
-  const trades = s.trades != null ? `交易 ${s.trades} 笔` : "";
-  const wr = s.winrate != null ? `胜率 ${Number(s.winrate).toFixed(2)}%` : "";
-  const foot = [trades, wr].filter(Boolean).join(" · ");
-  return `<article class="panel">
+function sortedAlerts() {
+  return [...state.alerts].sort((a, b) => alertTs(b) - alertTs(a));
+}
+
+function fmtConfidence(v) {
+  if (v == null || v === "") return "";
+  const n = Number(v);
+  if (!Number.isNaN(n) && String(v).trim() !== "") {
+    if (n >= 0 && n <= 1) return `${Math.round(n * 100)}%`;
+    return String(v);
+  }
+  return String(v);
+}
+
+function visibleAlerts() {
+  return sortedAlerts().filter((a) => {
+    const channel = a.channel || "system";
+    if (state.channel !== "all" && channel !== state.channel) return false;
+    if (state.alertSource === "live" && !a.live) return false;
+    return true;
+  });
+}
+
+function emptyAlertMessage(total, visible) {
+  if (state.alertsError) return state.alertsError;
+  if (!total) return "暂无预警。脚本写入 data/alerts.json 后刷新即可。";
+  if (!visible && state.alertSource === "live") return "暂无 LIVE 预警。SAMPLE 仍保留在「全部」，实盘推送后会出现在这里。";
+  if (!visible) return "该筛选下暂无预警。可改选「全部」或其它频道。";
+  return "";
+}
+
+function renderAlertHeartbeat() {
+  const host = $("#alert-heartbeat");
+  if (!host) return;
+  if (state.alertsError && !state.alerts.length) {
+    host.dataset.status = "failed";
+    host.innerHTML = `<span class="pl-kicker">预警</span><span class="pl-error">${esc(state.alertsError)}</span>`;
+    return;
+  }
+  const items = state.alerts;
+  const liveN = items.filter((a) => a.live).length;
+  const sampleN = items.length - liveN;
+  const updated = pick(state.alertsMeta, "updated_at") || items[0]?.ts;
+  const sh = fmtShanghai(updated);
+  const sampleFlag = state.alertsMeta?.sample || (items.length > 0 && liveN === 0);
+  host.dataset.status = liveN ? "success" : items.length ? "unknown" : "unknown";
+  host.innerHTML = [
+    `<span class="pl-kicker">预警</span>`,
+    sh ? `<span class="pl-time">最近写入 ${esc(sh)}（上海）</span>` : `<span class="pl-line">尚无写入时间</span>`,
+    `<span class="pl-scripts">LIVE ${liveN} · SAMPLE ${sampleN}</span>`,
+    sampleFlag ? `<span class="pl-note">当前为 SAMPLE，等待脚本推送</span>` : "",
+  ].join("");
+}
+
+function alertCard(a) {
+  const live = Boolean(a.live);
+  const kind = a.kind || "";
+  const channel = a.channel || "system";
+  const action = pick(a, "action", "title") || KIND_LABEL[kind] || "预警";
+  const trigger = pick(a, "trigger", "body");
+  const venue = a.venue || "";
+  const symbol = a.symbol || "";
+  const pair = [venue, symbol].filter(Boolean).join(" · ");
+  const conf = fmtConfidence(a.confidence);
+  const sev = SEV_LABEL[a.severity] || a.severity || "";
+  const foot = [
+    sev ? `状态 ${sev}` : "",
+    conf ? `置信 ${conf}` : "",
+    a.source ? a.source : "",
+  ].filter(Boolean);
+  return `<li class="card sev-${esc(a.severity || "info")} ${live ? "is-live" : "is-sample"}">
+        <div class="card-top">
+          <div class="card-meta">
+            <span class="pill ${live ? "live" : "sample"}">${live ? "LIVE" : "SAMPLE"}</span>
+            <span class="tag">${esc(KIND_LABEL[kind] || kind)}</span>
+            <span class="tag muted">${esc(CHANNEL_LABEL[channel] || channel)}</span>
+            ${pair ? `<span class="tag venue">${esc(pair)}</span>` : ""}
+          </div>
+          <time datetime="${esc(a.ts || "")}">${esc(fmtShanghai(a.ts) || "—")}（上海）</time>
+        </div>
+        <h2>${esc(action)}</h2>
+        ${trigger ? `<p class="card-body">${esc(trigger)}</p>` : ""}
+        ${foot.length ? `<p class="card-foot">${esc(foot.join(" · "))}</p>` : ""}
+      </li>`;
+}
+
+function renderAlerts() {
+  renderAlertHeartbeat();
+  const stamp = $("#alert-stamp");
+  const host = $("#alert-feed");
+  if (!host) return;
+  const total = state.alerts.length;
+  const liveN = state.alerts.filter((a) => a.live).length;
+  if (stamp) {
+    const bits = [];
+    if (state.alertsMeta?.sample || (total && !liveN)) bits.push("含 SAMPLE，不是实时成交");
+    bits.push("按时间倒序");
+    stamp.textContent = bits.join(" · ");
+  }
+  if (state.alertsError && !total) {
+    host.innerHTML = `<li class="feed-msg is-error">${esc(state.alertsError)}</li>`;
+    return;
+  }
+  const rows = visibleAlerts();
+  const empty = emptyAlertMessage(total, rows.length);
+  host.innerHTML = rows.length ? rows.map(alertCard).join("") : `<li class="feed-msg">${esc(empty)}</li>`;
+}
+
+function normSym(s) {
+  return String(s || "").replace(/[-_/]/g, "").toUpperCase();
+}
+
+function alertMatchesStrat(a, s, venue) {
+  if (!a || a.channel === "system" || a.kind === "system") return false;
+  const aSym = String(a.symbol || "");
+  const inst = String(s.instId || s.symbol || "");
+  if (inst && (aSym === inst || normSym(aSym) === normSym(inst))) {
+    return venueMatches(a, s, venue);
+  }
+  const name = String(s.name || "");
+  if (/^[A-Z0-9]{2,6}$/i.test(name)) {
+    const up = aSym.toUpperCase();
+    const n = name.toUpperCase();
+    if (up === n || up.startsWith(`${n}-`) || up.startsWith(`${n}USDT`) || up.startsWith(`${n}_`)) {
+      return venueMatches(a, s, venue);
+    }
+  }
+  return false;
+}
+
+function venueMatches(a, s, venue) {
+  const av = String(a.venue || "").toLowerCase();
+  if (!av) return true;
+  const names = [s.exchange, venue.id, venue.title].filter(Boolean).map((x) => String(x).toLowerCase());
+  return names.some((n) => n === av || n.includes(av) || av.includes(String(venue.id || "").toLowerCase()));
+}
+
+function lastSignalFor(s, venue) {
+  const explicit = s.last_signal;
+  if (explicit && (explicit.ts || explicit.title || explicit.action)) return explicit;
+  return sortedAlerts().find((a) => alertMatchesStrat(a, s, venue)) || null;
+}
+
+function stratStatus(s) {
+  const status = String(s.status || (s.sample ? "sample" : "")).toLowerCase();
+  const label = pick(s, "status_label") || STRAT_STATUS_LABEL[status] || status || "—";
+  return { status: status || "watch", label };
+}
+
+function renderSymbol(s, venue) {
+  const { status, label } = stratStatus(s);
+  const venueName = s.exchange || venue.title || venue.id || "";
+  const inst = s.instId || s.symbol || "";
+  const rule = pick(s, "rule", "params");
+  const sig = lastSignalFor(s, venue);
+  let sigLine = "暂无推送";
+  if (sig) {
+    const title = pick(sig, "action", "title") || KIND_LABEL[sig.kind] || "信号";
+    const when = fmtShanghai(sig.ts);
+    const liveBit = sig.live ? "LIVE" : "SAMPLE";
+    sigLine = `${title}${when ? ` · ${when}（上海）` : ""} · ${liveBit}`;
+  }
+  const bits = [];
+  if (s.ret_pct != null) bits.push(`收益 ${num(s.ret_pct, 2, "%")}`);
+  if (s.maxdd_pct != null) bits.push(`回撤 ${num(s.maxdd_pct, 2, "%")}`);
+  if (s.trades != null) bits.push(`${s.trades} 笔`);
+  return `<article class="strat-card status-${esc(status)}">
+    <div class="strat-top">
+      <span class="pill ${esc(status === "live" ? "live" : status === "sample" ? "sample" : status)}">${esc(label)}</span>
+      <span class="tag venue">${esc([venueName, inst].filter(Boolean).join(" · "))}</span>
+    </div>
     <h2>${esc(s.name)}</h2>
-    <p class="sub">${esc(s.exchange || "")} · ${esc(s.instId)} · ${esc(s.params)}</p>
-    <dl class="stats">
-      <div class="stat"><dt>收益</dt><dd class="${pctClass(s.ret_pct)}">${num(s.ret_pct, 2, "%")}</dd></div>
-      <div class="stat"><dt>年化</dt><dd>${num(s.ann_pct, 2, "%")}</dd></div>
-      <div class="stat"><dt>最大回撤</dt><dd class="down">${num(s.maxdd_pct, 2, "%")}</dd></div>
-      <div class="stat"><dt>盈亏比 / PF</dt><dd>${num(s.payoff)} / ${num(s.pf)}</dd></div>
-    </dl>
-    ${table}
-    ${foot ? `<p class="sub">${esc(foot)}</p>` : ""}
+    ${rule ? `<p class="strat-rule">${esc(rule)}</p>` : ""}
+    <p class="strat-signal"><span class="kicker">最近信号</span> ${esc(sigLine)}</p>
+    ${bits.length ? `<p class="strat-metrics">${esc(bits.join(" · "))}</p>` : ""}
   </article>`;
 }
 
 function renderStrats() {
-  const data = state.strategies;
   const host = $("#strat-venues");
-  if (!data || !host) return;
-  const venues = data.venues || [{ id: "okx", title: "OKX", lede: data.notes?.[0] || "", symbols: data.symbols || [] }];
-  if (venues[0]?.lede) $("#strat-lede").textContent = "上方是 OKX 价突破；下方是仍在币安运行的趋势跟踪与 MACD 脚本。";
+  const stamp = $("#strat-stamp");
+  if (!host) return;
+  if (state.strategiesError) {
+    if (stamp) stamp.textContent = "";
+    host.innerHTML = `<p class="feed-msg is-error">${esc(state.strategiesError)}</p>`;
+    return;
+  }
+  const data = state.strategies;
+  if (!data) {
+    if (stamp) stamp.textContent = "";
+    host.innerHTML = `<p class="feed-msg">暂无策略。脚本写入 data/strategies.json 后刷新即可。</p>`;
+    return;
+  }
+  const venues = data.venues || [{ id: "okx", title: "OKX", symbols: data.symbols || [] }];
+  const count = venues.reduce((n, v) => n + (v.symbols || []).length, 0);
+  if (stamp) {
+    const bits = [];
+    if (data.sample) bits.push("示例数据，脚本可覆盖");
+    if (data.updated_at) bits.push(`数据 ${fmtShanghai(data.updated_at) || data.updated_at}`);
+    bits.push("名称 / 交易所 / 状态 / 最近信号 / 规则");
+    stamp.textContent = bits.join(" · ");
+  }
+  if (!count) {
+    host.innerHTML = `<p class="feed-msg">暂无策略卡片。</p>`;
+    return;
+  }
   host.innerHTML = venues
-    .map(
-      (v) => `<section class="venue">
-        <h2>${esc(v.title)}</h2>
-        <p class="lede">${esc(v.lede || "")}</p>
-        <div class="strat-row">${(v.symbols || []).map(renderSymbol).join("")}</div>
-      </section>`
-    )
+    .map((v) => {
+      const cards = (v.symbols || []).map((s) => renderSymbol(s, v)).join("");
+      if (!cards) return "";
+      return `<section class="venue">
+        <h2>${esc(v.title || v.id || "策略")}</h2>
+        <div class="strat-grid">${cards}</div>
+      </section>`;
+    })
     .join("");
 }
 
@@ -544,10 +731,18 @@ async function refreshAlerts() {
     const join = url.includes("?") ? "&" : "?";
     const data = await loadJson(`${url}${join}t=${bucket}`);
     state.alerts = data.items || [];
+    state.alertsMeta = data;
+    state.alertsError = null;
     renderAlerts();
     renderTicker();
+    renderStrats();
   } catch (err) {
-    console.warn(err);
+    console.warn("[alerts]", err);
+    if (!state.alerts.length) {
+      state.alertsError = `预警加载失败：${err.message}`;
+      renderAlerts();
+      renderTicker();
+    }
   }
 }
 
@@ -567,8 +762,8 @@ async function boot() {
   const [meta, opps, alerts, strats, market, kzz, quotes, lastRun] = await Promise.all([
     loadJson("./data/meta.json"),
     loadOptional("./data/opportunities.json"),
-    loadJson("./data/alerts.json"),
-    loadJson("./data/strategies.json"),
+    loadOptional("./data/alerts.json"),
+    loadOptional("./data/strategies.json"),
     loadJson("./data/market-links.json"),
     loadJson("./data/kzz.json"),
     loadJson("./data/quotes.json").catch(() => null),
@@ -589,8 +784,22 @@ async function boot() {
   state.market = market;
   state.kzz = kzz;
   state.quotes = quotes;
-  state.alerts = alerts.items || [];
-  state.strategies = strats;
+  if (alerts && Array.isArray(alerts.items)) {
+    state.alerts = alerts.items;
+    state.alertsMeta = alerts;
+    state.alertsError = null;
+  } else {
+    state.alerts = [];
+    state.alertsMeta = alerts;
+    state.alertsError = "预警加载失败：无法读取 data/alerts.json";
+  }
+  if (strats && (Array.isArray(strats.venues) || Array.isArray(strats.symbols))) {
+    state.strategies = strats;
+    state.strategiesError = null;
+  } else {
+    state.strategies = null;
+    state.strategiesError = "策略加载失败：无法读取 data/strategies.json";
+  }
   $("#disclaimer").textContent = meta.disclaimer;
   $("#cap").textContent = "CDN 静态分发 · 约 10 万并发阅读";
 
@@ -642,6 +851,13 @@ async function boot() {
     btn.addEventListener("click", () => {
       state.channel = btn.dataset.channel;
       $$("#alert-filters .chip").forEach((c) => c.classList.toggle("is-on", c === btn));
+      renderAlerts();
+    });
+  });
+  $$("#alert-source-filters .chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.alertSource = btn.dataset.source;
+      $$("#alert-source-filters .chip").forEach((c) => c.classList.toggle("is-on", c === btn));
       renderAlerts();
     });
   });

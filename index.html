@@ -58,7 +58,7 @@
           </div>
         </div>
       </header>
-      <aside class="pipeline" id="pipeline" aria-live="polite">
+      <aside class="pipeline js-last-run" id="pipeline" aria-live="polite">
         <span class="pl-kicker">管道</span>
         <span class="pl-line">正在读取脚本心跳…</span>
       </aside>
@@ -175,19 +175,53 @@
       <header class="view-head">
         <div>
           <h1>实盘策略 / 预警</h1>
-          <p class="lede">开平仓与选股监控预警；下方是 OKX / Binance 实盘策略说明。标了 SAMPLE 的不是实时成交。</p>
+          <p class="lede">脚本推送的开平仓与选股监控。时间按上海时区。SAMPLE 不是实时成交，实盘推送后会标 LIVE。</p>
         </div>
-        <p class="stamp" id="alert-stamp"></p>
+        <div class="filter-stack">
+          <div class="filter-row">
+            <span class="filter-label">频道</span>
+            <div class="filters" id="alert-filters" role="group" aria-label="预警频道">
+              <button type="button" class="chip is-on" data-channel="all">全部</button>
+              <button type="button" class="chip" data-channel="trade">开平仓</button>
+              <button type="button" class="chip" data-channel="monitor">选股监控</button>
+              <button type="button" class="chip" data-channel="system">系统</button>
+            </div>
+          </div>
+          <div class="filter-row">
+            <span class="filter-label">来源</span>
+            <div class="filters" id="alert-source-filters" role="group" aria-label="预警来源">
+              <button type="button" class="chip is-on" data-source="all">全部</button>
+              <button type="button" class="chip" data-source="live">仅 LIVE</button>
+            </div>
+          </div>
+        </div>
       </header>
-      <div class="filters" id="alert-filters" role="group" aria-label="预警过滤">
-        <button type="button" class="chip is-on" data-channel="all">全部</button>
-        <button type="button" class="chip" data-channel="trade">开平仓</button>
-        <button type="button" class="chip" data-channel="monitor">选股监控</button>
-      </div>
-      <ol class="feed" id="alert-feed"></ol>
-      <h2 class="block-title" style="margin-top:28px">实盘策略</h2>
-      <p class="lede" id="strat-lede">上方是预警推送；下方是 OKX 价突破与币安趋势 / MACD 脚本。</p>
-      <div id="strat-venues"></div>
+      <aside class="pipeline js-last-run" id="live-pipeline" aria-live="polite">
+        <span class="pl-kicker">管道</span>
+        <span class="pl-line">正在读取脚本心跳…</span>
+      </aside>
+      <aside class="pipeline" id="alert-heartbeat" data-status="unknown" aria-live="polite">
+        <span class="pl-kicker">预警</span>
+        <span class="pl-line">正在读取预警流…</span>
+      </aside>
+      <section class="alert-block">
+        <div class="quotes-head">
+          <h2 class="block-title">预警流</h2>
+          <p class="hint" id="alert-stamp"></p>
+        </div>
+        <ol class="feed" id="alert-feed">
+          <li class="feed-msg">正在加载预警…</li>
+        </ol>
+      </section>
+      <section class="strat-block">
+        <div class="quotes-head">
+          <h2 class="block-title">实盘策略</h2>
+          <p class="hint" id="strat-stamp"></p>
+        </div>
+        <div id="strat-venues">
+          <p class="feed-msg">正在加载策略…</p>
+        </div>
+      </section>
     </section>
 
     <section id="view-contact" class="view">

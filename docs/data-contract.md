@@ -8,15 +8,15 @@
 
 | 文件 | 谁写 | 页面怎么用 |
 |---|---|---|
-| `data/last_run.json` | 每次脚本跑完（成功/失败/运行中） | 投资机会页顶部心跳：状态、上海时间、本跑摘要 |
+| `data/last_run.json` | 每次脚本跑完（成功/失败/运行中） | 投资机会与实盘页顶部心跳：状态、上海时间、本跑摘要 |
 | `data/opportunities.json` | 调研脚本 | 「优先机会」表（按 `region` 分栏） |
 | `data/quotes.json` | 已有 `publisher/refresh_quotes.py` | 「全球行情」面板；**不要改结构去迁就机会表** |
-
-预警仍走 `publisher/publish_alert.py` → `data/alerts.json`。本切片不改实盘/预警。
+| `data/alerts.json` | `publisher/publish_alert.py` 或实盘脚本 | 「实盘策略/预警」预警流 |
+| `data/strategies.json` | 策略/回测脚本 | 同页策略卡片（名称、交易所、状态、规则） |
 
 时间一律 **UTC ISO-8601**（例 `2026-09-09T16:06:56+00:00`）。前端用 `Asia/Shanghai` 显示。
 
-仓库里的 JSON 带 `"sample": true` 时，页面会标明示例，方便你覆盖。脚本写入正式结果后请设 `"sample": false` 或删掉该字段。
+仓库里的 JSON 带 `"sample": true` 时，页面会标明示例，方便你覆盖。脚本写入正式结果后请设 `"sample": false` 或删掉该字段。预警条目另用 `"live": true|false` 区分实盘与样例。
 
 ## `data/last_run.json`
 
@@ -98,6 +98,75 @@ python publisher/write_last_run.py --status success --script my_research.py --su
 
 `region=global` 的条目出现在「全球」栏（A1–A3 示例）。不要只改 HTML。
 
+## `data/alerts.json`
+
+由 `publisher/publish_alert.py` 前置写入。前端按 `ts` **倒序**展示，时间显示为上海时区。SAMPLE 条目请保留，直到实盘脚本推送 `live: true`。
+
+```json
+{
+  "schema_version": 1,
+  "sample": false,
+  "updated_at": "2026-09-08T04:20:00+00:00",
+  "count": 1,
+  "items": [
+    {
+      "id": "okx-btc-open-1710000000",
+      "ts": "2026-09-08T04:20:00+00:00",
+      "severity": "signal",
+      "kind": "open",
+      "channel": "trade",
+      "venue": "OKX",
+      "symbol": "BTC-USDT-SWAP",
+      "title": "开仓 · 30B 做多",
+      "body": "信号 30B · 开仓价 28322.23 · 5x 逐仓",
+      "source": "okx_v6",
+      "confidence": 0.62,
+      "live": true
+    }
+  ]
+}
+```
+
+每条 `items[]`：
+
+| 字段 | 必填 | 别名（前端同样认） |
+|---|---|---|
+| `id` | 是 | 稳定主键；重复 id 会覆盖旧条 |
+| `ts` | 是 | UTC ISO；页面显示上海时间 |
+| `title` | 是 | `action` — 卡片主标题（开仓/平仓/点火） |
+| `body` | 建议 | `trigger` — 触发条件 / 正文 |
+| `channel` | 是 | `trade` / `monitor` / `system`（页内频道筛选） |
+| `kind` | 建议 | `open` / `close` / `tp` / `sl` / `monitor` / `system` … |
+| `severity` | 建议 | `signal` / `risk` / `info` / `system` — 左边色条与「状态」 |
+| `venue` | 建议 | OKX / Binance / A股 / SITE |
+| `symbol` | 建议 | 合约或代码；与策略 `instId` 对得上时会填「最近信号」 |
+| `live` | 是 | `true` 标 LIVE；`false` 标 SAMPLE |
+| `source` | 否 | 脚本名 |
+| `confidence` | 否 | `0–1` 显示为百分比，或短文本（高/中/低） |
+
+不要把密钥、token、邮件密码写进 `body`。发布器最多保留 200 条，并按 `ts` 倒序。实盘脚本也可继续走 GitHub Contents API / Worker，字段保持上表即可。
+
+可选：预警脚本跑完后另调 `record_run(...)` 更新 `last_run.json`，实盘页顶部的「管道」心跳就会一起变。预警流自己的新鲜度看本文件的 `updated_at`。
+
+## `data/strategies.json`
+
+顶层：`venues[]`，每组下 `symbols[]`。旧的回测数字（`ret_pct` / `by_signal` 等）仍可写，页面只扫读：**名称、交易所、状态、最近信号、一句话规则**。
+
+每条 `symbols[]`：
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `name` | 是 | 卡片标题，如 `BTC` |
+| `exchange` / 父级 `venues[].title` | 建议 | 交易所 |
+| `instId` | 建议 | 合约 id，用来匹配预警 `symbol` |
+| `status` | 建议 | `live` / `paused` / `sample` |
+| `status_label` | 建议 | 实盘运行 / 暂停 / 回测样例 |
+| `rule` | 建议 | 一句话规则；缺省则用 `params` |
+| `last_signal` | 否 | `{ts, title, kind, live}`；缺省则从前端预警流里取该品种最新一条 |
+| `ret_pct` / `maxdd_pct` / `trades` | 否 | 卡片底部一行数字，不是正文 |
+
+`lede` 可以留在 JSON 里给脚本注释用，页面不再当营销长文展示。
+
 ## 怎么发布到公网
 
 站点只在 **`main` 上的文件** 经 GitHub Pages 工作流上线（`pages.yml` 复制 `css/` `js/` `data/` `img/`）。任选一种：
@@ -113,4 +182,4 @@ SIGNAL_DESK_BRANCH=main
 
 然后 `record_run(..., push=True)` 或 `python publisher/refresh_quotes.py --push`。token 不要写进 JSON、不要提交进仓库。
 
-行情刷新继续只写 `data/quotes.json`；它现在也会更新 `last_run.json`。机会表请由你的调研脚本覆盖 `opportunities.json`，不要手改 `index.html`。
+行情刷新继续只写 `data/quotes.json`；它现在也会更新 `last_run.json`。机会表请由你的调研脚本覆盖 `opportunities.json`，预警请走 `publisher/publish_alert.py`，策略卡片覆盖 `strategies.json`，不要手改 `index.html`。
