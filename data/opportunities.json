@@ -1,6 +1,9 @@
 {
+  "schema_version": 1,
+  "sample": true,
   "updated_at": "2026-09-07",
-  "disclaimer": "数字均来自公开指数、基金净值或本仓库回测，不是可下单信号。",
+  "as_of": "2026-09-07",
+  "disclaimer": "数字均来自公开指数、基金净值或本仓库回测，不是可下单信号。示例数据，可由调研脚本覆盖 data/opportunities.json。",
   "items": [
     {
       "id": "ils-cat-bond",
@@ -16,7 +19,9 @@
       "evidence": "Swiss Re / 公开 ILS 指数；调研报告 2026-09-07",
       "cost": "尾部灾害风险，不是经典无风险套利",
       "status": "watch",
-      "status_label": "观察"
+      "status_label": "观察",
+      "as_of": "2026-09-07",
+      "source": "Swiss Re / 公开 ILS 指数；调研报告 2026-09-07"
     },
     {
       "id": "cv-arb-conservative",
@@ -32,7 +37,9 @@
       "evidence": "ARBIX 净值；2025 美国可转债发行约 1240 亿美元",
       "cost": "2008 类危机下对冲基金版曾崩",
       "status": "watch",
-      "status_label": "观察"
+      "status_label": "观察",
+      "as_of": "2026-09-07",
+      "source": "ARBIX 净值；2025 美国可转债发行约 1240 亿美元"
     },
     {
       "id": "spx-box-boxx",
@@ -48,7 +55,9 @@
       "evidence": "BOXX 类产品公开净值",
       "cost": "经济套利空间极薄，超额主要来自美国税项特征",
       "status": "research",
-      "status_label": "研究"
+      "status_label": "研究",
+      "as_of": "2026-09-07",
+      "source": "BOXX 类产品公开净值"
     },
     {
       "id": "etf-iopv",

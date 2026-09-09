@@ -13,6 +13,10 @@ const state = {
   region: "global",
   channel: "all",
   opportunities: [],
+  opportunitiesMeta: null,
+  opportunitiesError: null,
+  lastRun: null,
+  lastRunError: null,
   market: { items: [], note: "" },
   kzz: null,
   alerts: [],
@@ -32,6 +36,39 @@ function fmtTime(iso) {
   if (Number.isNaN(d.getTime())) return iso.replace("T", " ").slice(0, 19);
   const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function fmtShanghai(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return String(iso).replace("T", " ").slice(0, 19);
+  return d.toLocaleString("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+}
+
+function pick(obj, ...keys) {
+  for (const k of keys) {
+    const v = obj?.[k];
+    if (v != null && v !== "") return v;
+  }
+  return "";
+}
+
+async function loadOptional(path) {
+  try {
+    return await loadJson(path);
+  } catch (err) {
+    console.warn(path, err);
+    return null;
+  }
 }
 
 function tickClock() {
@@ -64,41 +101,117 @@ function renderTicker() {
 }
 
 function rowHtml(o) {
+  const region = pick(o, "region_label", "region");
+  const klass = pick(o, "klass_label", "klass");
+  const mechanism = pick(o, "mechanism", "thesis");
+  const expected = pick(o, "public_returns", "expected");
+  const cost = pick(o, "main_cost", "cost");
+  const status = o.status || "";
+  const statusLabel = pick(o, "status_label") || status;
+  const source = o.source ? `<span class="sub">${esc(o.source)}</span>` : "";
+  const asOf = o.as_of ? `<span class="sub">as of ${esc(o.as_of)}</span>` : "";
+  const links = Array.isArray(o.links)
+    ? o.links
+        .filter((l) => l && l.url)
+        .map(
+          (l) =>
+            `<a class="opp-link" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label || l.url)}</a>`
+        )
+        .join("")
+    : "";
   return `<tr>
         <td class="prio">${esc(o.priority)}</td>
-        <td><span class="name">${esc(o.name)}</span><span class="sub">${esc(o.region_label)} · ${esc(o.klass_label)}</span></td>
-        <td>${esc(o.thesis)}</td>
-        <td>${esc(o.expected)}</td>
+        <td><span class="name">${esc(o.name)}</span><span class="sub">${esc(region)}${klass ? ` · ${esc(klass)}` : ""}</span>${source}${asOf}${links}</td>
+        <td>${esc(mechanism)}</td>
+        <td>${esc(expected)}</td>
         <td>${esc(o.drawdown)}</td>
-        <td>${esc(o.cost)}</td>
-        <td><span class="pill ${esc(o.status)}">${esc(o.status_label)}</span></td>
+        <td>${esc(cost)}</td>
+        <td><span class="pill ${esc(status)}">${esc(statusLabel)}</span></td>
       </tr>`;
+}
+
+function msgRow(text, isError = false) {
+  return `<tr class="msg-row${isError ? " is-error" : ""}"><td colspan="7">${esc(text)}</td></tr>`;
 }
 
 function renderOpps() {
   const cn = state.opportunities.filter((o) => o.region === "cn");
-  const mainWrap = $("#main-table-wrap");
   const cnBlock = $("#cn-block");
+  const oppBlock = $("#opp-block");
+  const stamp = $("#opp-stamp");
   const showCn = state.region === "cn";
-  // 全球只显示行情面板，不显示机会表
-  const hideOppTable = state.region === "global";
 
-  if (state.region === "cn") {
-    $("#opp-body").innerHTML = "";
-    $("#cn-body").innerHTML = cn.map(rowHtml).join("");
-    mainWrap.classList.add("is-hidden");
-  } else if (hideOppTable) {
-    $("#opp-body").innerHTML = "";
-    mainWrap.classList.add("is-hidden");
-  } else {
-    const rows = state.opportunities.filter((o) => o.region === state.region);
-    $("#opp-body").innerHTML = rows.map(rowHtml).join("");
-    mainWrap.classList.toggle("is-hidden", rows.length === 0);
+  if (stamp) {
+    const bits = [];
+    if (state.opportunitiesMeta?.sample) bits.push("示例数据，脚本可覆盖");
+    if (state.opportunitiesMeta?.updated_at) bits.push(`数据 ${state.opportunitiesMeta.updated_at}`);
+    stamp.textContent = bits.join(" · ");
   }
 
+  if (oppBlock) oppBlock.classList.toggle("is-hidden", showCn);
   cnBlock.classList.toggle("is-hidden", !showCn);
+
+  if (state.opportunitiesError) {
+    const html = msgRow(state.opportunitiesError, true);
+    $("#opp-body").innerHTML = html;
+    $("#cn-body").innerHTML = html;
+  } else if (showCn) {
+    $("#opp-body").innerHTML = "";
+    $("#cn-body").innerHTML = cn.length ? cn.map(rowHtml).join("") : msgRow("该分类暂无机会。脚本写入 data/opportunities.json 后刷新即可。");
+  } else {
+    const rows = state.opportunities.filter((o) => o.region === state.region);
+    $("#opp-body").innerHTML = rows.length
+      ? rows.map(rowHtml).join("")
+      : msgRow("该分类暂无机会。脚本写入 data/opportunities.json 后刷新即可。");
+  }
+
   renderMarket();
   renderQuotes();
+}
+
+const STATUS_LABEL = { success: "成功", failed: "失败", running: "运行中" };
+
+function renderLastRun() {
+  const host = $("#pipeline");
+  if (!host) return;
+  const run = state.lastRun;
+  if (!run) {
+    host.dataset.status = "unknown";
+    const detail = state.lastRunError || "未读到 data/last_run.json";
+    host.innerHTML = `<span class="pl-kicker">管道</span><span class="pl-line">${esc(detail)}</span>`;
+    return;
+  }
+  const status = String(run.status || "unknown").toLowerCase();
+  const label = STATUS_LABEL[status] || status;
+  const successAt = fmtShanghai(run.last_success_at);
+  const finishedAt = fmtShanghai(run.finished_at || run.started_at);
+  const startedAt = fmtShanghai(run.started_at);
+  let timeBit = "";
+  if (status === "success" && (successAt || finishedAt)) {
+    timeBit = `最近成功 ${successAt || finishedAt}（上海）`;
+  } else if (status === "failed") {
+    timeBit = [finishedAt ? `失败于 ${finishedAt}（上海）` : "", successAt ? `上次成功 ${successAt}（上海）` : ""]
+      .filter(Boolean)
+      .join(" · ");
+  } else if (status === "running") {
+    timeBit = startedAt ? `开始于 ${startedAt}（上海）` : "运行中";
+  } else if (successAt) {
+    timeBit = `上次成功 ${successAt}（上海）`;
+  }
+  const scripts = [].concat(run.scripts || run.script || []).filter(Boolean).join(" · ");
+  const summary = run.summary || "";
+  const err = run.error ? `<span class="pl-error">${esc(run.error)}</span>` : "";
+  const sample = run.sample ? `<span class="pl-note">示例心跳</span>` : "";
+  host.dataset.status = status;
+  host.innerHTML = [
+    `<span class="pl-kicker">管道</span>`,
+    `<span class="pl-status">${esc(label)}</span>`,
+    timeBit ? `<span class="pl-time">${esc(timeBit)}</span>` : "",
+    scripts ? `<span class="pl-scripts">${esc(scripts)}</span>` : "",
+    summary ? `<span class="pl-summary">${esc(summary)}</span>` : "",
+    err,
+    sample,
+  ].join("");
 }
 
 function renderMarket() {
@@ -297,6 +410,19 @@ async function refreshQuotes() {
   }
 }
 
+async function refreshLastRun() {
+  try {
+    const bucket = Math.floor(Date.now() / 120000);
+    state.lastRun = await loadJson(`./data/last_run.json?t=${bucket}`);
+    state.lastRunError = null;
+    renderLastRun();
+  } catch (err) {
+    console.warn("[last_run]", err);
+    state.lastRunError = `心跳读取失败：${err.message}`;
+    renderLastRun();
+  }
+}
+
 async function refreshAlerts() {
   try {
     const url = state.meta?.alerts_url || "./data/alerts.json";
@@ -315,17 +441,28 @@ async function boot() {
   tickClock();
   setInterval(tickClock, 1000);
 
-  const [meta, opps, alerts, strats, market, kzz, quotes] = await Promise.all([
+  const [meta, opps, alerts, strats, market, kzz, quotes, lastRun] = await Promise.all([
     loadJson("./data/meta.json"),
-    loadJson("./data/opportunities.json"),
+    loadOptional("./data/opportunities.json"),
     loadJson("./data/alerts.json"),
     loadJson("./data/strategies.json"),
     loadJson("./data/market-links.json"),
     loadJson("./data/kzz.json"),
     loadJson("./data/quotes.json").catch(() => null),
+    loadOptional("./data/last_run.json"),
   ]);
   state.meta = meta;
-  state.opportunities = opps.items || [];
+  state.lastRun = lastRun;
+  if (!lastRun) state.lastRunError = "未读到 data/last_run.json";
+  if (opps && Array.isArray(opps.items)) {
+    state.opportunities = opps.items;
+    state.opportunitiesMeta = opps;
+    state.opportunitiesError = null;
+  } else {
+    state.opportunities = [];
+    state.opportunitiesMeta = opps;
+    state.opportunitiesError = "机会表加载失败：无法读取 data/opportunities.json";
+  }
   state.market = market;
   state.kzz = kzz;
   state.quotes = quotes;
@@ -334,6 +471,7 @@ async function boot() {
   $("#disclaimer").textContent = meta.disclaimer;
   $("#cap").textContent = "CDN 静态分发 · 约 10 万并发阅读";
 
+  renderLastRun();
   renderOpps();
   renderQuotes();
   renderKzz();
@@ -359,6 +497,7 @@ async function boot() {
 
   setInterval(refreshAlerts, meta.poll_ms || 30000);
   setInterval(refreshQuotes, 120000);
+  setInterval(refreshLastRun, 120000);
 }
 
 boot().catch((err) => {

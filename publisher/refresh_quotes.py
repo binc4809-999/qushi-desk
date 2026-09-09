@@ -220,7 +220,7 @@ def fetch_coingecko(symbols: list[str]) -> dict[str, dict]:
 
 # ── Main fetch ────────────────────────────────────────────────────────────
 
-def fetch_quotes(data: dict) -> dict:
+def fetch_quotes(data: dict) -> tuple[dict, int, int]:
     all_syms: list[str] = []
     for group in data.get("groups", []):
         for item in group.get("items", []):
@@ -255,7 +255,7 @@ def fetch_quotes(data: dict) -> dict:
     fetched = sum(1 for u in updates.values() if u.get("price") is not None)
     print(f"[quotes] 已获取 {fetched} / {len(all_syms)} 个标的")
     data["updated_at"] = _now()
-    return data
+    return data, fetched, len(all_syms)
 
 
 # ── Persist ───────────────────────────────────────────────────────────────
@@ -316,6 +316,24 @@ def push_github(data: dict) -> None:
         print(f"[quotes] GitHub 推送失败: {exc}")
 
 
+def _record(status: str, summary: str, error: str | None = None, push: bool = False) -> None:
+    try:
+        from write_last_run import record_run
+    except ImportError:
+        from publisher.write_last_run import record_run
+    try:
+        record_run(
+            status=status,
+            scripts=["publisher/refresh_quotes.py"],
+            summary=summary,
+            error=error,
+            files_written=["data/quotes.json", "data/last_run.json"] if status == "success" else ["data/last_run.json"],
+            push=push,
+        )
+    except Exception as exc:
+        print(f"[quotes] 写入 last_run 失败: {exc}")
+
+
 # ── Entry ─────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -330,12 +348,18 @@ def main() -> None:
     while True:
         try:
             raw = json.loads(QUOTES_FILE.read_text(encoding="utf-8"))
-            data = fetch_quotes(raw)
+            data, fetched, total = fetch_quotes(raw)
             save_local(data)
             if args.push:
                 push_github(data)
+            _record(
+                "success",
+                f"行情快照 {fetched}/{total} 个标的有报价",
+                push=args.push,
+            )
         except Exception as exc:
             print(f"[quotes] 刷新失败: {exc}")
+            _record("failed", "行情刷新失败", error=str(exc), push=args.push)
         if not args.loop:
             break
         time.sleep(max(30.0, args.interval))

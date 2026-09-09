@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "sample": true,
+  "status": "success",
+  "started_at": "2026-09-09T16:06:40+00:00",
+  "finished_at": "2026-09-09T16:06:56+00:00",
+  "last_success_at": "2026-09-09T16:06:56+00:00",
+  "scripts": ["publisher/refresh_quotes.py"],
+  "summary": "行情快照已写入 data/quotes.json。机会表仍为示例数据（A1–A3），可由调研脚本覆盖。",
+  "error": null,
+  "files_written": ["data/quotes.json"]
+}

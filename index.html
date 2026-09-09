@@ -34,7 +34,7 @@
       <header class="view-head">
         <div>
           <h1>投资机会</h1>
-          <p class="lede">全球 / 加密 / A 股调研。A 股下附盘前/涨停入口，以及可转债申购与待发（同意注册）。</p>
+          <p class="lede">全球 / 加密 / A 股调研。机会表与管道状态由研究脚本发布，不是手改页面。A 股下附盘前/涨停入口与可转债。</p>
         </div>
         <div class="filters" id="filters" role="group" aria-label="市场过滤">
           <button type="button" class="chip is-on" data-region="global">全球</button>
@@ -44,6 +44,10 @@
           <button type="button" class="chip" data-region="method">方法</button>
         </div>
       </header>
+      <aside class="pipeline" id="pipeline" aria-live="polite">
+        <span class="pl-kicker">管道</span>
+        <span class="pl-line">正在读取脚本心跳…</span>
+      </aside>
       <!-- 全球行情快照 -->
       <section id="quotes-block" class="quotes-block">
         <div class="quotes-head">
@@ -53,23 +57,31 @@
         <div id="quotes-groups"></div>
       </section>
 
-      <div class="table-wrap" id="main-table-wrap">
-        <table class="grid">
-          <thead>
-            <tr>
-              <th>优先级</th>
-              <th>机会</th>
-              <th>机制</th>
-              <th>公开收益</th>
-              <th>回撤</th>
-              <th>主要代价</th>
-              <th>状态</th>
-            </tr>
-          </thead>
-          <tbody id="opp-body"></tbody>
-        </table>
-      </div>
-      <section id="cn-block" class="cn-block">
+      <section id="opp-block" class="opp-block">
+        <div class="quotes-head">
+          <h2 class="block-title">优先机会</h2>
+          <p class="hint" id="opp-stamp"></p>
+        </div>
+        <div class="table-wrap" id="main-table-wrap">
+          <table class="grid">
+            <thead>
+              <tr>
+                <th>优先级</th>
+                <th>机会</th>
+                <th>机制</th>
+                <th>公开收益</th>
+                <th>回撤</th>
+                <th>主要代价</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="opp-body">
+              <tr class="msg-row"><td colspan="7">正在加载机会表…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section id="cn-block" class="cn-block is-hidden">
         <h2 class="block-title">A股</h2>
         <div class="table-wrap">
           <table class="grid">
@@ -84,7 +96,9 @@
                 <th>状态</th>
               </tr>
             </thead>
-            <tbody id="cn-body"></tbody>
+            <tbody id="cn-body">
+              <tr class="msg-row"><td colspan="7">正在加载 A 股机会…</td></tr>
+            </tbody>
           </table>
         </div>
         <div class="market" id="market"></div>
