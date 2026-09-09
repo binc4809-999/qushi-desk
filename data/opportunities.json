@@ -133,8 +133,8 @@
     {
       "id": "okx-btc-v6",
       "priority": "LIVE",
-      "region": "live",
-      "region_label": "本账户",
+      "region": "other",
+      "region_label": "其他",
       "klass": "T",
       "klass_label": "趋势跟踪",
       "name": "OKX BTC-USDT-SWAP V6",
@@ -149,8 +149,8 @@
     {
       "id": "okx-sol-v6",
       "priority": "LIVE",
-      "region": "live",
-      "region_label": "本账户",
+      "region": "other",
+      "region_label": "其他",
       "klass": "T",
       "klass_label": "趋势跟踪",
       "name": "OKX SOL-USDT-SWAP V6",
@@ -209,24 +209,6 @@
       "cost": "单腿强平、资金费翻负、对手方",
       "status": "research",
       "status_label": "方法"
-    }
-  ],
-  "notes": [
-    {
-      "title": "交易心态",
-      "body": "趋势跟踪靠赔率活着，不靠猜对次数。本账户 BTC 三年 122 笔只赢 16 笔，系统仍然为正。把止损当成门票，把空仓当成默认仓位。连亏五笔后暂停，是保护下一次大盈，不是认输。"
-    },
-    {
-      "title": "仓位与回撤",
-      "body": "5x 逐仓、单笔 5%–10% 保证金、合计上限 80%。回撤 14%–23% 在这套参数下是正常路径。回撤中加杠杆、加密套利叠 20x，是另一套完全不同的死亡方式。"
-    },
-    {
-      "title": "低风险套利怎么用",
-      "body": "全球优先看 ILS、保守可转债套利、箱式价差；A 股优先看 ETF 一二级；加密只保留低频资金费或季度基差。它们是趋势策略的稳定器，不是替代品，更不是「更高年化」按钮。"
-    },
-    {
-      "title": "开源世界的诚实结论",
-      "body": "高星标 ∩ 可核验净值向上 ∩ 回撤很小，在 GitHub 上是空集。能学的是机制和风控，不是一键躺赚机器人。执行、费率、强平路径决定正负期望。"
     }
   ]
 }

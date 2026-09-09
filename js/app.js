@@ -10,10 +10,9 @@ function esc(value) {
 }
 
 const state = {
-  region: "all",
+  region: "global",
   channel: "all",
   opportunities: [],
-  notes: [],
   market: { items: [], note: "" },
   kzz: null,
   alerts: [],
@@ -78,23 +77,18 @@ function rowHtml(o) {
 
 function renderOpps() {
   const cn = state.opportunities.filter((o) => o.region === "cn");
-  const rest = state.opportunities.filter((o) => o.region !== "cn");
   const mainWrap = $("#main-table-wrap");
   const cnBlock = $("#cn-block");
-  const showCn = state.region === "all" || state.region === "cn";
+  const showCn = state.region === "cn";
 
-  if (state.region === "all") {
-    $("#opp-body").innerHTML = rest.map(rowHtml).join("");
-    $("#cn-body").innerHTML = cn.map(rowHtml).join("");
-    mainWrap.classList.toggle("is-hidden", rest.length === 0);
-  } else if (state.region === "cn") {
+  if (state.region === "cn") {
     $("#opp-body").innerHTML = "";
     $("#cn-body").innerHTML = cn.map(rowHtml).join("");
     mainWrap.classList.add("is-hidden");
   } else {
     const rows = state.opportunities.filter((o) => o.region === state.region);
     $("#opp-body").innerHTML = rows.map(rowHtml).join("");
-    mainWrap.classList.remove("is-hidden");
+    mainWrap.classList.toggle("is-hidden", rows.length === 0);
   }
 
   cnBlock.classList.toggle("is-hidden", !showCn);
@@ -177,15 +171,6 @@ function renderKzz() {
     : `<tr><td colspan="6">暂无同意注册标的</td></tr>`;
 }
 
-function renderNotes() {
-  const box = $("#notes");
-  if (!box) return;
-  box.innerHTML = state.notes
-    .map(
-      (n) => `<article class="note"><h2>${esc(n.title)}</h2><p>${esc(n.body)}</p></article>`
-    )
-    .join("");
-}
 
 function renderAlerts() {
   const stamp = state.alerts[0] ? fmtTime(state.alerts[0].ts || state.meta?.updated_at) : "";
@@ -259,7 +244,7 @@ function renderQuotes() {
   const data = state.quotes;
   if (!host || !data) return;
 
-  const show = state.region === "all" || state.region === "global";
+  const show = state.region === "global";
   const block = $("#quotes-block");
   if (block) block.classList.toggle("is-hidden", !show);
   if (!show) return;
@@ -336,7 +321,6 @@ async function boot() {
   ]);
   state.meta = meta;
   state.opportunities = opps.items || [];
-  state.notes = opps.notes || [];
   state.market = market;
   state.kzz = kzz;
   state.quotes = quotes;
@@ -348,7 +332,6 @@ async function boot() {
   renderOpps();
   renderQuotes();
   renderKzz();
-  renderNotes();
   renderAlerts();
   renderTicker();
   renderStrats();
