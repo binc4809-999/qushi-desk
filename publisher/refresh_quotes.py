@@ -49,15 +49,18 @@ SINA_MAP: dict[str, dict] = {
     # 港股
     "HSI":       {"code": "hkHSI",      "fmt": "hk"},
     "HSCEI":     {"code": "hkHSCEI",    "fmt": "hk"},
-    # 海外指数 (gb_)
+    # 海外指数 / ETF (gb_)
     "^DJI":      {"code": "gb_dji",     "fmt": "gb"},
     "^IXIC":     {"code": "gb_ixic",    "fmt": "gb"},
     "^GSPC":     {"code": "gb_inx",     "fmt": "gb"},
+    "SOXX":      {"code": "gb_soxx",    "fmt": "gb"},
+    "QQQ":       {"code": "gb_qqq",     "fmt": "gb"},
+    "GLD":       {"code": "gb_gld",     "fmt": "gb"},
+    "TLT":       {"code": "gb_tlt",     "fmt": "gb"},
     # 贵金属 / 原油
     "GC=F":      {"code": "hf_XAU",     "fmt": "hf"},
     "SI=F":      {"code": "hf_XAG",     "fmt": "hf"},
     "CL=F":      {"code": "hf_OIL",     "fmt": "hf"},
-    # 白银期货转人民币(新浪报的是人民币每克)
 }
 
 # Binance 合约 symbol
