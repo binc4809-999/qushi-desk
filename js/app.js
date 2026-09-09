@@ -551,9 +551,18 @@ async function refreshAlerts() {
   }
 }
 
+function layoutChrome() {
+  const tick = $("#ticker");
+  const mast = $(".mast");
+  const bottom = tick?.getBoundingClientRect().bottom || mast?.getBoundingClientRect().bottom || 0;
+  document.documentElement.style.setProperty("--chrome-h", `${Math.round(bottom)}px`);
+}
+
 async function boot() {
   tickClock();
   setInterval(tickClock, 1000);
+  layoutChrome();
+  window.addEventListener("resize", layoutChrome);
 
   const [meta, opps, alerts, strats, market, kzz, quotes, lastRun] = await Promise.all([
     loadJson("./data/meta.json"),
@@ -592,6 +601,7 @@ async function boot() {
   renderAlerts();
   renderTicker();
   renderStrats();
+  layoutChrome();
 
   $$(".tab").forEach((btn) => btn.addEventListener("click", () => setView(btn.dataset.view)));
   $$("#filters .chip").forEach((btn) => {
