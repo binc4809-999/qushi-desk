@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """Fetch real-time quotes and update site/data/quotes.json.
 
-Data sources (no API key needed):
-  Crypto  : Binance public REST (/api/v3/ticker/24hr)
-  Indices : yfinance (if installed); else akshare for CN indices
-  Metals  : yfinance or Binance BTC/ETH proxy fallback
+Data sources (all free, no API key):
+  A股/港股/全球指数 : 新浪财经 hq.sinajs.cn
+  加密             : Binance public REST + CoinGecko fallback
+  贵金属/原油       : 新浪外汇 hf_* 接口
 
 Usage:
     python refresh_quotes.py          # fetch once
-    python refresh_quotes.py --loop   # keep running (default --interval 120 s)
+    python refresh_quotes.py --loop   # keep running (--interval 120 s)
     python refresh_quotes.py --push   # also push to GitHub Pages
 
 Env:
@@ -21,6 +21,7 @@ import argparse
 import base64
 import json
 import os
+import re
 import subprocess
 import time
 import urllib.error
@@ -32,16 +33,38 @@ ROOT = Path(__file__).resolve().parents[1]
 QUOTES_FILE = ROOT / "data" / "quotes.json"
 DEFAULT_REPO = "binc4809-999/qushi-desk"
 
-BINANCE_CRYPTO = {
-    "BTC-USD":  "BTCUSDT",
-    "ETH-USD":  "ETHUSDT",
-    "SOL-USD":  "SOLUSDT",
+# ── 新浪财经行情代码映射 ──────────────────────────────────────────────────
+# s_sh/s_sz 格式: "名称,现价,涨跌点,涨跌幅%,成交量,成交额"
+# gb_ 格式(海外): "名称,现价,涨跌幅%,时间,涨跌点,..."
+# hk 港股指数: "代码,名称,现价,昨收,今开,最低,最高,涨跌点,涨跌幅%,..."
+# hf_ 格式(贵金属/原油): "现价,昨收,最高,最低,..."
+
+SINA_MAP: dict[str, dict] = {
+    # A股
+    "000001.SS": {"code": "s_sh000001", "fmt": "s_sh"},
+    "399001.SZ": {"code": "s_sz399001", "fmt": "s_sz"},
+    "000300.SS": {"code": "s_sh000300", "fmt": "s_sh"},
+    "399006.SZ": {"code": "s_sz399006", "fmt": "s_sz"},
+    "000016.SS": {"code": "s_sh000016", "fmt": "s_sh"},
+    # 港股
+    "HSI":       {"code": "hkHSI",      "fmt": "hk"},
+    "HSCEI":     {"code": "hkHSCEI",    "fmt": "hk"},
+    # 海外指数 (gb_)
+    "^DJI":      {"code": "gb_dji",     "fmt": "gb"},
+    "^IXIC":     {"code": "gb_ixic",    "fmt": "gb"},
+    "^GSPC":     {"code": "gb_inx",     "fmt": "gb"},
+    # 贵金属 / 原油
+    "GC=F":      {"code": "hf_XAU",     "fmt": "hf"},
+    "SI=F":      {"code": "hf_XAG",     "fmt": "hf"},
+    "CL=F":      {"code": "hf_OIL",     "fmt": "hf"},
+    # 白银期货转人民币(新浪报的是人民币每克)
 }
 
-COINGECKO_IDS = {
-    "BTC-USD": "bitcoin",
-    "ETH-USD": "ethereum",
-    "SOL-USD": "solana",
+# Binance 合约 symbol
+BINANCE_MAP = {
+    "BTC-USD": "BTCUSDT",
+    "ETH-USD": "ETHUSDT",
+    "SOL-USD": "SOLUSDT",
 }
 
 
@@ -64,104 +87,138 @@ def _github_token() -> str:
     return ""
 
 
-def _get_json(url: str, timeout: int = 15) -> dict | list | None:
+def _get(url: str, timeout: int = 12, encoding: str = "utf-8") -> str | None:
     req = urllib.request.Request(
-        url,
-        headers={"User-Agent": "Mozilla/5.0 (promised-land-quotes/2.0)"},
+        url, headers={"Referer": "https://finance.sina.com.cn",
+                       "User-Agent": "Mozilla/5.0"}
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            return json.loads(r.read().decode("utf-8"))
+            return r.read().decode(encoding, errors="replace")
     except Exception as exc:
-        print(f"[quotes] GET {url[:60]} ERR: {exc}")
+        print(f"[quotes] GET {url[:60]}  ERR: {exc}")
         return None
 
 
-def _fetch_binance_crypto(symbols: list[str]) -> dict[str, dict]:
-    """Fetch 24hr ticker from Binance for crypto symbols."""
+# ── 新浪解析 ─────────────────────────────────────────────────────────────
+
+def _parse_sina(raw: str) -> dict[str, dict]:
+    """Parse hq.sinajs.cn multi-code response. Returns {label: {price, chg_pct}}."""
     result: dict[str, dict] = {}
-    for sym_label, binance_sym in BINANCE_CRYPTO.items():
-        if sym_label not in symbols:
+    for line in raw.splitlines():
+        m = re.match(r'var hq_str_(\S+?)="([^"]*)"', line)
+        if not m:
             continue
-        data = _get_json(f"https://api.binance.com/api/v3/ticker/24hr?symbol={binance_sym}")
-        if data and "lastPrice" in data:
-            price = float(data["lastPrice"])
-            chg = float(data.get("priceChangePercent", 0))
-            result[sym_label] = {"price": round(price, 4), "chg_pct": round(chg, 2)}
-        else:
-            result[sym_label] = {"price": None, "chg_pct": None}
+        code, data = m.group(1), m.group(2)
+        if not data.strip():
+            continue
+        parts = data.split(",")
+        try:
+            if code.startswith("s_sh") or code.startswith("s_sz"):
+                # 名称,现价,涨跌点,涨跌幅%,成交量,成交额
+                price = float(parts[1])
+                chg = float(parts[3])
+                result[code] = {"price": round(price, 4), "chg_pct": round(chg, 2)}
+            elif code.startswith("hk"):
+                # 代码,名称,现价,昨收,今开,最低,最高,涨跌点,涨跌幅%,...
+                price = float(parts[2])
+                chg = float(parts[8])
+                result[code] = {"price": round(price, 4), "chg_pct": round(chg, 2)}
+            elif code.startswith("gb_"):
+                # 名称,现价,涨跌幅%,时间,...
+                price = float(parts[1])
+                chg = float(parts[2])
+                result[code] = {"price": round(price, 4), "chg_pct": round(chg, 2)}
+            elif code.startswith("hf_"):
+                # 现价,昨收,最高?,最低?,...
+                price = float(parts[0])
+                prev = float(parts[1]) if parts[1] else price
+                chg = round((price - prev) / prev * 100, 2) if prev else 0.0
+                result[code] = {"price": round(price, 4), "chg_pct": chg}
+        except (IndexError, ValueError):
+            pass
     return result
 
 
-def _fetch_coingecko_crypto(symbols: list[str]) -> dict[str, dict]:
-    """Fallback: CoinGecko simple price."""
-    ids = [COINGECKO_IDS[s] for s in symbols if s in COINGECKO_IDS]
+def fetch_sina(symbols: list[str]) -> dict[str, dict]:
+    """Fetch from 新浪财经 for all symbols that have a SINA_MAP entry."""
+    sina_codes = []
+    code_to_label: dict[str, str] = {}
+    for sym in symbols:
+        entry = SINA_MAP.get(sym)
+        if entry:
+            sina_codes.append(entry["code"])
+            code_to_label[entry["code"]] = sym
+
+    if not sina_codes:
+        return {}
+
+    url = f"https://hq.sinajs.cn/list={','.join(sina_codes)}"
+    raw = _get(url, encoding="gbk")
+    if not raw:
+        return {}
+
+    parsed = _parse_sina(raw)
+    result: dict[str, dict] = {}
+    for code, vals in parsed.items():
+        sym_label = code_to_label.get(code)
+        if sym_label:
+            result[sym_label] = vals
+    return result
+
+
+# ── Binance 加密 ──────────────────────────────────────────────────────────
+
+def fetch_binance(symbols: list[str]) -> dict[str, dict]:
+    result: dict[str, dict] = {}
+    for label in symbols:
+        bsym = BINANCE_MAP.get(label)
+        if not bsym:
+            continue
+        raw = _get(f"https://api.binance.com/api/v3/ticker/24hr?symbol={bsym}")
+        if not raw:
+            result[label] = {"price": None, "chg_pct": None}
+            continue
+        try:
+            d = json.loads(raw)
+            price = float(d["lastPrice"])
+            chg = float(d["priceChangePercent"])
+            result[label] = {"price": round(price, 4), "chg_pct": round(chg, 2)}
+        except Exception as exc:
+            print(f"[quotes] binance {label}: {exc}")
+            result[label] = {"price": None, "chg_pct": None}
+    return result
+
+
+def fetch_coingecko(symbols: list[str]) -> dict[str, dict]:
+    """CoinGecko fallback for crypto."""
+    CG = {"BTC-USD": "bitcoin", "ETH-USD": "ethereum", "SOL-USD": "solana"}
+    ids = [CG[s] for s in symbols if s in CG]
     if not ids:
         return {}
     url = (
         "https://api.coingecko.com/api/v3/simple/price"
         f"?ids={','.join(ids)}&vs_currencies=usd&include_24hr_change=true"
     )
-    data = _get_json(url, timeout=20)
-    if not data:
+    raw = _get(url, timeout=20)
+    if not raw:
         return {}
-    reverse = {v: k for k, v in COINGECKO_IDS.items()}
-    result: dict[str, dict] = {}
-    for cg_id, vals in data.items():
-        label = reverse.get(cg_id)
-        if label:
-            result[label] = {
-                "price": round(vals.get("usd") or 0, 4),
-                "chg_pct": round(vals.get("usd_24h_change") or 0, 2),
-            }
-    return result
-
-
-def _fetch_yfinance(symbols: list[str]) -> dict[str, dict]:
-    """Fetch non-crypto via yfinance. Returns {} if yfinance not available."""
     try:
-        import yfinance as yf
-    except ImportError:
+        data = json.loads(raw)
+    except Exception:
         return {}
-    result: dict[str, dict] = {}
-    for sym in symbols:
-        try:
-            fi = yf.Ticker(sym).fast_info
-            price = getattr(fi, "last_price", None)
-            prev = getattr(fi, "previous_close", None)
-            chg = round((price - prev) / prev * 100, 2) if price and prev else None
-            result[sym] = {"price": round(price, 4) if price else None, "chg_pct": chg}
-            time.sleep(0.15)
-        except Exception as exc:
-            print(f"[quotes] yf {sym}: {exc}")
-            result[sym] = {"price": None, "chg_pct": None}
-    return result
-
-
-def _fetch_akshare_cn() -> dict[str, dict]:
-    """Fetch CN index quotes via akshare. Returns {} if not installed."""
-    try:
-        import akshare as ak
-        df = ak.stock_zh_index_spot_em()
-        name_col = "名称" if "名称" in df.columns else df.columns[1]
-        price_col = [c for c in df.columns if "最新" in c or "价格" in c or "current" in c.lower()][0]
-        chg_col = [c for c in df.columns if "涨跌幅" in c or "change" in c.lower()][0]
-        mapping = {
-            "上证指数": "000001.SS",
-            "深证成指": "399001.SZ",
+    rev = {v: k for k, v in CG.items()}
+    return {
+        rev[cg_id]: {
+            "price": round(vals.get("usd") or 0, 4),
+            "chg_pct": round(vals.get("usd_24h_change") or 0, 2),
         }
-        result: dict[str, dict] = {}
-        for idx_name, label in mapping.items():
-            row = df[df[name_col] == idx_name]
-            if not row.empty:
-                price = float(row[price_col].iloc[0])
-                chg = float(row[chg_col].iloc[0])
-                result[label] = {"price": round(price, 2), "chg_pct": round(chg, 2)}
-        return result
-    except Exception as exc:
-        print(f"[quotes] akshare CN: {exc}")
-        return {}
+        for cg_id, vals in data.items()
+        if cg_id in rev
+    }
 
+
+# ── Main fetch ────────────────────────────────────────────────────────────
 
 def fetch_quotes(data: dict) -> dict:
     all_syms: list[str] = []
@@ -169,34 +226,24 @@ def fetch_quotes(data: dict) -> dict:
         for item in group.get("items", []):
             all_syms.append(item["symbol"])
 
-    crypto_syms = [s for s in all_syms if s in BINANCE_CRYPTO]
-    other_syms = [s for s in all_syms if s not in BINANCE_CRYPTO]
+    crypto_syms = [s for s in all_syms if s in BINANCE_MAP]
+    sina_syms = [s for s in all_syms if s in SINA_MAP]
 
     updates: dict[str, dict] = {}
 
-    # --- Crypto: Binance first, CoinGecko fallback ---
-    if crypto_syms:
-        bn = _fetch_binance_crypto(crypto_syms)
-        updates.update(bn)
-        failed_crypto = [s for s in crypto_syms if not bn.get(s, {}).get("price")]
-        if failed_crypto:
-            cg = _fetch_coingecko_crypto(failed_crypto)
-            updates.update(cg)
+    # 1. 新浪 (A股 + 港股 + 海外指数 + 贵金属/原油)
+    sina_result = fetch_sina(sina_syms)
+    updates.update(sina_result)
 
-    # --- CN indices: akshare ---
-    cn_syms = ["000001.SS", "399001.SZ"]
-    cn_present = [s for s in cn_syms if s in other_syms]
-    if cn_present:
-        ak_data = _fetch_akshare_cn()
-        updates.update(ak_data)
+    # 2. 加密 Binance → CoinGecko fallback
+    bn = fetch_binance(crypto_syms)
+    updates.update(bn)
+    failed_crypto = [s for s in crypto_syms if not bn.get(s, {}).get("price")]
+    if failed_crypto:
+        cg = fetch_coingecko(failed_crypto)
+        updates.update(cg)
 
-    # --- Rest: yfinance ---
-    remaining = [s for s in other_syms if s not in updates and s not in cn_syms]
-    if remaining:
-        yf_data = _fetch_yfinance(remaining)
-        updates.update(yf_data)
-
-    # Apply updates
+    # Apply
     for group in data.get("groups", []):
         for item in group.get("items", []):
             upd = updates.get(item["symbol"])
@@ -205,10 +252,13 @@ def fetch_quotes(data: dict) -> dict:
             if upd and upd.get("chg_pct") is not None:
                 item["chg_pct"] = upd["chg_pct"]
 
+    fetched = sum(1 for u in updates.values() if u.get("price") is not None)
+    print(f"[quotes] 已获取 {fetched} / {len(all_syms)} 个标的")
     data["updated_at"] = _now()
-    print(f"[quotes] 已获取 {len(updates)} / {len(all_syms)} 个标的")
     return data
 
+
+# ── Persist ───────────────────────────────────────────────────────────────
 
 def save_local(data: dict) -> None:
     QUOTES_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -266,11 +316,13 @@ def push_github(data: dict) -> None:
         print(f"[quotes] GitHub 推送失败: {exc}")
 
 
+# ── Entry ─────────────────────────────────────────────────────────────────
+
 def main() -> None:
-    ap = argparse.ArgumentParser(description="全球行情刷新器")
+    ap = argparse.ArgumentParser(description="全球行情刷新器 (新浪 + Binance)")
     ap.add_argument("--loop", action="store_true")
     ap.add_argument("--interval", type=float, default=120)
-    ap.add_argument("--push", action="store_true")
+    ap.add_argument("--push", action="store_true", help="同步推送到 GitHub Pages")
     args = ap.parse_args()
 
     os.environ.setdefault("SIGNAL_DESK_REPO", DEFAULT_REPO)

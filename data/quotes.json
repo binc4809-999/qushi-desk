@@ -1,70 +1,14 @@
 {
-  "updated_at": "2026-09-09T16:03:01+00:00",
+  "updated_at": "2026-09-09T16:06:56+00:00",
   "groups": [
     {
-      "id": "equity",
-      "label": "全球股指",
+      "id": "equity_cn",
+      "label": "A股 & 港股",
       "items": [
-        {
-          "symbol": "^GSPC",
-          "name": "标普 500",
-          "price": null,
-          "chg_pct": null,
-          "currency": "USD"
-        },
-        {
-          "symbol": "^IXIC",
-          "name": "纳斯达克",
-          "price": null,
-          "chg_pct": null,
-          "currency": "USD"
-        },
-        {
-          "symbol": "^DJI",
-          "name": "道琼斯",
-          "price": null,
-          "chg_pct": null,
-          "currency": "USD"
-        },
-        {
-          "symbol": "^RUT",
-          "name": "罗素 2000",
-          "price": null,
-          "chg_pct": null,
-          "currency": "USD"
-        },
-        {
-          "symbol": "^FTSE",
-          "name": "富时 100",
-          "price": null,
-          "chg_pct": null,
-          "currency": "GBX"
-        },
-        {
-          "symbol": "^GDAXI",
-          "name": "德国 DAX",
-          "price": null,
-          "chg_pct": null,
-          "currency": "EUR"
-        },
-        {
-          "symbol": "^N225",
-          "name": "日经 225",
-          "price": null,
-          "chg_pct": null,
-          "currency": "JPY"
-        },
-        {
-          "symbol": "^HSI",
-          "name": "恒生指数",
-          "price": null,
-          "chg_pct": null,
-          "currency": "HKD"
-        },
         {
           "symbol": "000001.SS",
           "name": "上证指数",
-          "price": 3951.51,
+          "price": 3951.5068,
           "chg_pct": 0.28,
           "currency": "CNY"
         },
@@ -74,6 +18,68 @@
           "price": 13723.32,
           "chg_pct": 0.15,
           "currency": "CNY"
+        },
+        {
+          "symbol": "000300.SS",
+          "name": "沪深 300",
+          "price": 4572.5995,
+          "chg_pct": 0.3,
+          "currency": "CNY"
+        },
+        {
+          "symbol": "399006.SZ",
+          "name": "创业板指",
+          "price": 3354.97,
+          "chg_pct": -0.14,
+          "currency": "CNY"
+        },
+        {
+          "symbol": "000016.SS",
+          "name": "上证 50",
+          "price": 2910.4013,
+          "chg_pct": 0.05,
+          "currency": "CNY"
+        },
+        {
+          "symbol": "HSI",
+          "name": "恒生指数",
+          "price": 25328.13,
+          "chg_pct": -0.17,
+          "currency": "HKD"
+        },
+        {
+          "symbol": "HSCEI",
+          "name": "国企指数",
+          "price": 8395.09,
+          "chg_pct": -0.34,
+          "currency": "HKD"
+        }
+      ]
+    },
+    {
+      "id": "equity_global",
+      "label": "全球股指",
+      "items": [
+        {
+          "symbol": "^GSPC",
+          "name": "标普 500",
+          "price": 7637.0601,
+          "chg_pct": -0.48,
+          "currency": "USD"
+        },
+        {
+          "symbol": "^DJI",
+          "name": "道琼斯",
+          "price": 52378.0703,
+          "chg_pct": -0.77,
+          "currency": "USD"
+        },
+        {
+          "symbol": "^IXIC",
+          "name": "纳斯达克",
+          "price": 26251.1184,
+          "chg_pct": -0.64,
+          "currency": "USD"
         }
       ]
     },
@@ -84,30 +90,23 @@
         {
           "symbol": "GC=F",
           "name": "黄金",
-          "price": null,
-          "chg_pct": null,
+          "price": 4399.66,
+          "chg_pct": 1.02,
           "currency": "USD/oz"
         },
         {
           "symbol": "SI=F",
           "name": "白银",
-          "price": null,
-          "chg_pct": null,
+          "price": 67.39,
+          "chg_pct": 2.53,
           "currency": "USD/oz"
         },
         {
           "symbol": "CL=F",
           "name": "原油 WTI",
-          "price": null,
-          "chg_pct": null,
+          "price": 101.458,
+          "chg_pct": 0.0,
           "currency": "USD/bbl"
-        },
-        {
-          "symbol": "NG=F",
-          "name": "天然气",
-          "price": null,
-          "chg_pct": null,
-          "currency": "USD/MMBtu"
         }
       ]
     },
@@ -118,22 +117,22 @@
         {
           "symbol": "BTC-USD",
           "name": "BTC",
-          "price": 78633.31,
-          "chg_pct": -0.2,
+          "price": 78699.81,
+          "chg_pct": -0.15,
           "currency": "USD"
         },
         {
           "symbol": "ETH-USD",
           "name": "ETH",
-          "price": 2492.27,
-          "chg_pct": -0.19,
+          "price": 2494.57,
+          "chg_pct": -0.11,
           "currency": "USD"
         },
         {
           "symbol": "SOL-USD",
           "name": "SOL",
-          "price": 103.16,
-          "chg_pct": -0.94,
+          "price": 103.28,
+          "chg_pct": -0.82,
           "currency": "USD"
         }
       ]
@@ -144,7 +143,7 @@
       "items": [
         {
           "symbol": "SOXX",
-          "name": "费城半导体 ETF (SOXX)",
+          "name": "费城半导体 (SOXX)",
           "price": null,
           "chg_pct": null,
           "currency": "USD"
