@@ -11,6 +11,8 @@ function esc(value) {
 
 const state = {
   region: "global",
+  statusFilter: "all",
+  selectedId: null,
   channel: "all",
   opportunities: [],
   opportunitiesMeta: null,
@@ -80,6 +82,7 @@ function tickClock() {
 function setView(name) {
   $$(".view").forEach((v) => v.classList.toggle("is-on", v.id === `view-${name}`));
   $$(".tab").forEach((t) => t.classList.toggle("is-on", t.dataset.view === name));
+  if (name !== "opps") closeDetail({ restoreFocus: false });
 }
 
 function num(v, digits = 2, suffix = "") {
@@ -100,7 +103,12 @@ function renderTicker() {
   $("#ticker").textContent = row || "暂无预警";
 }
 
+function oppId(o) {
+  return String(o?.id || o?.name || "");
+}
+
 function rowHtml(o) {
+  const id = oppId(o);
   const region = pick(o, "region_label", "region");
   const klass = pick(o, "klass_label", "klass");
   const mechanism = pick(o, "mechanism", "thesis");
@@ -108,24 +116,14 @@ function rowHtml(o) {
   const cost = pick(o, "main_cost", "cost");
   const status = o.status || "";
   const statusLabel = pick(o, "status_label") || status;
-  const source = o.source ? `<span class="sub">${esc(o.source)}</span>` : "";
-  const asOf = o.as_of ? `<span class="sub">as of ${esc(o.as_of)}</span>` : "";
-  const links = Array.isArray(o.links)
-    ? o.links
-        .filter((l) => l && l.url)
-        .map(
-          (l) =>
-            `<a class="opp-link" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label || l.url)}</a>`
-        )
-        .join("")
-    : "";
-  return `<tr>
+  const open = id && state.selectedId === id ? " is-open" : "";
+  return `<tr class="opp-row${open}" data-id="${esc(id)}" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="${open ? "true" : "false"}">
         <td class="prio">${esc(o.priority)}</td>
-        <td><span class="name">${esc(o.name)}</span><span class="sub">${esc(region)}${klass ? ` · ${esc(klass)}` : ""}</span>${source}${asOf}${links}</td>
-        <td>${esc(mechanism)}</td>
+        <td><span class="name">${esc(o.name)}</span><span class="sub">${esc(region)}${klass ? ` · ${esc(klass)}` : ""}</span></td>
+        <td class="clip"><span class="clip-text">${esc(mechanism)}</span></td>
         <td>${esc(expected)}</td>
         <td>${esc(o.drawdown)}</td>
-        <td>${esc(cost)}</td>
+        <td class="clip"><span class="clip-text">${esc(cost)}</span></td>
         <td><span class="pill ${esc(status)}">${esc(statusLabel)}</span></td>
       </tr>`;
 }
@@ -134,17 +132,39 @@ function msgRow(text, isError = false) {
   return `<tr class="msg-row${isError ? " is-error" : ""}"><td colspan="7">${esc(text)}</td></tr>`;
 }
 
+function regionOpps() {
+  return state.opportunities.filter((o) => o.region === state.region);
+}
+
+function visibleOpps() {
+  const rows = regionOpps();
+  if (state.statusFilter === "all") return rows;
+  return rows.filter((o) => o.status === state.statusFilter);
+}
+
+function emptyOppMessage(regionCount, visibleCount) {
+  if (!regionCount) return "该分类暂无机会。脚本写入 data/opportunities.json 后刷新即可。";
+  if (!visibleCount) return "该状态下暂无机会。可改选「全部」或其它状态。";
+  return "";
+}
+
 function renderOpps() {
-  const cn = state.opportunities.filter((o) => o.region === "cn");
   const cnBlock = $("#cn-block");
   const oppBlock = $("#opp-block");
   const stamp = $("#opp-stamp");
   const showCn = state.region === "cn";
+  const rows = visibleOpps();
+  const regionCount = regionOpps().length;
+
+  if (state.selectedId && !rows.some((o) => oppId(o) === state.selectedId)) {
+    state.selectedId = null;
+  }
 
   if (stamp) {
     const bits = [];
     if (state.opportunitiesMeta?.sample) bits.push("示例数据，脚本可覆盖");
     if (state.opportunitiesMeta?.updated_at) bits.push(`数据 ${state.opportunitiesMeta.updated_at}`);
+    bits.push("点一行看详情");
     stamp.textContent = bits.join(" · ");
   }
 
@@ -155,18 +175,112 @@ function renderOpps() {
     const html = msgRow(state.opportunitiesError, true);
     $("#opp-body").innerHTML = html;
     $("#cn-body").innerHTML = html;
-  } else if (showCn) {
-    $("#opp-body").innerHTML = "";
-    $("#cn-body").innerHTML = cn.length ? cn.map(rowHtml).join("") : msgRow("该分类暂无机会。脚本写入 data/opportunities.json 后刷新即可。");
   } else {
-    const rows = state.opportunities.filter((o) => o.region === state.region);
-    $("#opp-body").innerHTML = rows.length
-      ? rows.map(rowHtml).join("")
-      : msgRow("该分类暂无机会。脚本写入 data/opportunities.json 后刷新即可。");
+    const empty = emptyOppMessage(regionCount, rows.length);
+    const html = rows.length ? rows.map(rowHtml).join("") : msgRow(empty);
+    if (showCn) {
+      $("#opp-body").innerHTML = "";
+      $("#cn-body").innerHTML = html;
+    } else {
+      $("#opp-body").innerHTML = html;
+    }
   }
 
+  renderDetail();
   renderMarket();
   renderQuotes();
+}
+
+function detailField(label, value, html = false) {
+  if (value == null || String(value).trim() === "") return "";
+  return `<div class="detail-field"><dt>${esc(label)}</dt><dd>${html ? value : esc(value)}</dd></div>`;
+}
+
+function renderDetail() {
+  const host = $("#opp-detail");
+  const scrim = $("#opp-scrim");
+  if (!host || !scrim) return;
+  const o = state.selectedId
+    ? state.opportunities.find((x) => oppId(x) === state.selectedId)
+    : null;
+  const open = Boolean(o);
+  host.classList.toggle("is-hidden", !open);
+  scrim.classList.toggle("is-hidden", !open);
+  host.hidden = !open;
+  scrim.hidden = !open;
+  document.body.classList.toggle("drawer-open", open);
+  if (!open) {
+    host.innerHTML = "";
+    return;
+  }
+
+  const region = pick(o, "region_label", "region");
+  const klass = pick(o, "klass_label", "klass");
+  const mechanism = pick(o, "mechanism", "thesis");
+  const expected = pick(o, "public_returns", "expected");
+  const cost = pick(o, "main_cost", "cost");
+  const status = o.status || "";
+  const statusLabel = pick(o, "status_label") || status;
+  const links = Array.isArray(o.links) ? o.links.filter((l) => l && l.url) : [];
+  const linkHtml = links.length
+    ? links
+        .map(
+          (l) =>
+            `<a class="opp-link" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label || l.url)}</a>`
+        )
+        .join("")
+    : "";
+
+  host.innerHTML = `
+    <div class="drawer-head">
+      <div>
+        <p class="drawer-kicker">${esc(o.priority || "")}${region ? ` · ${esc(region)}` : ""}${klass ? ` · ${esc(klass)}` : ""}</p>
+        <h2 id="opp-detail-title">${esc(o.name)}</h2>
+      </div>
+      <button type="button" class="drawer-close" id="opp-detail-close" aria-label="关闭详情">关闭</button>
+    </div>
+    <p class="drawer-status"><span class="pill ${esc(status)}">${esc(statusLabel)}</span></p>
+    <dl class="detail-dl">
+      ${detailField("机制", mechanism)}
+      ${detailField("公开收益", expected)}
+      ${detailField("回撤", o.drawdown)}
+      ${detailField("主要代价", cost)}
+      ${detailField("调研备注", o.evidence)}
+      ${detailField("来源", o.source)}
+      ${detailField("as of", o.as_of)}
+      ${linkHtml ? detailField("链接", `<span class="detail-links">${linkHtml}</span>`, true) : ""}
+    </dl>`;
+  $("#opp-detail-close")?.focus();
+}
+
+function closeDetail(opts = {}) {
+  const id = state.selectedId;
+  if (!id && $("#opp-detail")?.hidden) return;
+  state.selectedId = null;
+  renderDetail();
+  $$(".opp-row.is-open").forEach((tr) => {
+    tr.classList.remove("is-open");
+    tr.setAttribute("aria-expanded", "false");
+  });
+  if (opts.restoreFocus !== false && id) {
+    const row = document.querySelector(`#view-opps tr.opp-row[data-id="${CSS.escape(id)}"]`);
+    row?.focus();
+  }
+}
+
+function openDetail(id) {
+  if (!id) return;
+  if (state.selectedId === id) {
+    closeDetail();
+    return;
+  }
+  state.selectedId = id;
+  $$(".opp-row").forEach((tr) => {
+    const on = tr.dataset.id === id;
+    tr.classList.toggle("is-open", on);
+    tr.setAttribute("aria-expanded", on ? "true" : "false");
+  });
+  renderDetail();
 }
 
 const STATUS_LABEL = { success: "成功", failed: "失败", running: "运行中" };
@@ -486,6 +600,33 @@ async function boot() {
       $$("#filters .chip").forEach((c) => c.classList.toggle("is-on", c === btn));
       renderOpps();
     });
+  });
+  $$("#status-filters .chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.statusFilter = btn.dataset.status;
+      $$("#status-filters .chip").forEach((c) => c.classList.toggle("is-on", c === btn));
+      renderOpps();
+    });
+  });
+  $("#view-opps")?.addEventListener("click", (e) => {
+    if (e.target.closest("a")) return;
+    const tr = e.target.closest("tr.opp-row");
+    if (!tr) return;
+    openDetail(tr.dataset.id);
+  });
+  $("#view-opps")?.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const tr = e.target.closest("tr.opp-row");
+    if (!tr || e.target !== tr) return;
+    e.preventDefault();
+    openDetail(tr.dataset.id);
+  });
+  $("#opp-scrim")?.addEventListener("click", () => closeDetail({ restoreFocus: false }));
+  $("#opp-detail")?.addEventListener("click", (e) => {
+    if (e.target.closest("#opp-detail-close")) closeDetail();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && state.selectedId) closeDetail();
   });
   $$("#alert-filters .chip").forEach((btn) => {
     btn.addEventListener("click", () => {
