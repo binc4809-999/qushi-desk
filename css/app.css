@@ -338,6 +338,58 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
 }
 .sig-table th { color: var(--muted); font-weight: 500; }
 
+/* ── Global Quotes ── */
+.quotes-block {
+  margin-bottom: 24px;
+}
+.quotes-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+#quotes-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.q-group {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 12px 14px;
+}
+.q-group-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.q-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.q-table th {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 11px;
+  padding: 3px 6px 5px;
+  text-align: right;
+}
+.q-table th:first-child { text-align: left; }
+.q-table td {
+  padding: 4px 6px;
+  border-top: 1px solid var(--line);
+  text-align: right;
+}
+.q-name { text-align: left !important; color: var(--ink); }
+.q-price { font-variant-numeric: tabular-nums; }
+.q-chg.up { color: var(--up); }
+.q-chg.down { color: var(--down); }
+.q-ccy { color: var(--muted); font-size: 11px; }
+
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1.1fr 1.1fr;

@@ -15,17 +15,46 @@ import hmac
 import json
 import os
 import re
+import subprocess
 import tempfile
 import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Optional
 
 MAX_ITEMS = 200
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_FILE = ROOT / "data" / "alerts.json"
+DEFAULT_REPO = "binc4809-999/qushi-desk"
+
+
+class _HTMLStripper(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self._chunks: list[str] = []
+
+    def handle_data(self, data: str) -> None:
+        self._chunks.append(data)
+
+    def get_text(self) -> str:
+        return re.sub(r"\s+\n", "\n", " ".join(self._chunks))
+
+
+def html_to_text(raw: str) -> str:
+    if not raw:
+        return ""
+    if "<" not in raw:
+        return raw.strip()
+    parser = _HTMLStripper()
+    try:
+        parser.feed(raw)
+        text = parser.get_text()
+    except Exception:
+        text = re.sub(r"<[^>]+>", " ", raw)
+    return re.sub(r"[ \t]+", " ", text).strip()
 
 
 def _now_iso() -> str:
@@ -39,27 +68,48 @@ def _slug(text: str) -> str:
 
 def infer_event(subject: str, body: str, source: str = "") -> dict:
     sub = subject or ""
-    kind, severity = "info", "info"
+    blob = f"{sub}\n{body or ''}"
+    kind, severity, channel, venue = "info", "info", "system", "MAIL"
+
+    if any(k in blob for k in ("开仓", "平仓", "止盈", "止损", "MOVE_SL", "EMA55", "USDT-SWAP", "USDT")):
+        channel, venue = "trade", "OKX"
+    if any(k in blob for k in ("EXPMA", "点火", "收敛池", "选股", "量比", "涨速")):
+        channel, venue = "monitor", "A股"
+    if "Binance" in blob or "币安" in blob:
+        venue = "Binance" if channel == "trade" else venue
+
     if "开仓" in sub:
         kind, severity = "open", "signal"
+    elif any(k in sub for k in ("平仓", "MOVE_SL")):
+        kind, severity = "close", "info"
     elif "EMA55" in sub or "止盈" in sub:
         kind, severity = "tp", "signal"
     elif "止损" in sub:
         kind, severity = "sl", "risk"
+    elif any(k in sub for k in ("点火", "EXPMA", "收敛池", "监控")):
+        kind, severity = "monitor", "signal"
     elif "异常" in sub or "失败" in sub:
         kind, severity = "data", "risk"
+
     symbol = "UNKNOWN"
-    m = re.search(r"(BTC|SOL|ETH)[-_ ]?USDT(?:-SWAP)?", sub + " " + (body or ""), re.I)
+    m = re.search(r"(BTC|SOL|ETH)[-_ ]?USDT(?:-SWAP)?", blob, re.I)
     if m:
         symbol = f"{m.group(1).upper()}-USDT-SWAP"
+    else:
+        m2 = re.search(r"\b([0-9]{6})\b", blob)
+        if m2 and channel == "monitor":
+            symbol = m2.group(1)
+
     return {
         "id": f"{_slug(source or 'script')}-{_slug(sub)}-{int(time.time())}",
         "ts": _now_iso(),
         "severity": severity,
         "kind": kind,
+        "channel": channel,
+        "venue": venue,
         "symbol": symbol,
         "title": sub[:120] or "脚本预警",
-        "body": (body or "")[:2000],
+        "body": html_to_text(body or "")[:2000],
         "source": source or "script",
         "live": True,
     }
@@ -100,9 +150,28 @@ def publish_local(event: dict) -> dict:
     return bundle
 
 
-def publish_github(event: dict) -> None:
-    repo = os.environ.get("SIGNAL_DESK_REPO", "").strip()
+def _github_token() -> str:
     token = os.environ.get("SIGNAL_DESK_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
+    if token.strip():
+        return token.strip()
+    try:
+        proc = subprocess.run(
+            ["gh", "auth", "token"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            return proc.stdout.strip()
+    except Exception:
+        pass
+    return ""
+
+
+def publish_github(event: dict) -> None:
+    repo = (os.environ.get("SIGNAL_DESK_REPO") or DEFAULT_REPO).strip()
+    token = _github_token()
     if not repo or not token:
         return
     path = os.environ.get("SIGNAL_DESK_PATH", "data/alerts.json")
@@ -188,6 +257,7 @@ def publish_from_email(subject: str, body: str, source: str = "", extra: Optiona
 
 if __name__ == "__main__":
     import sys
+
     sub = sys.argv[1] if len(sys.argv) > 1 else "系统测试"
     body = sys.argv[2] if len(sys.argv) > 2 else "手动发布一条预警"
     publish_from_email(sub, body, source="cli")

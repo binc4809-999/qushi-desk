@@ -99,6 +99,7 @@ function renderOpps() {
 
   cnBlock.classList.toggle("is-hidden", !showCn);
   renderMarket();
+  renderQuotes();
 }
 
 function renderMarket() {
@@ -252,6 +253,60 @@ function renderStrats() {
     .join("");
 }
 
+function renderQuotes() {
+  const host = $("#quotes-groups");
+  const stamp = $("#quotes-stamp");
+  const data = state.quotes;
+  if (!host || !data) return;
+
+  const show = state.region === "all" || state.region === "global";
+  const block = $("#quotes-block");
+  if (block) block.classList.toggle("is-hidden", !show);
+  if (!show) return;
+
+  if (stamp && data.updated_at) {
+    stamp.textContent = `更新 ${fmtTime(data.updated_at)}`;
+  }
+
+  const groups = data.groups || [];
+  host.innerHTML = groups
+    .map((g) => {
+      const rows = (g.items || [])
+        .map((item) => {
+          const price = item.price != null ? Number(item.price).toLocaleString("en-US", { maximumFractionDigits: 4 }) : "—";
+          const chg = item.chg_pct != null ? item.chg_pct : null;
+          const chgStr = chg != null ? `${chg >= 0 ? "+" : ""}${Number(chg).toFixed(2)}%` : "—";
+          const cls = chg == null ? "" : chg >= 0 ? "up" : "down";
+          return `<tr>
+            <td class="q-name">${esc(item.name)}</td>
+            <td class="q-price">${price}</td>
+            <td class="q-chg ${cls}">${chgStr}</td>
+            <td class="q-ccy">${esc(item.currency || "")}</td>
+          </tr>`;
+        })
+        .join("");
+      return `<div class="q-group">
+        <h3 class="q-group-title">${esc(g.label)}</h3>
+        <table class="q-table">
+          <thead><tr><th>品种</th><th>最新价</th><th>涨跌幅</th><th>单位</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    })
+    .join("");
+}
+
+async function refreshQuotes() {
+  try {
+    const bucket = Math.floor(Date.now() / 120000);
+    const data = await loadJson(`./data/quotes.json?t=${bucket}`);
+    state.quotes = data;
+    renderQuotes();
+  } catch (err) {
+    console.warn("[quotes]", err);
+  }
+}
+
 async function refreshAlerts() {
   try {
     const url = state.meta?.alerts_url || "./data/alerts.json";
@@ -270,25 +325,28 @@ async function boot() {
   tickClock();
   setInterval(tickClock, 1000);
 
-  const [meta, opps, alerts, strats, market, kzz] = await Promise.all([
+  const [meta, opps, alerts, strats, market, kzz, quotes] = await Promise.all([
     loadJson("./data/meta.json"),
     loadJson("./data/opportunities.json"),
     loadJson("./data/alerts.json"),
     loadJson("./data/strategies.json"),
     loadJson("./data/market-links.json"),
     loadJson("./data/kzz.json"),
+    loadJson("./data/quotes.json").catch(() => null),
   ]);
   state.meta = meta;
   state.opportunities = opps.items || [];
   state.notes = opps.notes || [];
   state.market = market;
   state.kzz = kzz;
+  state.quotes = quotes;
   state.alerts = alerts.items || [];
   state.strategies = strats;
   $("#disclaimer").textContent = meta.disclaimer;
   $("#cap").textContent = "CDN 静态分发 · 约 10 万并发阅读";
 
   renderOpps();
+  renderQuotes();
   renderKzz();
   renderNotes();
   renderAlerts();
@@ -312,6 +370,7 @@ async function boot() {
   });
 
   setInterval(refreshAlerts, meta.poll_ms || 30000);
+  setInterval(refreshQuotes, 120000);
 }
 
 boot().catch((err) => {
