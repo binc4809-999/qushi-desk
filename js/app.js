@@ -29,6 +29,8 @@ const state = {
   alertsError: null,
   strategies: null,
   strategiesError: null,
+  diagrams: null,
+  diagramsError: null,
   runners: [],
   runnersMeta: null,
   runnersError: null,
@@ -59,8 +61,8 @@ const HASH_ROUTE = {
   top3: { view: "desk", tab: "desk", scroll: "top3" },
   crypto: { view: "desk", tab: "desk", scroll: "crypto" },
   opps: { view: "live", tab: "live", top: true },
-  live: { view: "live", tab: "live", top: true },
-  backtest: { view: "live", tab: "live", scroll: "backtest-block" },
+  live: { view: "live", tab: "live", scroll: "diagram-block" },
+  backtest: { view: "live", tab: "live", scroll: "diagram-block" },
   runners: { view: "live", tab: "live", scroll: "runner-block" },
   contact: { view: "contact", tab: "contact", top: true },
 };
@@ -957,6 +959,127 @@ function stratStatus(s) {
   return { status: status || "watch", label };
 }
 
+function stratNetPnl(s) {
+  if (s.net_pnl != null && !Number.isNaN(Number(s.net_pnl))) return Number(s.net_pnl);
+  const rows = s.by_signal || [];
+  if (!rows.length) return null;
+  let sum = 0;
+  let any = false;
+  for (const r of rows) {
+    if (r.pnl == null || Number.isNaN(Number(r.pnl))) continue;
+    sum += Number(r.pnl);
+    any = true;
+  }
+  return any ? sum : null;
+}
+
+function isHighProfitStrat(s, data) {
+  if (s.featured === true) return true;
+  if (s.featured === false) return false;
+  const minRet = data?.min_ret_pct ?? 30;
+  const minPnl = data?.min_net_pnl ?? 2000;
+  const ret = s.ret_pct != null ? Number(s.ret_pct) : null;
+  const pnl = stratNetPnl(s);
+  if (pnl != null && pnl >= minPnl) return true;
+  if (ret != null && ret >= minRet) return true;
+  return false;
+}
+
+function equitySvg(points, w = 520, h = 160) {
+  if (!points?.length) return "";
+  const vals = points.map((p) => Number(p[1]));
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const span = max - min || 1;
+  const pad = 12;
+  const coords = points.map((p, i) => {
+    const x = pad + (i / Math.max(points.length - 1, 1)) * (w - pad * 2);
+    const y = h - pad - ((Number(p[1]) - min) / span) * (h - pad * 2);
+    return [x, y];
+  });
+  const line = coords.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+  const area = `${line} L${coords[coords.length - 1][0].toFixed(1)},${h - pad} L${coords[0][0].toFixed(1)},${h - pad} Z`;
+  const last = vals[vals.length - 1];
+  const first = vals[0];
+  const up = last >= first;
+  const stroke = up ? "#3d9a78" : "#c45c4a";
+  const fill = up ? "rgba(61,154,120,0.18)" : "rgba(196,92,74,0.18)";
+  return `<svg class="eq-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="权益曲线">
+    <path d="${area}" fill="${fill}"></path>
+    <path d="${line}" fill="none" stroke="${stroke}" stroke-width="2.2"></path>
+  </svg>`;
+}
+
+function barsSvg(bars) {
+  if (!bars) return "";
+  const rows = [
+    bars.ret != null ? ["收益%", bars.ret, bars.ret >= 0] : null,
+    bars.dd != null ? ["回撤%", Math.abs(bars.dd), false] : null,
+    bars.winrate != null ? ["胜率%", bars.winrate, true] : null,
+    bars.sharpe != null ? ["Sharpe", bars.sharpe * 100, bars.sharpe >= 0] : null,
+  ].filter(Boolean);
+  if (!rows.length) return "";
+  const max = Math.max(...rows.map((r) => Math.abs(r[1])), 1);
+  return `<div class="bar-chart">${rows
+    .map(([label, val, good]) => {
+      const pct = Math.min(100, (Math.abs(val) / max) * 100);
+      const cls = good ? "up" : "down";
+      return `<div class="bar-row"><span>${esc(label)}</span><div class="bar-track"><i class="${cls}" style="width:${pct}%"></i></div><b class="${cls}">${num(val, 2)}</b></div>`;
+    })
+    .join("")}</div>`;
+}
+
+function diagramCard(d) {
+  const bits = [];
+  if (d.net_pnl != null) bits.push(`净利 ${num(d.net_pnl, 0)}`);
+  if (d.ret_pct != null) bits.push(`收益 ${num(d.ret_pct, 2, "%")}`);
+  if (d.maxdd_pct != null) bits.push(`回撤 ${num(d.maxdd_pct, 2, "%")}`);
+  if (d.trades != null) bits.push(`${d.trades} 笔`);
+  const chart = d.equity_curve?.length ? equitySvg(d.equity_curve) : barsSvg(d.bars);
+  return `<article class="diagram-card">
+    <div class="diagram-top">
+      <span class="pill sample">${esc(d.venue || "回测")}</span>
+      <span class="sub">${esc(d.symbol || "")}</span>
+    </div>
+    <h3>${esc(d.title)}</h3>
+    <p class="sub">${esc(d.subtitle || d.range || "")}</p>
+    ${chart}
+    ${bits.length ? `<p class="strat-metrics">${esc(bits.join(" · "))}</p>` : ""}
+  </article>`;
+}
+
+function renderDiagrams() {
+  const host = $("#diagram-grid");
+  const stamp = $("#diagram-stamp");
+  if (!host) return;
+  if (state.diagramsError) {
+    if (stamp) stamp.textContent = "";
+    host.innerHTML = `<p class="feed-msg is-error">${esc(state.diagramsError)}</p>`;
+    return;
+  }
+  const data = state.diagrams;
+  if (!data) {
+    if (stamp) stamp.textContent = "";
+    host.innerHTML = `<p class="feed-msg">暂无回测图示。可写入 data/backtest-diagrams.json。</p>`;
+    return;
+  }
+  const items = (data.items || []).filter((d) => {
+    if (d.net_pnl != null && d.net_pnl >= (data.min_net_pnl ?? 2000)) return true;
+    if (d.ret_pct != null && d.ret_pct >= (data.min_ret_pct ?? 30)) return true;
+    return false;
+  });
+  if (stamp) {
+    const bits = [];
+    if (data.note) bits.push("高净利样本");
+    if (data.updated_at) bits.push(`数据 ${fmtShanghai(data.updated_at) || String(data.updated_at).slice(0, 19)}`);
+    bits.push(`${items.length} 张图示`);
+    stamp.textContent = bits.join(" · ");
+  }
+  host.innerHTML = items.length
+    ? items.map(diagramCard).join("")
+    : `<p class="feed-msg">暂无达到净利门槛的图示。</p>`;
+}
+
 function renderSymbol(s, venue) {
   const { status, label } = stratStatus(s);
   const venueName = s.exchange || venue.title || venue.id || "";
@@ -971,9 +1094,13 @@ function renderSymbol(s, venue) {
     sigLine = `${title}${when ? ` · ${when}（上海）` : ""} · ${liveBit}`;
   }
   const bits = [];
+  const pnl = stratNetPnl(s);
+  if (pnl != null) bits.push(`净利 ${num(pnl, 0)}`);
   if (s.ret_pct != null) bits.push(`收益 ${num(s.ret_pct, 2, "%")}`);
+  if (s.ann_pct != null) bits.push(`年化 ${num(s.ann_pct, 2, "%")}`);
   if (s.maxdd_pct != null) bits.push(`回撤 ${num(s.maxdd_pct, 2, "%")}`);
   if (s.trades != null) bits.push(`${s.trades} 笔`);
+  if (s.winrate != null) bits.push(`胜率 ${num(s.winrate, 1, "%")}`);
   return `<article class="strat-card status-${esc(status)}">
     <div class="strat-top">
       <span class="pill ${esc(status === "live" ? "live" : status === "sample" ? "sample" : status)}">${esc(label)}</span>
@@ -1001,17 +1128,23 @@ function renderStrats() {
     host.innerHTML = `<p class="feed-msg">暂无策略。脚本写入 data/strategies.json 后刷新即可。</p>`;
     return;
   }
-  const venues = data.venues || [{ id: "okx", title: "OKX", symbols: data.symbols || [] }];
+  const venues = (data.venues || [{ id: "okx", title: "OKX", symbols: data.symbols || [] }])
+    .map((v) => ({
+      ...v,
+      symbols: (v.symbols || []).filter((s) => isHighProfitStrat(s, data)),
+    }))
+    .filter((v) => (v.symbols || []).length);
   const count = venues.reduce((n, v) => n + (v.symbols || []).length, 0);
   if (stamp) {
     const bits = [];
-    if (data.sample) bits.push("示例回测，脚本可覆盖");
+    if (data.filter_note) bits.push("已过滤低净利");
+    else if (data.sample) bits.push("示例回测，脚本可覆盖");
     if (data.updated_at) bits.push(`数据 ${fmtShanghai(data.updated_at) || data.updated_at}`);
-    bits.push(`${count} 份报告 · 收益 / 年化 / 回撤 / 胜率`);
+    bits.push(`${count} 份高净利报告`);
     stamp.textContent = bits.join(" · ");
   }
   if (!count) {
-    host.innerHTML = `<p class="feed-msg">暂无策略卡片。</p>`;
+    host.innerHTML = `<p class="feed-msg">暂无达到净利门槛的回测报告。</p>`;
     return;
   }
   host.innerHTML = venues
@@ -1020,6 +1153,7 @@ function renderStrats() {
       if (!cards) return "";
       return `<section class="venue">
         <h2>${esc(v.title || v.id || "策略")}</h2>
+        ${v.lede ? `<p class="lede">${esc(v.lede)}</p>` : ""}
         <div class="strat-grid">${cards}</div>
       </section>`;
     })
@@ -1470,11 +1604,12 @@ async function boot() {
   layoutChrome();
   window.addEventListener("resize", layoutChrome);
 
-  const [meta, opps, alerts, strats, market, kzz, quotes, lastRun, runners, tips, pools, charts, contact] = await Promise.all([
+  const [meta, opps, alerts, strats, diagrams, market, kzz, quotes, lastRun, runners, tips, pools, charts, contact] = await Promise.all([
     loadJson("./data/meta.json"),
     loadOptional("./data/opportunities.json"),
     loadOptional("./data/alerts.json"),
     loadOptional("./data/strategies.json"),
+    loadOptional("./data/backtest-diagrams.json"),
     loadJson("./data/market-links.json"),
     loadJson("./data/kzz.json"),
     loadJson("./data/quotes.json").catch(() => null),
@@ -1516,6 +1651,13 @@ async function boot() {
     state.strategies = null;
     state.strategiesError = "策略加载失败：无法读取 data/strategies.json";
   }
+  if (diagrams && Array.isArray(diagrams.items)) {
+    state.diagrams = diagrams;
+    state.diagramsError = null;
+  } else {
+    state.diagrams = null;
+    state.diagramsError = diagrams ? null : "图示加载失败：无法读取 data/backtest-diagrams.json";
+  }
   if (runners && (Array.isArray(runners.runners) || Array.isArray(runners.items))) {
     state.runners = runners.runners || runners.items || [];
     state.runnersMeta = runners;
@@ -1539,6 +1681,7 @@ async function boot() {
   renderKzz();
   renderAlerts();
   renderTicker();
+  renderDiagrams();
   renderStrats();
   renderRunners();
   renderContact();

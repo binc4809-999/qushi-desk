@@ -25,11 +25,33 @@
           "pf": 1.5,
           "params": "止损 3.4% / 止盈 3.5% / 锁盈 1.6% / 4H EMA55 开 / 信号全开",
           "by_signal": [
-            { "signal": "30B", "n": 69, "pnl": 2215.02, "winrate": 13.04 },
-            { "signal": "5B", "n": 17, "pnl": 545.43, "winrate": 11.76 },
-            { "signal": "5K", "n": 19, "pnl": -236.57, "winrate": 10.53 },
-            { "signal": "30K", "n": 17, "pnl": 1431.71, "winrate": 17.65 }
-          ]
+            {
+              "signal": "30B",
+              "n": 69,
+              "pnl": 2215.02,
+              "winrate": 13.04
+            },
+            {
+              "signal": "5B",
+              "n": 17,
+              "pnl": 545.43,
+              "winrate": 11.76
+            },
+            {
+              "signal": "5K",
+              "n": 19,
+              "pnl": -236.57,
+              "winrate": 10.53
+            },
+            {
+              "signal": "30K",
+              "n": 17,
+              "pnl": 1431.71,
+              "winrate": 17.65
+            }
+          ],
+          "net_pnl": 3955.6,
+          "featured": true
         },
         {
           "name": "SOL",
@@ -48,10 +70,27 @@
           "pf": 1.14,
           "params": "止损 2.5% / 止盈 12% / 锁盈 2.5% / 4H EMA55 关 / 5K 关",
           "by_signal": [
-            { "signal": "30B", "n": 79, "pnl": -502.0, "winrate": 10.13 },
-            { "signal": "5B", "n": 13, "pnl": 411.27, "winrate": 15.38 },
-            { "signal": "30K", "n": 11, "pnl": 1037.87, "winrate": 18.18 }
-          ]
+            {
+              "signal": "30B",
+              "n": 79,
+              "pnl": -502.0,
+              "winrate": 10.13
+            },
+            {
+              "signal": "5B",
+              "n": 13,
+              "pnl": 411.27,
+              "winrate": 15.38
+            },
+            {
+              "signal": "30K",
+              "n": 11,
+              "pnl": 1037.87,
+              "winrate": 18.18
+            }
+          ],
+          "net_pnl": 947.14,
+          "featured": false
         }
       ]
     },
@@ -73,11 +112,32 @@
           "winrate": 66.5,
           "params": "V6 价突破 · 止损 4.5% / 止盈 8.5% / 锁盈 4% / 5x · 30B 5B 30K 5K",
           "by_signal": [
-            { "signal": "30B", "n": null, "pnl": null, "winrate": null },
-            { "signal": "5B", "n": null, "pnl": null, "winrate": null },
-            { "signal": "30K", "n": null, "pnl": null, "winrate": null },
-            { "signal": "5K", "n": null, "pnl": null, "winrate": null }
-          ]
+            {
+              "signal": "30B",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "5B",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "30K",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "5K",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            }
+          ],
+          "featured": false
         },
         {
           "name": "ETH",
@@ -91,11 +151,32 @@
           "sharpe": 0.053,
           "params": "V2 · 30M/5M EMA5 金叉死叉 EMA13 + MACD · 4H 乖离 <5% · 5x",
           "by_signal": [
-            { "signal": "30B", "n": null, "pnl": null, "winrate": null },
-            { "signal": "5B", "n": null, "pnl": null, "winrate": null },
-            { "signal": "30K", "n": null, "pnl": null, "winrate": null },
-            { "signal": "5K", "n": null, "pnl": null, "winrate": null }
-          ]
+            {
+              "signal": "30B",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "5B",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "30K",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "5K",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            }
+          ],
+          "featured": false
         },
         {
           "name": "SOL",
@@ -109,10 +190,26 @@
           "sharpe": 0.132,
           "params": "V6 · 30M EMA13<EMA55 后 EMA5 金叉 EMA13 · MACD 过滤 · 5x",
           "by_signal": [
-            { "signal": "30B", "n": null, "pnl": null, "winrate": null },
-            { "signal": "5B", "n": null, "pnl": null, "winrate": null },
-            { "signal": "30K", "n": null, "pnl": null, "winrate": null }
-          ]
+            {
+              "signal": "30B",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "5B",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "30K",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            }
+          ],
+          "featured": true
         },
         {
           "name": "SOL 15M",
@@ -127,9 +224,20 @@
           "trades": 952,
           "params": "15M 单周期 · EMA7/EMA29 + ADX>18 · 信号B 均线贴近+放量 · 2024-02-13~2026-02-13",
           "by_signal": [
-            { "signal": "A 金叉/死叉", "n": null, "pnl": null, "winrate": null },
-            { "signal": "B 贴近放量", "n": null, "pnl": null, "winrate": null }
-          ]
+            {
+              "signal": "A 金叉/死叉",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "B 贴近放量",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            }
+          ],
+          "featured": true
         },
         {
           "name": "BTC ETH SOL",
@@ -140,12 +248,31 @@
           "rule": "5m/15m 双周期 · 4H EMA13/55/89 过滤 · 15M MACD + 穿 EMA5 · 5M EMA7/29 + ADX>18",
           "params": "5m/15m 双周期军规版 · 4H EMA13/55/89 趋势过滤 · 15M MACD + 价格穿 EMA5 · 5M EMA7/29 + ADX>18",
           "by_signal": [
-            { "signal": "4H 过滤", "n": null, "pnl": null, "winrate": null },
-            { "signal": "15M MACD", "n": null, "pnl": null, "winrate": null },
-            { "signal": "5M 触发", "n": null, "pnl": null, "winrate": null }
-          ]
+            {
+              "signal": "4H 过滤",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "15M MACD",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            },
+            {
+              "signal": "5M 触发",
+              "n": null,
+              "pnl": null,
+              "winrate": null
+            }
+          ],
+          "featured": false
         }
       ]
     }
-  ]
+  ],
+  "min_ret_pct": 30,
+  "min_net_pnl": 2000,
+  "filter_note": "仅展示净利润/收益突出的历史回测（净利≥2000 或 收益≥30%）"
 }

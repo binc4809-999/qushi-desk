@@ -267,12 +267,21 @@
       <header class="view-head">
         <div>
           <h1>策略回测报告展示</h1>
-          <p class="lede">主要展示各脚本的回测报告：区间收益、年化、最大回撤、胜率、盈亏比与分信号明细。数据来自 <code>data/strategies.json</code>，由研究脚本发布。下方可选看脚本心跳与历史预警流。</p>
+          <p class="lede">只展示净利润水平高的历史回测（默认：净利 ≥ 2000 USDT 或 收益 ≥ 30%）。上方为回测权益 / 指标图示，下方为对应脚本卡片。数据来自 <code>data/strategies.json</code> 与 <code>data/backtest-diagrams.json</code>。</p>
         </div>
       </header>
+      <section class="diagram-block" id="diagram-block">
+        <div class="quotes-head">
+          <h2 class="block-title">回测图示</h2>
+          <p class="hint" id="diagram-stamp"></p>
+        </div>
+        <div class="diagram-grid" id="diagram-grid">
+          <p class="feed-msg">正在加载回测图示…</p>
+        </div>
+      </section>
       <section class="strat-block" id="backtest-block">
         <div class="quotes-head">
-          <h2 class="block-title">脚本回测报告</h2>
+          <h2 class="block-title">高净利脚本报告</h2>
           <p class="hint" id="strat-stamp"></p>
         </div>
         <div id="strat-venues">
@@ -389,6 +398,6 @@
   </footer>
 
   <script src="./js/kline.js?v=20260910b" defer></script>
-  <script src="./js/app.js?v=20260910b" defer></script>
+  <script src="./js/app.js?v=20260910c" defer></script>
 </body>
 </html>

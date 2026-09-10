@@ -636,6 +636,71 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 12px;
 }
+.diagram-block {
+  margin: 0 0 28px;
+}
+.diagram-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+.diagram-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+}
+.diagram-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.diagram-card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.diagram-card .sub {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.eq-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 4px 0 10px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--line);
+}
+.bar-chart {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 10px;
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+.bar-row span { color: var(--muted); }
+.bar-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.bar-track i {
+  display: block;
+  height: 100%;
+}
+.bar-track i.up { background: #3d9a78; }
+.bar-track i.down { background: #c45c4a; }
+.bar-row b.up { color: #3d9a78; text-align: right; }
+.bar-row b.down { color: #c45c4a; text-align: right; }
 .strat-card {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -1244,6 +1309,7 @@ code {
   .view-head { flex-direction: column; align-items: flex-start; }
   .filter-stack { align-items: flex-start; }
   .strat-row, .strat-grid, .stats, .notes, .market, .kzz-grid, .contact-grid, .crypto-stack,
+  .diagram-grid,
   .suite-grid, .about-grid, .lead-grid, .contact-page { grid-template-columns: 1fr 1fr; }
   .card-top,
   .runner-top,
