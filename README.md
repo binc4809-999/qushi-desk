@@ -29,7 +29,7 @@ python -m http.server 8080
 
 ## 研究脚本怎么驱动页面
 
-机会表和管道心跳来自 `data/opportunities.json` 与 `data/last_run.json`，不是手写 HTML。预警流与策略卡片来自 `data/alerts.json` 与 `data/strategies.json`。合同、字段和发布方式见 [docs/data-contract.md](docs/data-contract.md)。
+机会表和管道心跳来自 `data/opportunities.json` 与 `data/last_run.json`，不是手写 HTML。预警流与策略卡片来自 `data/alerts.json` 与 `data/strategies.json`。各 PyCharm 脚本的运行中心跳（最新一行日志）来自 `data/runners.json`。合同、字段和发布方式见 [docs/data-contract.md](docs/data-contract.md)。
 
 行情仍由 `publisher/refresh_quotes.py` 写 `data/quotes.json`（成功/失败时会更新心跳）。机会表请用你的 PyCharm 脚本覆盖 JSON 后 push `main`，或走与预警相同的 GitHub Contents API。
 
@@ -45,6 +45,25 @@ SIGNAL_DESK_TOKEN=<github token，需要 repo 权限>
 ```
 
 可选：`SIGNAL_DESK_API_URL` + `SIGNAL_DESK_API_SECRET` 推到 Cloudflare Worker。
+
+## 脚本怎么上报运行状态
+
+循环里每隔几分钟（或状态变化时）调用 `publisher/write_runner.py`，不要每秒推：
+
+```python
+from publisher.write_runner import heartbeat
+
+heartbeat(
+    id="monitor11",
+    status="waiting",
+    last_message="[monitor11] 非交易时段，等待 09-10 09:30 开盘...",
+    script="monitor11.py",
+    venue="A股",
+    push=True,
+)
+```
+
+本地写 `data/runners.json`；`push=True` 时用同一套 Contents API 合并进远端，避免覆盖其它脚本。`last_run.json` 仍表示整次作业结束，不要混用。
 
 ## Cloudflare Worker（可选）
 

@@ -34,7 +34,7 @@
       <header class="view-head">
         <div>
           <h1>投资机会</h1>
-          <p class="lede">默认看全球行情；机会表与管道心跳由研究脚本发布。按市场与状态筛选，点一行看机制、代价与来源。</p>
+          <p class="lede">默认看全球行情；机会表与管道心跳由研究脚本发布。按市场与状态筛选，点一行看机制、代价与来源。各脚本是否在跑见实盘页。</p>
         </div>
         <div class="filter-stack">
           <div class="filter-row">
@@ -62,6 +62,10 @@
         <span class="pl-kicker">管道</span>
         <span class="pl-line">正在读取脚本心跳…</span>
       </aside>
+      <button type="button" class="pipeline runner-strip js-runner-strip" id="opp-runners" data-status="unknown">
+        <span class="pl-kicker">脚本</span>
+        <span class="pl-line">正在读取运行状态…</span>
+      </button>
       <!-- 全球行情快照 -->
       <section id="quotes-block" class="quotes-block">
         <div class="quotes-head">
@@ -175,7 +179,7 @@
       <header class="view-head">
         <div>
           <h1>实盘策略 / 预警</h1>
-          <p class="lede">脚本推送的开平仓与选股监控。时间按上海时区。SAMPLE 不是实时成交，实盘推送后会标 LIVE。</p>
+          <p class="lede">脚本推送的开平仓与选股监控。时间按上海时区。SAMPLE 不是实时成交，实盘推送后会标 LIVE。脚本运行状态来自各进程心跳，与预警流分开。</p>
         </div>
         <div class="filter-stack">
           <div class="filter-row">
@@ -204,6 +208,15 @@
         <span class="pl-kicker">预警</span>
         <span class="pl-line">正在读取预警流…</span>
       </aside>
+      <section class="runner-block" id="runner-block">
+        <div class="quotes-head">
+          <h2 class="block-title">脚本运行状态</h2>
+          <p class="hint" id="runner-stamp"></p>
+        </div>
+        <div class="runner-list" id="runner-list">
+          <p class="feed-msg">正在读取脚本运行状态…</p>
+        </div>
+      </section>
       <section class="alert-block">
         <div class="quotes-head">
           <h2 class="block-title">预警流</h2>

@@ -27,6 +27,10 @@ const state = {
   alertsError: null,
   strategies: null,
   strategiesError: null,
+  runners: [],
+  runnersMeta: null,
+  runnersError: null,
+  selectedRunnerId: null,
   meta: null,
 };
 
@@ -87,6 +91,9 @@ function setView(name) {
   $$(".view").forEach((v) => v.classList.toggle("is-on", v.id === `view-${name}`));
   $$(".tab").forEach((t) => t.classList.toggle("is-on", t.dataset.view === name));
   if (name !== "opps") closeDetail({ restoreFocus: false });
+  if (name && location.hash !== `#${name}`) {
+    history.replaceState(null, "", `#${name}`);
+  }
 }
 
 function num(v, digits = 2, suffix = "") {
@@ -307,6 +314,13 @@ const STRAT_STATUS_LABEL = {
   sample: "样例",
   watch: "观察",
   research: "研究",
+};
+const RUNNER_STATUS_LABEL = {
+  running: "运行中",
+  waiting: "等待",
+  idle: "空闲",
+  error: "异常",
+  stopped: "已停",
 };
 
 function lastRunHtml() {
@@ -657,6 +671,161 @@ function renderStrats() {
     .join("");
 }
 
+function runnerId(r) {
+  return String(r?.id || r?.name || r?.script || "");
+}
+
+function runnerMessage(r) {
+  return pick(r, "last_message", "last_line");
+}
+
+function runnerStatus(r) {
+  const status = String(r?.status || "idle").toLowerCase();
+  const label = pick(r, "status_label") || RUNNER_STATUS_LABEL[status] || status;
+  return { status, label };
+}
+
+function sortedRunners() {
+  const rank = { running: 0, waiting: 1, error: 2, idle: 3, stopped: 4 };
+  return [...state.runners].sort((a, b) => {
+    const d = (rank[String(a.status || "")] ?? 9) - (rank[String(b.status || "")] ?? 9);
+    if (d) return d;
+    return (Date.parse(b.updated_at || "") || 0) - (Date.parse(a.updated_at || "") || 0);
+  });
+}
+
+function runnerCounts() {
+  const counts = { running: 0, waiting: 0, idle: 0, error: 0, stopped: 0 };
+  state.runners.forEach((r) => {
+    const s = String(r.status || "").toLowerCase();
+    if (s in counts) counts[s] += 1;
+  });
+  return counts;
+}
+
+function runnerStripStatus() {
+  if (state.runnersError && !state.runners.length) return "failed";
+  const c = runnerCounts();
+  if (c.error) return "error";
+  if (c.running) return "running";
+  if (c.waiting) return "waiting";
+  if (c.idle) return "idle";
+  if (c.stopped) return "stopped";
+  return "unknown";
+}
+
+function renderRunnerStrip() {
+  const hosts = $$(".js-runner-strip");
+  if (!hosts.length) return;
+  let html;
+  let status = runnerStripStatus();
+  if (state.runnersError && !state.runners.length) {
+    html = `<span class="pl-kicker">脚本</span><span class="pl-error">${esc(state.runnersError)}</span>`;
+  } else if (!state.runners.length) {
+    html = `<span class="pl-kicker">脚本</span><span class="pl-line">暂无进程心跳。脚本调用 write_runner.heartbeat() 后会出现在实盘页。</span>`;
+  } else {
+    const c = runnerCounts();
+    const bits = [];
+    if (c.running) bits.push(`${c.running} 运行`);
+    if (c.waiting) bits.push(`${c.waiting} 等待`);
+    if (c.error) bits.push(`${c.error} 异常`);
+    if (c.idle) bits.push(`${c.idle} 空闲`);
+    if (c.stopped) bits.push(`${c.stopped} 已停`);
+    const latest = sortedRunners()[0];
+    const line = runnerMessage(latest);
+    const sample = state.runnersMeta?.sample || state.runners.every((r) => r.sample);
+    html = [
+      `<span class="pl-kicker">脚本</span>`,
+      `<span class="pl-status">${esc(bits.join(" · ") || `${state.runners.length} 个`)}</span>`,
+      line ? `<span class="pl-summary">${esc(latest.name || latest.id)} · ${esc(line)}</span>` : "",
+      sample ? `<span class="pl-note">示例心跳</span>` : "",
+      `<span class="pl-note">点此看实盘页</span>`,
+    ].join("");
+  }
+  hosts.forEach((host) => {
+    host.dataset.status = status;
+    host.innerHTML = html;
+  });
+}
+
+function runnerCard(r) {
+  const id = runnerId(r);
+  const { status, label } = runnerStatus(r);
+  const open = id && state.selectedRunnerId === id;
+  const live = !r.sample;
+  const pair = [r.venue, r.symbol].filter(Boolean).join(" · ");
+  const line = runnerMessage(r);
+  const when = fmtShanghai(r.updated_at);
+  const started = fmtShanghai(r.started_at);
+  const more = [];
+  if (r.script) more.push(detailField("脚本", r.script));
+  if (started) more.push(detailField("启动", `${started}（上海）`));
+  if (r.notes) more.push(detailField("备注", r.notes));
+  if (r.detail_url) {
+    more.push(
+      detailField(
+        "链接",
+        `<a class="opp-link" href="${esc(r.detail_url)}" target="_blank" rel="noopener noreferrer">${esc(r.detail_url)}</a>`,
+        true
+      )
+    );
+  }
+  more.push(detailField("id", r.id));
+  return `<article class="runner-card status-${esc(status)}${open ? " is-open" : ""}${live ? "" : " is-sample"}" data-id="${esc(id)}" tabindex="0" role="button" aria-expanded="${open ? "true" : "false"}">
+    <div class="runner-top">
+      <div class="card-meta">
+        <span class="pill ${esc(status)}">${esc(label)}</span>
+        ${pair ? `<span class="tag venue">${esc(pair)}</span>` : ""}
+        <span class="pill ${live ? "live" : "sample"}">${live ? "LIVE" : "示例"}</span>
+      </div>
+      <time datetime="${esc(r.updated_at || "")}">${esc(when || "—")}（上海）</time>
+    </div>
+    <h2>${esc(r.name || r.script || id)}</h2>
+    ${r.script && r.script !== r.name ? `<p class="runner-script">${esc(r.script)}</p>` : ""}
+    ${line ? `<p class="runner-line">${esc(line)}</p>` : `<p class="runner-line is-empty">暂无最新一行</p>`}
+    ${open && more.length ? `<dl class="detail-dl runner-more">${more.join("")}</dl>` : ""}
+  </article>`;
+}
+
+function renderRunners() {
+  renderRunnerStrip();
+  const host = $("#runner-list");
+  const stamp = $("#runner-stamp");
+  if (!host) return;
+  const total = state.runners.length;
+  if (stamp) {
+    const bits = [];
+    if (state.runnersMeta?.sample || (total && state.runners.every((r) => r.sample))) {
+      bits.push("示例心跳，脚本可覆盖");
+    }
+    if (state.runnersMeta?.updated_at) {
+      bits.push(`数据 ${fmtShanghai(state.runnersMeta.updated_at) || state.runnersMeta.updated_at}（上海）`);
+    }
+    bits.push("点一张看备注");
+    stamp.textContent = bits.join(" · ");
+  }
+  if (state.runnersError && !total) {
+    host.innerHTML = `<p class="feed-msg is-error">${esc(state.runnersError)}</p>`;
+    return;
+  }
+  if (!total) {
+    host.innerHTML = `<p class="feed-msg">暂无脚本心跳。在循环里调用 publisher/write_runner.heartbeat() 后刷新即可。</p>`;
+    return;
+  }
+  if (state.selectedRunnerId && !state.runners.some((r) => runnerId(r) === state.selectedRunnerId)) {
+    state.selectedRunnerId = null;
+  }
+  host.innerHTML = sortedRunners().map(runnerCard).join("");
+}
+
+function toggleRunner(id) {
+  if (!id) return;
+  state.selectedRunnerId = state.selectedRunnerId === id ? null : id;
+  renderRunners();
+  const card = document.querySelector(`#runner-list .runner-card[data-id="${CSS.escape(id)}"]`);
+  card?.focus();
+}
+
 function renderQuotes() {
   const host = $("#quotes-groups");
   const stamp = $("#quotes-stamp");
@@ -724,6 +893,24 @@ async function refreshLastRun() {
   }
 }
 
+async function refreshRunners() {
+  try {
+    const bucket = Math.floor(Date.now() / 60000);
+    const data = await loadJson(`./data/runners.json?t=${bucket}`);
+    const rows = data.runners || data.items || [];
+    state.runners = Array.isArray(rows) ? rows : [];
+    state.runnersMeta = data;
+    state.runnersError = null;
+    renderRunners();
+  } catch (err) {
+    console.warn("[runners]", err);
+    if (!state.runners.length) {
+      state.runnersError = `脚本状态加载失败：${err.message}`;
+      renderRunners();
+    }
+  }
+}
+
 async function refreshAlerts() {
   try {
     const url = state.meta?.alerts_url || "./data/alerts.json";
@@ -759,7 +946,7 @@ async function boot() {
   layoutChrome();
   window.addEventListener("resize", layoutChrome);
 
-  const [meta, opps, alerts, strats, market, kzz, quotes, lastRun] = await Promise.all([
+  const [meta, opps, alerts, strats, market, kzz, quotes, lastRun, runners] = await Promise.all([
     loadJson("./data/meta.json"),
     loadOptional("./data/opportunities.json"),
     loadOptional("./data/alerts.json"),
@@ -768,6 +955,7 @@ async function boot() {
     loadJson("./data/kzz.json"),
     loadJson("./data/quotes.json").catch(() => null),
     loadOptional("./data/last_run.json"),
+    loadOptional("./data/runners.json"),
   ]);
   state.meta = meta;
   state.lastRun = lastRun;
@@ -800,6 +988,15 @@ async function boot() {
     state.strategies = null;
     state.strategiesError = "策略加载失败：无法读取 data/strategies.json";
   }
+  if (runners && (Array.isArray(runners.runners) || Array.isArray(runners.items))) {
+    state.runners = runners.runners || runners.items || [];
+    state.runnersMeta = runners;
+    state.runnersError = null;
+  } else {
+    state.runners = [];
+    state.runnersMeta = runners;
+    state.runnersError = "脚本状态加载失败：无法读取 data/runners.json";
+  }
   $("#disclaimer").textContent = meta.disclaimer;
   $("#cap").textContent = "CDN 静态分发 · 约 10 万并发阅读";
 
@@ -810,9 +1007,18 @@ async function boot() {
   renderAlerts();
   renderTicker();
   renderStrats();
+  renderRunners();
+  const hash = (location.hash || "").replace("#", "");
+  if (hash === "live" || hash === "contact" || hash === "opps") setView(hash);
   layoutChrome();
 
   $$(".tab").forEach((btn) => btn.addEventListener("click", () => setView(btn.dataset.view)));
+  $$(".js-runner-strip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      setView("live");
+      $("#runner-block")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
   $$("#filters .chip").forEach((btn) => {
     btn.addEventListener("click", () => {
       state.region = btn.dataset.region;
@@ -845,7 +1051,22 @@ async function boot() {
     if (e.target.closest("#opp-detail-close")) closeDetail();
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && state.selectedId) closeDetail();
+    if (e.key !== "Escape") return;
+    if (state.selectedId) closeDetail();
+    else if (state.selectedRunnerId) toggleRunner(state.selectedRunnerId);
+  });
+  $("#runner-list")?.addEventListener("click", (e) => {
+    if (e.target.closest("a")) return;
+    const card = e.target.closest(".runner-card");
+    if (!card) return;
+    toggleRunner(card.dataset.id);
+  });
+  $("#runner-list")?.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const card = e.target.closest(".runner-card");
+    if (!card || e.target !== card) return;
+    e.preventDefault();
+    toggleRunner(card.dataset.id);
   });
   $$("#alert-filters .chip").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -865,6 +1086,7 @@ async function boot() {
   setInterval(refreshAlerts, meta.poll_ms || 30000);
   setInterval(refreshQuotes, 120000);
   setInterval(refreshLastRun, 120000);
+  setInterval(refreshRunners, 60000);
 }
 
 boot().catch((err) => {
