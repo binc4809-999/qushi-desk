@@ -44,15 +44,24 @@ const state = {
   chartsError: null,
   chartTf: {},
   meta: null,
+  contact: null,
 };
 
 const chartInstances = new Map();
-const DESK_SECTIONS = {
-  tips: "tips",
-  pool: "pool",
-  top3: "top3",
-  crypto: "crypto",
-  desk: "view-desk",
+const HASH_ROUTE = {
+  home: { view: "home", tab: "home", top: true },
+  products: { view: "home", tab: "products", scroll: "products" },
+  about: { view: "home", tab: "home", scroll: "about" },
+  lead: { view: "home", tab: "home", scroll: "lead" },
+  desk: { view: "desk", tab: "desk", scroll: "view-desk" },
+  tips: { view: "desk", tab: "desk", scroll: "tips" },
+  pool: { view: "desk", tab: "desk", scroll: "pool" },
+  top3: { view: "desk", tab: "desk", scroll: "top3" },
+  crypto: { view: "desk", tab: "desk", scroll: "crypto" },
+  opps: { view: "opps", tab: "opps", top: true },
+  live: { view: "live", tab: "live", top: true },
+  runners: { view: "live", tab: "live", scroll: "runner-block" },
+  contact: { view: "contact", tab: "contact", top: true },
 };
 const SIDE_LABEL = { buy: "买入", sell: "卖出", alert: "预警" };
 
@@ -111,7 +120,10 @@ function tickClock() {
 
 function setView(name, opts = {}) {
   $$(".view").forEach((v) => v.classList.toggle("is-on", v.id === `view-${name}`));
-  $$(".tab").forEach((t) => t.classList.toggle("is-on", t.dataset.view === name));
+  const tab = opts.tab || name;
+  $$(".tab").forEach((t) => t.classList.toggle("is-on", t.dataset.hash === tab));
+  document.body.classList.toggle("is-marketing", name === "home" || name === "contact");
+  document.body.dataset.view = name;
   if (name !== "opps") closeDetail({ restoreFocus: false });
   if (name === "desk") {
     requestAnimationFrame(() => chartInstances.forEach((c) => c.resize?.()));
@@ -123,18 +135,19 @@ function setView(name, opts = {}) {
 }
 
 function applyLocation() {
-  const raw = (location.hash || "").replace("#", "");
-  if (raw === "opps" || raw === "live" || raw === "contact") {
-    setView(raw, { hash: false });
-    return;
+  const raw = (location.hash || "").replace("#", "") || "home";
+  const route = HASH_ROUTE[raw] || HASH_ROUTE.home;
+  if (!(location.hash || "").replace("#", "")) {
+    history.replaceState(null, "", "#home");
   }
-  setView("desk", { hash: false });
-  const id = DESK_SECTIONS[raw];
-  if (raw && raw !== "desk" && id) {
-    requestAnimationFrame(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }
+  setView(route.view, { hash: false, tab: route.tab });
+  requestAnimationFrame(() => {
+    if (route.scroll) {
+      document.getElementById(route.scroll)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (route.top) window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 }
 
 function num(v, digits = 2, suffix = "") {
@@ -398,6 +411,7 @@ function renderDesk() {
   renderTips();
   renderPool();
   renderCharts();
+  renderHomeProof();
 }
 
 function focusChartForSymbol(symbol) {
@@ -1126,6 +1140,7 @@ function runnerCard(r) {
 
 function renderRunners() {
   renderRunnerStrip();
+  renderHomeProof();
   const host = $("#runner-list");
   const stamp = $("#runner-stamp");
   if (!host) return;
@@ -1330,13 +1345,128 @@ function layoutChrome() {
   document.documentElement.style.setProperty("--chrome-h", `${Math.round(bottom)}px`);
 }
 
+function markedPlaceholder(value, flag) {
+  if (flag) return true;
+  const s = String(value || "").trim();
+  return !s || s.includes("待填写");
+}
+
+function channelCard(label, value, href, placeholder) {
+  const empty = markedPlaceholder(value, placeholder);
+  const text = empty ? "待填写" : String(value).trim();
+  const body =
+    href && !empty
+      ? `<a class="contact-value" href="${esc(href)}">${esc(text)}</a>`
+      : `<p class="contact-value">${empty ? `<span class="placeholder-flag">待填写</span>` : esc(text)}</p>`;
+  return `<article class="channel-card"><h3>${esc(label)}</h3>${body}</article>`;
+}
+
+function contactMailto() {
+  const c = state.contact || {};
+  const to = c.form?.mailto || c.email || "";
+  return markedPlaceholder(to) ? "" : to;
+}
+
+function renderHomeProof() {
+  const host = $("#home-proof");
+  if (!host) return;
+  const selected = state.pools.find((p) => p.id === state.poolsMeta?.selected_id) || state.pools[0];
+  const poolN = (selected?.members || []).length;
+  const running = state.runners.filter((r) => String(r.status || "").toLowerCase() === "running").length;
+  const cryptoN = (state.charts.crypto || []).length;
+  host.innerHTML = [
+    `<li><a href="#tips">${state.tips.length} 条买卖点</a></li>`,
+    `<li><a href="#pool">选股池 ${poolN} 只</a></li>`,
+    `<li><a href="#crypto">加密图 ${cryptoN} 组</a></li>`,
+    `<li><a href="#runners">${running} 个脚本运行中</a></li>`,
+  ].join("");
+}
+
+function renderContact() {
+  const c = state.contact || {};
+  const wechat = c.wechat || {};
+  const pay = c.binance || {};
+  const telPh = markedPlaceholder(c.tel, c.tel_placeholder);
+  const emailPh = markedPlaceholder(c.email, c.email_placeholder);
+  const wechatPh = markedPlaceholder(wechat.id, wechat.placeholder);
+  if (c.lede) {
+    const leadLede = $("#lead-lede");
+    const contactLede = $("#contact-lede");
+    if (leadLede) leadLede.textContent = c.lede;
+    if (contactLede) contactLede.textContent = c.lede;
+  }
+  const home = $("#home-channels");
+  if (home) {
+    home.innerHTML = [
+      channelCard("邮件", c.email || "待填写", emailPh ? "" : `mailto:${c.email}`, emailPh),
+      channelCard("电话", c.tel || "待填写", telPh ? "" : c.tel_href || "", telPh),
+      channelCard("微信", wechat.id || "待填写", "", wechatPh),
+    ].join("");
+  }
+  const grid = $("#contact-grid");
+  if (grid) {
+    const telHref = telPh ? "" : esc(c.tel_href || "");
+    const telBody = telPh
+      ? `<p class="contact-value">${esc(c.tel || "待填写")}<span class="placeholder-flag">待填写</span></p>`
+      : `<a class="contact-value" href="${telHref}">${esc(c.tel)}</a>`;
+    const emailBody = emailPh
+      ? `<p class="contact-value">${esc(c.email || "待填写")}<span class="placeholder-flag">待填写</span></p>`
+      : `<a class="contact-value" href="mailto:${esc(c.email)}">${esc(c.email)}</a>`;
+    const wechatHint = esc(wechat.hint || "扫二维码添加好友");
+    const wechatImg = wechat.qr
+      ? `<img class="wechat-qr" src="${esc(wechat.qr)}" alt="微信二维码" width="240" height="320">`
+      : "";
+    const payHint = `${esc(pay.hint || "")}${pay.id && !markedPlaceholder(pay.id, pay.placeholder) ? ` · ${esc(pay.id)}` : ""}`;
+    const payImg = pay.qr
+      ? `<img class="pay-qr" src="${esc(pay.qr)}" alt="${esc(pay.label || "币安收款码")}" width="280" height="420">`
+      : `<p class="contact-value">待填写<span class="placeholder-flag">待填写</span></p>`;
+    grid.innerHTML = `
+      <article class="contact-card"><h2>TEL</h2>${telBody}</article>
+      <article class="contact-card"><h2>GMAIL</h2>${emailBody}</article>
+      <article class="contact-card contact-wechat">
+        <h2>WECHAT</h2>
+        <p class="hint">${wechatHint}${wechatPh ? ` <span class="placeholder-flag">待填写</span>` : ""}</p>
+        ${wechatImg}
+      </article>
+      <article class="contact-card contact-pay">
+        <h2>${esc(pay.label || "BINANCE")}</h2>
+        <p class="hint">${payHint}</p>
+        ${payImg}
+      </article>`;
+  }
+  const to = contactMailto();
+  $$(".js-lead-form button[type=submit]").forEach((btn) => {
+    btn.disabled = !to;
+  });
+}
+
+function wireLeadForms() {
+  $$(".js-lead-form").forEach((form) => {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const to = contactMailto();
+      if (!to) return;
+      const fd = new FormData(form);
+      const body = [
+        `姓名：${fd.get("name") || ""}`,
+        `机构：${fd.get("org") || ""}`,
+        `联系方式：${fd.get("reach") || ""}`,
+        `兴趣：${fd.get("interest") || ""}`,
+        `备注：${fd.get("note") || ""}`,
+      ].join("\n");
+      const subject = state.contact?.form?.subject || "【迦南美地】预约交流";
+      window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    });
+  });
+}
+
 async function boot() {
   tickClock();
   setInterval(tickClock, 1000);
   layoutChrome();
   window.addEventListener("resize", layoutChrome);
 
-  const [meta, opps, alerts, strats, market, kzz, quotes, lastRun, runners, tips, pools, charts] = await Promise.all([
+  const [meta, opps, alerts, strats, market, kzz, quotes, lastRun, runners, tips, pools, charts, contact] = await Promise.all([
     loadJson("./data/meta.json"),
     loadOptional("./data/opportunities.json"),
     loadOptional("./data/alerts.json"),
@@ -1349,6 +1479,7 @@ async function boot() {
     loadOptional("./data/tips.json"),
     loadOptional("./data/pools.json"),
     loadOptional("./data/charts.json"),
+    loadOptional("./data/contact.json"),
   ]);
   state.meta = meta;
   state.lastRun = lastRun;
@@ -1393,8 +1524,9 @@ async function boot() {
   applyTips(tips, "买卖点加载失败：无法读取 data/tips.json");
   applyPools(pools, "选股池加载失败：无法读取 data/pools.json");
   applyCharts(charts, "K 线上下文加载失败：无法读取 data/charts.json");
+  state.contact = contact || {};
   $("#disclaimer").textContent = meta.disclaimer;
-  $("#cap").textContent = "CDN 静态分发 · 约 10 万并发阅读";
+  $("#cap").textContent = "基金经理研究台 · 静态 CDN";
 
   renderLastRun();
   renderDesk();
@@ -1405,15 +1537,15 @@ async function boot() {
   renderTicker();
   renderStrats();
   renderRunners();
+  renderContact();
+  renderHomeProof();
   applyLocation();
   layoutChrome();
 
-  $$(".tab").forEach((btn) => btn.addEventListener("click", () => setView(btn.dataset.view)));
   window.addEventListener("hashchange", applyLocation);
   $$(".js-runner-strip").forEach((btn) => {
     btn.addEventListener("click", () => {
-      setView("live");
-      $("#runner-block")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      location.hash = "runners";
     });
   });
   $$("#filters .chip").forEach((btn) => {
@@ -1516,6 +1648,8 @@ async function boot() {
     e.preventDefault();
     focusChartForSymbol(tip.dataset.symbol);
   });
+
+  wireLeadForms();
 
   setInterval(refreshAlerts, meta.poll_ms || 30000);
   setInterval(refreshTips, meta.poll_ms || 30000);

@@ -3,39 +3,181 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>迦南美地 · The Promised Land</title>
-  <meta name="description" content="迦南美地 The Promised Land：脚本买卖点、选股池与 K 线上下文。研究备忘，非投资建议。">
+  <title>迦南美地 · The Promised Land — 基金经理研究台</title>
+  <meta name="description" content="迦南美地 The Promised Land：面向基金经理的研究台。买卖点、选股池、K 线标注与脚本心跳上墙。研究备忘，非投资建议。">
   <meta name="theme-color" content="#0e1014">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./css/app.css">
 </head>
-<body>
+<body class="is-marketing" data-view="home">
   <a class="skip" href="#main">跳到正文</a>
   <header class="mast">
-    <div class="mast-left">
+    <a class="mast-left" href="#home">
       <p class="brand">迦南美地</p>
       <p class="brand-sub">THE PROMISED LAND</p>
-    </div>
+    </a>
     <nav class="tabs" aria-label="栏目">
-      <button type="button" class="tab is-on" data-view="desk">买卖点</button>
-      <button type="button" class="tab" data-view="opps">投资机会</button>
-      <button type="button" class="tab" data-view="live">实盘策略/预警</button>
-      <button type="button" class="tab" data-view="contact">联系我们</button>
+      <a class="tab is-on" href="#home" data-hash="home">首页</a>
+      <a class="tab" href="#products" data-hash="products">产品</a>
+      <a class="tab" href="#desk" data-hash="desk">演示台</a>
+      <a class="tab" href="#opps" data-hash="opps">投资机会</a>
+      <a class="tab" href="#live" data-hash="live">实盘</a>
+      <a class="tab" href="#contact" data-hash="contact">联系</a>
     </nav>
     <div class="mast-right">
       <p class="clock" id="clock">--:--:--</p>
-      <p class="cap" id="cap">CDN 静态分发 · 约 10 万并发阅读</p>
+      <p class="cap" id="cap">基金经理研究台 · 静态 CDN</p>
     </div>
   </header>
 
   <p class="ticker" id="ticker" aria-live="polite"></p>
 
   <main id="main">
-    <section id="view-desk" class="view is-on">
+    <section id="view-home" class="view is-on">
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="hero-kicker">Fund-manager research desk</p>
+        <h1 id="hero-title">迦南美地 <span>The Promised Land</span></h1>
+        <p class="hero-line">把 PyCharm 研究脚本，变成基金经理能打开的公网看板。</p>
+        <p class="hero-lede">买卖点可追溯、选股池可扫读、K 线有标注、脚本心跳在跑。研究备忘与能力演示，不是荐股或募集。</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#lead">预约交流</a>
+          <a class="btn btn-ghost" href="#desk">查看实盘演示</a>
+        </div>
+        <ul class="hero-proof" id="home-proof">
+          <li>买卖点看板</li>
+          <li>选股池 / TOP3 日线</li>
+          <li>加密 30m 标注</li>
+          <li>多脚本心跳</li>
+        </ul>
+      </section>
+
+      <section id="products" class="suite" aria-labelledby="suite-title">
+        <header class="section-head">
+          <p class="section-kicker">All Products</p>
+          <h2 id="suite-title">产品与能力</h2>
+          <p class="section-lede">一套面向基金管理人的研究台。卡片进入现有演示，数据仍由脚本按 JSON 契约推送。</p>
+        </header>
+        <div class="suite-grid">
+          <a class="suite-card" href="#tips">
+            <p class="suite-kicker">Tips</p>
+            <h3>实盘买卖点看板</h3>
+            <p>脚本正在推的买 / 卖 / 预警。每条标明脚本来源，便于整改追溯。</p>
+            <span class="suite-go">查看演示</span>
+          </a>
+          <a class="suite-card" href="#pool">
+            <p class="suite-kicker">Scanner</p>
+            <h3>A股选股池扫描</h3>
+            <p>scanner / scanner11 当日池上墙：代码、现价、涨跌、涨速与量比，基金经理一眼扫完。</p>
+            <span class="suite-go">查看演示</span>
+          </a>
+          <a class="suite-card" href="#top3">
+            <p class="suite-kicker">Monitor</p>
+            <h3>监控 TOP3 + 日线标注</h3>
+            <p>监控脚本 TOP3 标的配日 K，买卖点落在图上，而不是只有一行文字。</p>
+            <span class="suite-go">查看演示</span>
+          </a>
+          <a class="suite-card" href="#crypto">
+            <p class="suite-kicker">Crypto</p>
+            <h3>加密预警 / 30m K 线</h3>
+            <p>MACD 与币对监控的开平预警，30 分钟 K 线标注上下文，和 A 股看板同一套桌子。</p>
+            <span class="suite-go">查看演示</span>
+          </a>
+          <a class="suite-card" href="#runners">
+            <p class="suite-kicker">Runners</p>
+            <h3>多脚本运行状态</h3>
+            <p>PyCharm 进程心跳：谁在跑、最新一行日志。页面不探测本地 IDE，脚本自己上报。</p>
+            <span class="suite-go">查看演示</span>
+          </a>
+          <a class="suite-card" href="#opps">
+            <p class="suite-kicker">Research</p>
+            <h3>研究脚本结果上墙</h3>
+            <p>机会表、机制、公开收益与代价由调研脚本写入 JSON 后上墙，数据契约可对接。</p>
+            <span class="suite-go">查看演示</span>
+          </a>
+        </div>
+      </section>
+
+      <section id="about" class="about" aria-labelledby="about-title">
+        <header class="section-head">
+          <p class="section-kicker">About</p>
+          <h2 id="about-title">关于 / 能做什么</h2>
+        </header>
+        <div class="about-grid">
+          <div class="about-copy">
+            <p>迦南美地是给<strong>基金经理</strong>看的研究台，不是零售荐股站。研究在本地 PyCharm 脚本里跑；结果按约定写成 JSON，推到 GitHub Pages。经理打开浏览器就能看当前买卖点、池子和脚本是否还在跑——不必登录终端，也看不到源码。</p>
+            <p>演示台是能力证明，用来获客与对接。合作路径是预约交流、看演示、再接你们的脚本与数据契约。</p>
+          </div>
+          <ol class="about-steps">
+            <li>
+              <span>01</span>
+              <div>
+                <h3>本地研究</h3>
+                <p>选股、监控、加密预警在 PyCharm 循环里跑。</p>
+              </div>
+            </li>
+            <li>
+              <span>02</span>
+              <div>
+                <h3>数据契约</h3>
+                <p>tips / pools / charts / runners / opportunities 写入仓库。</p>
+              </div>
+            </li>
+            <li>
+              <span>03</span>
+              <div>
+                <h3>公网看板</h3>
+                <p>静态站点经 CDN 分发，阅读流量不打源站。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="lead" class="lead" aria-labelledby="lead-title">
+        <header class="section-head">
+          <p class="section-kicker">Contact</p>
+          <h2 id="lead-title">联系我们</h2>
+          <p class="section-lede" id="lead-lede">合作、演示或脚本对接，留下机构与联系方式。二维码与完整渠道见「联系」页。</p>
+        </header>
+        <div class="lead-grid">
+          <div class="lead-channels" id="home-channels"></div>
+          <form class="lead-form js-lead-form" id="lead-form">
+            <p class="lead-form-title">预约交流</p>
+            <label>姓名 <input name="name" type="text" autocomplete="name" required></label>
+            <label>机构 / 基金 <input name="org" type="text" autocomplete="organization"></label>
+            <label>联系方式 <input name="reach" type="text" required placeholder="邮箱或微信"></label>
+            <label>想看哪块能力
+              <select name="interest">
+                <option value="">请选择</option>
+                <option value="买卖点看板">买卖点看板</option>
+                <option value="选股池">A股选股池</option>
+                <option value="TOP3 日线">TOP3 日线</option>
+                <option value="加密预警">加密预警</option>
+                <option value="脚本心跳">脚本心跳</option>
+                <option value="数据契约对接">数据契约对接</option>
+              </select>
+            </label>
+            <label>备注 <textarea name="note" rows="3" placeholder="演示时间、对接需求…"></textarea></label>
+            <button class="btn btn-primary" type="submit">发送邮件预约</button>
+            <p class="lead-form-hint">静态站点通过邮件客户端发送，不经过服务器。邮箱待填写时按钮不可用。</p>
+          </form>
+        </div>
+      </section>
+    </section>
+
+    <section id="view-desk" class="view">
       <header class="view-head">
         <div>
           <h1>当前买卖点</h1>
-          <p class="lede">脚本正在推的买 / 卖 / 预警。每条标明脚本来源，便于整改追溯。</p>
+          <p class="lede">能力演示：脚本正在推的买 / 卖 / 预警。每条标明脚本来源，便于整改追溯。</p>
+          <nav class="desk-jump" aria-label="演示台章节">
+            <a href="#tips">买卖点</a>
+            <a href="#pool">选股池</a>
+            <a href="#top3">TOP3 日线</a>
+            <a href="#crypto">加密 30m</a>
+            <a href="#live">脚本心跳</a>
+            <a href="#opps">投资机会</a>
+          </nav>
         </div>
         <div class="filter-stack">
           <div class="filter-row">
@@ -334,28 +476,50 @@
       <header class="view-head">
         <div>
           <h1>联系我们</h1>
-          <p class="lede">合作、脚本对接或内容反馈，可通过电话、微信、邮件或币安收款码联系。</p>
+          <p class="lede" id="contact-lede">合作、脚本对接或内容反馈。渠道写在 <code>data/contact.json</code>，未知项标「待填写」。</p>
         </div>
       </header>
-      <div class="contact-grid">
-        <article class="contact-card">
-          <h2>TEL</h2>
-          <a class="contact-value" href="tel:+8617621704123">+86 176 2170 4123</a>
-        </article>
-        <article class="contact-card">
-          <h2>GMAIL</h2>
-          <a class="contact-value" href="mailto:binc4809@gmail.com">binc4809@gmail.com</a>
-        </article>
-        <article class="contact-card contact-wechat">
-          <h2>WECHAT</h2>
-          <p class="hint">扫二维码添加好友</p>
-          <img class="wechat-qr" src="./img/wechat-qr.jpg" alt="微信二维码：相信未来" width="240" height="320">
-        </article>
-        <article class="contact-card contact-pay">
-          <h2>BINANCE 收款码</h2>
-          <p class="hint">使用币安 App 扫码支付 · RuYingTengShang20250320</p>
-          <img class="pay-qr" src="./img/binance-pay.jpg" alt="币安收款码 RuYingTengShang20250320" width="280" height="420">
-        </article>
+      <div class="lead-grid contact-page">
+        <div class="contact-grid" id="contact-grid">
+          <article class="contact-card">
+            <h2>TEL</h2>
+            <a class="contact-value" href="tel:+8617621704123">+86 176 2170 4123</a>
+          </article>
+          <article class="contact-card">
+            <h2>GMAIL</h2>
+            <a class="contact-value" href="mailto:binc4809@gmail.com">binc4809@gmail.com</a>
+          </article>
+          <article class="contact-card contact-wechat">
+            <h2>WECHAT</h2>
+            <p class="hint">扫二维码添加好友 · 微信号待填写</p>
+            <img class="wechat-qr" src="./img/wechat-qr.jpg" alt="微信二维码" width="240" height="320">
+          </article>
+          <article class="contact-card contact-pay">
+            <h2>BINANCE 收款码</h2>
+            <p class="hint">使用币安 App 扫码支付 · RuYingTengShang20250320</p>
+            <img class="pay-qr" src="./img/binance-pay.jpg" alt="币安收款码 RuYingTengShang20250320" width="280" height="420">
+          </article>
+        </div>
+        <form class="lead-form js-lead-form">
+          <p class="lead-form-title">预约交流</p>
+          <label>姓名 <input name="name" type="text" autocomplete="name" required></label>
+          <label>机构 / 基金 <input name="org" type="text" autocomplete="organization"></label>
+          <label>联系方式 <input name="reach" type="text" required placeholder="邮箱或微信"></label>
+          <label>想看哪块能力
+            <select name="interest">
+              <option value="">请选择</option>
+              <option value="买卖点看板">买卖点看板</option>
+              <option value="选股池">A股选股池</option>
+              <option value="TOP3 日线">TOP3 日线</option>
+              <option value="加密预警">加密预警</option>
+              <option value="脚本心跳">脚本心跳</option>
+              <option value="数据契约对接">数据契约对接</option>
+            </select>
+          </label>
+          <label>备注 <textarea name="note" rows="3" placeholder="演示时间、对接需求…"></textarea></label>
+          <button class="btn btn-primary" type="submit">发送邮件预约</button>
+          <p class="lead-form-hint">通过本地邮件客户端发送，不经过本站服务器。</p>
+        </form>
       </div>
     </section>
   </main>
