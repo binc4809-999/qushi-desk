@@ -1016,7 +1016,8 @@ function barsSvg(bars) {
     bars.ret != null ? ["收益%", bars.ret, bars.ret >= 0] : null,
     bars.dd != null ? ["回撤%", Math.abs(bars.dd), false] : null,
     bars.winrate != null ? ["胜率%", bars.winrate, true] : null,
-    bars.sharpe != null ? ["Sharpe", bars.sharpe * 100, bars.sharpe >= 0] : null,
+    bars.calmar != null ? ["卡玛", bars.calmar, bars.calmar >= 0] : null,
+    bars.sharpe != null && bars.calmar == null ? ["Sharpe", bars.sharpe, bars.sharpe >= 0] : null,
   ].filter(Boolean);
   if (!rows.length) return "";
   const max = Math.max(...rows.map((r) => Math.abs(r[1])), 1);
@@ -1096,6 +1097,7 @@ function diagramCard(d) {
   let chart = "";
   if (d.kind === "signal") chart = signalSchematicSvg(d);
   else if (d.kind === "trade") chart = tradeSchematicSvg(d);
+  else if (d.kind === "bars" || d.bars) chart = barsSvg(d.bars);
   else if (d.equity_curve?.length) chart = equitySvg(d.equity_curve);
   else chart = barsSvg(d.bars);
   const pill = d.kind === "signal" ? "信号示意" : d.kind === "trade" ? "样本成交" : d.venue || "回测";
@@ -1208,6 +1210,8 @@ function renderSymbol(s, venue) {
   if (s.trades != null) bits.push(`${s.trades} 笔`);
   if (s.winrate != null) bits.push(`胜率 ${num(s.winrate, 1, "%")}`);
   if (s.payoff != null) bits.push(`盈亏比 ${num(s.payoff, 2)}`);
+  if (s.sharpe != null) bits.push(`夏普 ${num(s.sharpe, 2)}`);
+  if (s.calmar != null) bits.push(`卡玛 ${num(s.calmar, 2)}`);
   if (s.pf != null) bits.push(`PF ${num(s.pf, 2)}`);
   const notes = (s.notes || []).slice(0, 3).map((n) => `<li>${esc(n)}</li>`).join("");
   return `<article class="strat-card status-${esc(status)} is-detail">
