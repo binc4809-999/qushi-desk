@@ -1454,7 +1454,7 @@ function wireLeadForms() {
         `兴趣：${fd.get("interest") || ""}`,
         `备注：${fd.get("note") || ""}`,
       ].join("\n");
-      const subject = state.contact?.form?.subject || "【迦南美地】预约交流";
+      const subject = state.contact?.form?.subject || "【五饼二鱼】预约交流";
       window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     });
   });
