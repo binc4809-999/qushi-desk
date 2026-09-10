@@ -6,7 +6,7 @@
     {
       "id": "okx",
       "title": "OKX 永续 · 价突破 V6",
-      "lede": "2023-09-07 ~ 2026-09-07 · taker 5bps + slip 1bps / side。信号与实盘 V6 价突破条件一致。",
+      "lede": "2023-09-07 ~ 2026-09-07 · taker 5bps + slip 1bps / side。三年完整回测，信号与 V6 价突破条件一致。",
       "symbols": [
         {
           "name": "BTC",
@@ -58,7 +58,7 @@
     {
       "id": "binance",
       "title": "Binance 永续 · 趋势跟踪 / MACD",
-      "lede": "仍在币安账户运行的均线与 MACD 脚本。数字来自各脚本头注释或专用回测区间，和上方 OKX 三年样本不是同一套成交。",
+      "lede": "币安均线与 MACD 脚本回测 / 运行样本。数字来自各脚本头注释或专用回测区间，与上方 OKX 三年样本不是同一套成交。",
       "symbols": [
         {
           "name": "BTC",

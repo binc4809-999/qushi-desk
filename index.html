@@ -20,8 +20,7 @@
       <a class="tab is-on" href="#home" data-hash="home">首页</a>
       <a class="tab" href="#products" data-hash="products">产品</a>
       <a class="tab" href="#desk" data-hash="desk">演示台</a>
-      <a class="tab" href="#opps" data-hash="opps">投资机会</a>
-      <a class="tab" href="#live" data-hash="live">实盘</a>
+      <a class="tab" href="#live" data-hash="live">策略回测报告</a>
       <a class="tab" href="#contact" data-hash="contact">联系</a>
     </nav>
     <div class="mast-right">
@@ -41,7 +40,7 @@
         <p class="hero-lede">买卖点可追溯、选股池可扫读、K 线有标注、脚本心跳在跑。研究备忘与能力演示，不是荐股或募集。</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#lead">预约交流</a>
-          <a class="btn btn-ghost" href="#desk">查看实盘演示</a>
+          <a class="btn btn-ghost" href="#live">查看回测报告</a>
         </div>
         <ul class="hero-proof" id="home-proof">
           <li>买卖点看板</li>
@@ -88,11 +87,11 @@
             <p>PyCharm 进程心跳：谁在跑、最新一行日志。页面不探测本地 IDE，脚本自己上报。</p>
             <span class="suite-go">查看演示</span>
           </a>
-          <a class="suite-card" href="#opps">
-            <p class="suite-kicker">Research</p>
-            <h3>研究脚本结果上墙</h3>
-            <p>机会表、机制、公开收益与代价由调研脚本写入 JSON 后上墙，数据契约可对接。</p>
-            <span class="suite-go">查看演示</span>
+          <a class="suite-card" href="#live">
+            <p class="suite-kicker">Backtest</p>
+            <h3>策略回测报告</h3>
+            <p>脚本回测结果上墙：收益、年化、回撤、胜率、盈亏比与分信号明细，方便基金经理扫读。</p>
+            <span class="suite-go">查看报告</span>
           </a>
         </div>
       </section>
@@ -175,8 +174,7 @@
             <a href="#pool">选股池</a>
             <a href="#top3">TOP3 日线</a>
             <a href="#crypto">加密 30m</a>
-            <a href="#live">脚本心跳</a>
-            <a href="#opps">投资机会</a>
+            <a href="#live">回测报告</a>
           </nav>
         </div>
         <div class="filter-stack">
@@ -265,184 +263,30 @@
       </section>
     </section>
 
-    <section id="view-opps" class="view">
-      <header class="view-head">
-        <div>
-          <h1>投资机会</h1>
-          <p class="lede">默认看全球行情；机会表与管道心跳由研究脚本发布。按市场与状态筛选，点一行看机制、代价与来源。各脚本是否在跑见实盘页。</p>
-        </div>
-        <div class="filter-stack">
-          <div class="filter-row">
-            <span class="filter-label">市场</span>
-            <div class="filters" id="filters" role="group" aria-label="市场过滤">
-              <button type="button" class="chip is-on" data-region="global">全球</button>
-              <button type="button" class="chip" data-region="crypto">加密</button>
-              <button type="button" class="chip" data-region="cn">A股</button>
-              <button type="button" class="chip" data-region="other">其他</button>
-              <button type="button" class="chip" data-region="method">方法</button>
-            </div>
-          </div>
-          <div class="filter-row">
-            <span class="filter-label">状态</span>
-            <div class="filters" id="status-filters" role="group" aria-label="状态过滤">
-              <button type="button" class="chip is-on" data-status="all">全部</button>
-              <button type="button" class="chip" data-status="watch">观察</button>
-              <button type="button" class="chip" data-status="research">研究</button>
-              <button type="button" class="chip" data-status="live">实盘</button>
-            </div>
-          </div>
-        </div>
-      </header>
-      <aside class="pipeline js-last-run" id="pipeline" aria-live="polite">
-        <span class="pl-kicker">管道</span>
-        <span class="pl-line">正在读取脚本心跳…</span>
-      </aside>
-      <button type="button" class="pipeline runner-strip js-runner-strip" id="opp-runners" data-status="unknown">
-        <span class="pl-kicker">脚本</span>
-        <span class="pl-line">正在读取运行状态…</span>
-      </button>
-      <!-- 全球行情快照 -->
-      <section id="quotes-block" class="quotes-block">
-        <div class="quotes-head">
-          <h2 class="block-title">全球行情</h2>
-          <p class="hint" id="quotes-stamp"></p>
-        </div>
-        <div id="quotes-groups"></div>
-      </section>
-
-      <section id="opp-block" class="opp-block">
-        <div class="quotes-head">
-          <h2 class="block-title">优先机会</h2>
-          <p class="hint" id="opp-stamp"></p>
-        </div>
-        <div class="table-wrap" id="main-table-wrap">
-          <table class="grid">
-            <thead>
-              <tr>
-                <th>优先级</th>
-                <th>机会</th>
-                <th>机制</th>
-                <th>公开收益</th>
-                <th>回撤</th>
-                <th>主要代价</th>
-                <th>状态</th>
-              </tr>
-            </thead>
-            <tbody id="opp-body">
-              <tr class="msg-row"><td colspan="7">正在加载机会表…</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <section id="cn-block" class="cn-block is-hidden">
-        <div class="quotes-head">
-          <h2 class="block-title">A股</h2>
-          <p class="hint">点一行看详情 · 下方为盘前/涨停与可转债</p>
-        </div>
-        <div class="table-wrap">
-          <table class="grid">
-            <thead>
-              <tr>
-                <th>优先级</th>
-                <th>机会</th>
-                <th>机制</th>
-                <th>公开收益</th>
-                <th>回撤</th>
-                <th>主要代价</th>
-                <th>状态</th>
-              </tr>
-            </thead>
-            <tbody id="cn-body">
-              <tr class="msg-row"><td colspan="7">正在加载 A 股机会…</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="market" id="market"></div>
-        <section class="kzz-block" id="kzz-block">
-          <div class="kzz-head">
-            <h2 class="block-title">可转债</h2>
-            <p class="hint" id="kzz-stamp"></p>
-          </div>
-          <div class="kzz-grid">
-            <section class="kzz-panel">
-              <div class="kzz-title">
-                <h3>可转债申购</h3>
-                <a id="kzz-em-link" href="https://data.eastmoney.com/xg/xg/?mkt=kzz" target="_blank" rel="noopener noreferrer">东方财富原站</a>
-              </div>
-              <div class="table-wrap">
-                <table class="grid compact">
-                  <thead>
-                    <tr>
-                      <th>债券</th>
-                      <th>申购代码</th>
-                      <th>申购日</th>
-                      <th>规模(亿)</th>
-                      <th>评级</th>
-                    </tr>
-                  </thead>
-                  <tbody id="kzz-subscribe"></tbody>
-                </table>
-              </div>
-            </section>
-            <section class="kzz-panel">
-              <div class="kzz-title">
-                <h3>待发转债 · 同意注册</h3>
-                <a id="kzz-jsl-link" href="https://www.jisilu.cn/web/data/cb/pre" target="_blank" rel="noopener noreferrer">集思录原站</a>
-              </div>
-              <div class="table-wrap">
-                <table class="grid compact">
-                  <thead>
-                    <tr>
-                      <th>转债/正股</th>
-                      <th>方案进程</th>
-                      <th>注册公告日</th>
-                      <th>规模(亿)</th>
-                      <th>评级</th>
-                      <th>正股价</th>
-                    </tr>
-                  </thead>
-                  <tbody id="kzz-approved"></tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        </section>
-      </section>
-    </section>
-
     <section id="view-live" class="view">
       <header class="view-head">
         <div>
-          <h1>实盘策略 / 预警</h1>
-          <p class="lede">脚本推送的开平仓与选股监控。时间按上海时区。SAMPLE 不是实时成交，实盘推送后会标 LIVE。脚本运行状态来自各进程心跳（页面不能自动发现 PyCharm，需 heartbeat + push），与预警流分开。</p>
-        </div>
-        <div class="filter-stack">
-          <div class="filter-row">
-            <span class="filter-label">频道</span>
-            <div class="filters" id="alert-filters" role="group" aria-label="预警频道">
-              <button type="button" class="chip is-on" data-channel="all">全部</button>
-              <button type="button" class="chip" data-channel="trade">开平仓</button>
-              <button type="button" class="chip" data-channel="monitor">选股监控</button>
-              <button type="button" class="chip" data-channel="system">系统</button>
-            </div>
-          </div>
-          <div class="filter-row">
-            <span class="filter-label">来源</span>
-            <div class="filters" id="alert-source-filters" role="group" aria-label="预警来源">
-              <button type="button" class="chip is-on" data-source="all">全部</button>
-              <button type="button" class="chip" data-source="live">仅 LIVE</button>
-            </div>
-          </div>
+          <h1>策略回测报告展示</h1>
+          <p class="lede">主要展示各脚本的回测报告：区间收益、年化、最大回撤、胜率、盈亏比与分信号明细。数据来自 <code>data/strategies.json</code>，由研究脚本发布。下方可选看脚本心跳与历史预警流。</p>
         </div>
       </header>
+      <section class="strat-block" id="backtest-block">
+        <div class="quotes-head">
+          <h2 class="block-title">脚本回测报告</h2>
+          <p class="hint" id="strat-stamp"></p>
+        </div>
+        <div id="strat-venues">
+          <p class="feed-msg">正在加载回测报告…</p>
+        </div>
+      </section>
       <aside class="pipeline js-last-run" id="live-pipeline" aria-live="polite">
         <span class="pl-kicker">管道</span>
         <span class="pl-line">正在读取脚本心跳…</span>
       </aside>
-      <aside class="pipeline" id="alert-heartbeat" data-status="unknown" aria-live="polite">
-        <span class="pl-kicker">预警</span>
-        <span class="pl-line">正在读取预警流…</span>
-      </aside>
+      <button type="button" class="pipeline runner-strip js-runner-strip" id="live-runners" data-status="unknown">
+        <span class="pl-kicker">脚本</span>
+        <span class="pl-line">读取运行状态…</span>
+      </button>
       <section class="runner-block" id="runner-block">
         <div class="quotes-head">
           <h2 class="block-title">脚本运行状态</h2>
@@ -453,22 +297,38 @@
         </div>
       </section>
       <section class="alert-block">
-        <div class="quotes-head">
-          <h2 class="block-title">预警流</h2>
-          <p class="hint" id="alert-stamp"></p>
-        </div>
+        <header class="view-head" style="padding:0;margin:0 0 12px;border:0">
+          <div>
+            <h2 class="block-title">附：预警流</h2>
+            <p class="hint">SAMPLE 不是实时成交；实盘推送后会标 LIVE。</p>
+          </div>
+          <div class="filter-stack">
+            <div class="filter-row">
+              <span class="filter-label">频道</span>
+              <div class="filters" id="alert-filters" role="group" aria-label="预警频道">
+                <button type="button" class="chip is-on" data-channel="all">全部</button>
+                <button type="button" class="chip" data-channel="trade">开平仓</button>
+                <button type="button" class="chip" data-channel="monitor">选股监控</button>
+                <button type="button" class="chip" data-channel="system">系统</button>
+              </div>
+            </div>
+            <div class="filter-row">
+              <span class="filter-label">来源</span>
+              <div class="filters" id="alert-source-filters" role="group" aria-label="预警来源">
+                <button type="button" class="chip is-on" data-source="all">全部</button>
+                <button type="button" class="chip" data-source="live">仅 LIVE</button>
+              </div>
+            </div>
+          </div>
+        </header>
+        <aside class="pipeline" id="alert-heartbeat" data-status="unknown" aria-live="polite">
+          <span class="pl-kicker">预警</span>
+          <span class="pl-line">正在读取预警流…</span>
+        </aside>
+        <p class="hint" id="alert-stamp"></p>
         <ol class="feed" id="alert-feed">
           <li class="feed-msg">正在加载预警…</li>
         </ol>
-      </section>
-      <section class="strat-block">
-        <div class="quotes-head">
-          <h2 class="block-title">实盘策略</h2>
-          <p class="hint" id="strat-stamp"></p>
-        </div>
-        <div id="strat-venues">
-          <p class="feed-msg">正在加载策略…</p>
-        </div>
       </section>
     </section>
 
@@ -523,11 +383,7 @@
       </div>
     </section>
   </main>
-
-  <div id="opp-scrim" class="drawer-scrim is-hidden" hidden></div>
-  <aside id="opp-detail" class="drawer is-hidden" hidden role="dialog" aria-modal="true" aria-labelledby="opp-detail-title"></aside>
-
-  <footer class="foot">
+<footer class="foot">
     <p id="disclaimer"></p>
     <p class="foot-meta">阅读路径全部走 CDN 缓存。脚本写入走独立发布接口，不经过浏览流量。</p>
   </footer>

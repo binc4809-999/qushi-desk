@@ -58,8 +58,9 @@ const HASH_ROUTE = {
   pool: { view: "desk", tab: "desk", scroll: "pool" },
   top3: { view: "desk", tab: "desk", scroll: "top3" },
   crypto: { view: "desk", tab: "desk", scroll: "crypto" },
-  opps: { view: "opps", tab: "opps", top: true },
+  opps: { view: "live", tab: "live", top: true },
   live: { view: "live", tab: "live", top: true },
+  backtest: { view: "live", tab: "live", scroll: "backtest-block" },
   runners: { view: "live", tab: "live", scroll: "runner-block" },
   contact: { view: "contact", tab: "contact", top: true },
 };
@@ -124,7 +125,7 @@ function setView(name, opts = {}) {
   $$(".tab").forEach((t) => t.classList.toggle("is-on", t.dataset.hash === tab));
   document.body.classList.toggle("is-marketing", name === "home" || name === "contact");
   document.body.dataset.view = name;
-  if (name !== "opps") closeDetail({ restoreFocus: false });
+  if (name !== "live") closeDetail({ restoreFocus: false });
   if (name === "desk") {
     requestAnimationFrame(() => chartInstances.forEach((c) => c.resize?.()));
   }
@@ -1001,9 +1002,9 @@ function renderStrats() {
   const count = venues.reduce((n, v) => n + (v.symbols || []).length, 0);
   if (stamp) {
     const bits = [];
-    if (data.sample) bits.push("示例数据，脚本可覆盖");
+    if (data.sample) bits.push("示例回测，脚本可覆盖");
     if (data.updated_at) bits.push(`数据 ${fmtShanghai(data.updated_at) || data.updated_at}`);
-    bits.push("名称 / 交易所 / 状态 / 最近信号 / 规则");
+    bits.push(`${count} 份报告 · 收益 / 年化 / 回撤 / 胜率`);
     stamp.textContent = bits.join(" · ");
   }
   if (!count) {
