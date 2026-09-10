@@ -1,29 +1,43 @@
 {
   "schema_version": 1,
   "sample": true,
-  "updated_at": "2026-09-08T00:00:00+00:00",
+  "solo": true,
+  "updated_at": "2026-09-07 15:22:45.338099+00:00",
+  "filter_note": "仅展示 QUSHIIZIYOU_BTCUSDT_V6.py 详细回测；其它脚本暂不展示",
   "venues": [
     {
-      "id": "okx",
-      "title": "OKX 永续 · 价突破 V6",
-      "lede": "2023-09-07 ~ 2026-09-07 · taker 5bps + slip 1bps / side。三年完整回测，信号与 V6 价突破条件一致。",
+      "id": "okx-btc-v6",
+      "title": "QUSHIIZIYOU_BTCUSDT_V6",
+      "lede": "2023-09-07 ~ 2026-09-07 · taker 5bps + slip 1bps / side。信号与实盘包脚本 QUSHIIZIYOU_BTCUSDT_V6.py 价突破条件一致；止损 3.4% / 止盈 3.5% / 锁盈触发 1.6% / 5x 逐仓。",
       "symbols": [
         {
           "name": "BTC",
           "instId": "BTC-USDT-SWAP",
           "exchange": "OKX",
+          "script": "QUSHIIZIYOU_BTCUSDT_V6.py",
+          "script_path": "实盘包_20260906_BTC_SOL/QUSHIIZIYOU_BTCUSDT_V6.py",
           "status": "sample",
-          "status_label": "回测样例",
-          "rule": "价突破 V6 · 止损 3.4% / 止盈 3.5% / 锁盈 1.6% / 4H EMA55 开",
+          "status_label": "详细回测",
+          "featured": true,
+          "rule": "价突破 V6 · 止损 3.4% / 止盈 3.5% / 锁盈 1.6% / 30B·5B·30K·5K 全开",
           "ret_pct": 39.56,
           "ann_pct": 11.74,
           "maxdd_pct": 13.96,
           "calmar": 0.84,
           "trades": 122,
+          "wins": 16,
+          "losses": 106,
           "winrate": 13.11,
           "payoff": 9.92,
           "pf": 1.5,
-          "params": "止损 3.4% / 止盈 3.5% / 锁盈 1.6% / 4H EMA55 开 / 信号全开",
+          "net_pnl": 3955.6,
+          "avg_win": 744.35,
+          "avg_loss": -75.04,
+          "buyhold_pct": 202.42,
+          "init": 10000.0,
+          "final": 13955.6,
+          "range": "2023-09-07 ~ 2026-09-07",
+          "params": "SL 3.4% · TP 3.5% · 锁盈触发 1.6% · 锁盈止损 ±0.1% · 锁盈止盈 15% · 杠杆 5x · fee/side 6bps",
           "by_signal": [
             {
               "signal": "30B",
@@ -50,229 +64,63 @@
               "winrate": 17.65
             }
           ],
-          "net_pnl": 3955.6,
-          "featured": true
-        },
-        {
-          "name": "SOL",
-          "instId": "SOL-USDT-SWAP",
-          "exchange": "OKX",
-          "status": "sample",
-          "status_label": "回测样例",
-          "rule": "价突破 V6 · 止损 2.5% / 止盈 12% / 锁盈 2.5% / 4H EMA55 关 / 5K 关",
-          "ret_pct": 9.47,
-          "ann_pct": 3.06,
-          "maxdd_pct": 22.76,
-          "calmar": 0.13,
-          "trades": 103,
-          "winrate": 11.65,
-          "payoff": 8.64,
-          "pf": 1.14,
-          "params": "止损 2.5% / 止盈 12% / 锁盈 2.5% / 4H EMA55 关 / 5K 关",
-          "by_signal": [
-            {
-              "signal": "30B",
-              "n": 79,
-              "pnl": -502.0,
-              "winrate": 10.13
-            },
-            {
-              "signal": "5B",
-              "n": 13,
-              "pnl": 411.27,
-              "winrate": 15.38
-            },
-            {
-              "signal": "30K",
-              "n": 11,
-              "pnl": 1037.87,
-              "winrate": 18.18
-            }
+          "reasons": {
+            "MOVE_SL": 65,
+            "SL": 41,
+            "MOVE_TP": 15,
+            "EOD": 1
+          },
+          "monthly": {
+            "2023-09": -2.0,
+            "2023-10": 647.19,
+            "2023-11": -1.6,
+            "2023-12": 588.37,
+            "2024-01": -491.58,
+            "2024-02": 1227.16,
+            "2024-03": -3.59,
+            "2024-04": -214.09,
+            "2024-05": -3.52,
+            "2024-06": -412.1,
+            "2024-07": 841.44,
+            "2024-08": -213.35,
+            "2024-09": -105.27,
+            "2024-10": 880.26,
+            "2024-11": 10.98,
+            "2024-12": -340.17,
+            "2025-01": -329.28,
+            "2025-02": 783.82,
+            "2025-03": -228.28,
+            "2025-04": -1.9,
+            "2025-05": 1691.56,
+            "2025-06": -253.51,
+            "2025-07": -0.7,
+            "2025-08": 518.64,
+            "2025-09": -634.29,
+            "2025-10": -491.58,
+            "2025-11": 500.81,
+            "2025-12": -487.47,
+            "2026-01": -470.18,
+            "2026-02": 598.86,
+            "2026-03": -243.45,
+            "2026-05": 617.32,
+            "2026-06": 520.0,
+            "2026-07": -4.35,
+            "2026-08": -630.19,
+            "2026-09": 91.63
+          },
+          "notes": [
+            "信号与实盘 V6 价突破条件一致；30m/4H 用上一根已收盘均线对当前价做一步 EMA，模拟未走完 K 线。",
+            "成交按 5m 收盘价；同根既触止损又触止盈时按止损（偏保守）。",
+            "仓位：同账户单币、5x 逐仓、5B/5K=5% 保证金、30B/30K=10%；冷却 1 根 5m；30 分钟最多 3 笔。",
+            "SOL 关闭 5K 与 4H EMA55 止盈；BTC 本轮同样关闭 EMA55 止盈（对照原开 EMA55）。"
           ],
-          "net_pnl": 947.14,
-          "featured": false
-        }
-      ]
-    },
-    {
-      "id": "binance",
-      "title": "Binance 永续 · 趋势跟踪 / MACD",
-      "lede": "币安均线与 MACD 脚本回测 / 运行样本。数字来自各脚本头注释或专用回测区间，与上方 OKX 三年样本不是同一套成交。",
-      "symbols": [
-        {
-          "name": "BTC",
-          "instId": "BTCUSDT",
-          "exchange": "Binance",
-          "status": "live",
-          "status_label": "实盘运行",
-          "rule": "V6 价突破 · 止损 4.5% / 止盈 8.5% / 锁盈 4% / 5x",
-          "ret_pct": 19.15,
-          "ann_pct": null,
-          "maxdd_pct": 4.08,
-          "winrate": 66.5,
-          "params": "V6 价突破 · 止损 4.5% / 止盈 8.5% / 锁盈 4% / 5x · 30B 5B 30K 5K",
-          "by_signal": [
-            {
-              "signal": "30B",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "5B",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "30K",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "5K",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            }
-          ],
-          "featured": false
-        },
-        {
-          "name": "ETH",
-          "instId": "ETHUSDT",
-          "exchange": "Binance",
-          "status": "live",
-          "status_label": "实盘运行",
-          "rule": "V2 · 30M/5M EMA5 金叉死叉 EMA13 + MACD · 4H 乖离 <5%",
-          "ret_pct": 10.79,
-          "maxdd_pct": 8.43,
-          "sharpe": 0.053,
-          "params": "V2 · 30M/5M EMA5 金叉死叉 EMA13 + MACD · 4H 乖离 <5% · 5x",
-          "by_signal": [
-            {
-              "signal": "30B",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "5B",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "30K",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "5K",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            }
-          ],
-          "featured": false
-        },
-        {
-          "name": "SOL",
-          "instId": "SOLUSDT",
-          "exchange": "Binance",
-          "status": "live",
-          "status_label": "实盘运行",
-          "rule": "V6 · 30M EMA13<EMA55 后 EMA5 金叉 EMA13 · MACD 过滤",
-          "ret_pct": 38.6,
-          "maxdd_pct": 8.51,
-          "sharpe": 0.132,
-          "params": "V6 · 30M EMA13<EMA55 后 EMA5 金叉 EMA13 · MACD 过滤 · 5x",
-          "by_signal": [
-            {
-              "signal": "30B",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "5B",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "30K",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            }
-          ],
-          "featured": true
-        },
-        {
-          "name": "SOL 15M",
-          "instId": "SOLUSDT",
-          "exchange": "Binance",
-          "status": "live",
-          "status_label": "实盘运行",
-          "rule": "15M 单周期 · EMA7/EMA29 + ADX>18 · 信号B 均线贴近+放量",
-          "ret_pct": 36.21,
-          "maxdd_pct": 25.22,
-          "winrate": 51.4,
-          "trades": 952,
-          "params": "15M 单周期 · EMA7/EMA29 + ADX>18 · 信号B 均线贴近+放量 · 2024-02-13~2026-02-13",
-          "by_signal": [
-            {
-              "signal": "A 金叉/死叉",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "B 贴近放量",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            }
-          ],
-          "featured": true
-        },
-        {
-          "name": "BTC ETH SOL",
-          "instId": "USDT-PERP",
-          "exchange": "Binance",
-          "status": "live",
-          "status_label": "实盘运行",
-          "rule": "5m/15m 双周期 · 4H EMA13/55/89 过滤 · 15M MACD + 穿 EMA5 · 5M EMA7/29 + ADX>18",
-          "params": "5m/15m 双周期军规版 · 4H EMA13/55/89 趋势过滤 · 15M MACD + 价格穿 EMA5 · 5M EMA7/29 + ADX>18",
-          "by_signal": [
-            {
-              "signal": "4H 过滤",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "15M MACD",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            },
-            {
-              "signal": "5M 触发",
-              "n": null,
-              "pnl": null,
-              "winrate": null
-            }
-          ],
-          "featured": false
+          "last_signal": {
+            "action": "平仓 · MOVE_SL",
+            "ts": "2023-10-24T06:40:00+00:00",
+            "live": false
+          }
         }
       ]
     }
-  ],
-  "min_ret_pct": 30,
-  "min_net_pnl": 2000,
-  "filter_note": "仅展示净利润/收益突出的历史回测（净利≥2000 或 收益≥30%）"
+  ]
 }

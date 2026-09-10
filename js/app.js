@@ -1029,16 +1029,79 @@ function barsSvg(bars) {
     .join("")}</div>`;
 }
 
+function signalSchematicSvg(d, w = 520, h = 168) {
+  const buy = String(d.side || "buy") === "buy";
+  const stroke = buy ? "#3d9a78" : "#c45c4a";
+  const fill = buy ? "rgba(61,154,120,0.16)" : "rgba(196,92,74,0.16)";
+  // stylized EMA + price path
+  const ema = "M40,118 C120,118 160,95 220,88 C280,82 320,70 380,62 C430,56 470,52 490,50";
+  const price = buy
+    ? "M40,130 C110,128 150,122 190,110 C240,92 280,78 330,55 C370,40 420,34 490,28"
+    : "M40,40 C110,42 150,55 200,70 C250,88 300,105 360,120 C410,132 450,140 490,145";
+  const markX = 330;
+  const markY = buy ? 55 : 120;
+  const label = buy ? "BUY" : "SELL";
+  const steps = (d.steps || []).slice(0, 4);
+  const stepText = steps
+    .map((s, i) => `<text x="40" y="${148 + i * 0}" opacity="0">${esc(s)}</text>`)
+    .join("");
+  return `<svg class="eq-svg signal-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(d.title || "信号示意")}">
+    <rect x="0" y="0" width="${w}" height="${h}" fill="rgba(0,0,0,0.18)"></rect>
+    <path d="${ema}" fill="none" stroke="rgba(200,180,120,0.55)" stroke-width="1.6" stroke-dasharray="5 4"></path>
+    <path d="${price}" fill="none" stroke="${stroke}" stroke-width="2.4"></path>
+    <circle cx="${markX}" cy="${markY}" r="7" fill="${fill}" stroke="${stroke}" stroke-width="2"></circle>
+    <text x="${markX + 12}" y="${markY + 4}" fill="${stroke}" font-size="12" font-weight="600">${label} · ${esc(d.signal || "")}</text>
+    <text x="40" y="24" fill="rgba(232,228,220,0.55)" font-size="11">虚线 = EMA · 实线 = 价格路径（示意）</text>
+    ${stepText}
+  </svg>
+  <ol class="signal-steps">${steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>`;
+}
+
+function tradeSchematicSvg(d, w = 520, h = 160) {
+  const entry = Number(d.entry);
+  const exit = Number(d.exit);
+  if (!Number.isFinite(entry) || !Number.isFinite(exit)) return "";
+  const long = String(d.dir || "long") === "long";
+  const pad = 18;
+  const midY = h / 2;
+  // synthetic path: start near entry, end at exit with mild curve
+  const y0 = long ? midY + 28 : midY - 28;
+  const y1 = long ? (exit >= entry ? midY - 36 : midY + 36) : exit <= entry ? midY + 36 : midY - 36;
+  const x0 = pad + 20;
+  const x1 = w - pad - 20;
+  const xm = (x0 + x1) / 2;
+  const path = `M${x0},${y0} Q${xm},${(y0 + y1) / 2 - (long ? 18 : -18)} ${x1},${y1}`;
+  const up = (d.pnl ?? 0) >= 0;
+  const stroke = up ? "#3d9a78" : "#c45c4a";
+  const buyLabel = long ? "开多" : "开空";
+  const sellLabel = long ? "平多" : "平空";
+  return `<svg class="eq-svg trade-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="成交示意">
+    <rect x="0" y="0" width="${w}" height="${h}" fill="rgba(0,0,0,0.18)"></rect>
+    <path d="${path}" fill="none" stroke="${stroke}" stroke-width="2.4"></path>
+    <circle cx="${x0}" cy="${y0}" r="6" fill="#3d9a78"></circle>
+    <circle cx="${x1}" cy="${y1}" r="6" fill="#c45c4a"></circle>
+    <text x="${x0 + 10}" y="${y0 - 10}" fill="#3d9a78" font-size="11">${buyLabel} ${num(entry, 1)}</text>
+    <text x="${Math.max(pad, x1 - 120)}" y="${y1 - 10}" fill="#c45c4a" font-size="11">${sellLabel} ${num(exit, 1)}</text>
+    <text x="40" y="24" fill="rgba(232,228,220,0.55)" font-size="11">${esc(d.signal || "")} · PnL ${num(d.pnl, 1)} · ${esc(d.reason || "")}</text>
+  </svg>`;
+}
+
 function diagramCard(d) {
   const bits = [];
   if (d.net_pnl != null) bits.push(`净利 ${num(d.net_pnl, 0)}`);
-  if (d.ret_pct != null) bits.push(`收益 ${num(d.ret_pct, 2, "%")}`);
+  if (d.ret_pct != null && d.kind !== "trade") bits.push(`收益 ${num(d.ret_pct, 2, "%")}`);
   if (d.maxdd_pct != null) bits.push(`回撤 ${num(d.maxdd_pct, 2, "%")}`);
   if (d.trades != null) bits.push(`${d.trades} 笔`);
-  const chart = d.equity_curve?.length ? equitySvg(d.equity_curve) : barsSvg(d.bars);
-  return `<article class="diagram-card">
+  if (d.kind === "trade" && d.pnl != null) bits.push(`PnL ${num(d.pnl, 1)}`);
+  let chart = "";
+  if (d.kind === "signal") chart = signalSchematicSvg(d);
+  else if (d.kind === "trade") chart = tradeSchematicSvg(d);
+  else if (d.equity_curve?.length) chart = equitySvg(d.equity_curve);
+  else chart = barsSvg(d.bars);
+  const pill = d.kind === "signal" ? "信号示意" : d.kind === "trade" ? "样本成交" : d.venue || "回测";
+  return `<article class="diagram-card kind-${esc(d.kind || "equity")}">
     <div class="diagram-top">
-      <span class="pill sample">${esc(d.venue || "回测")}</span>
+      <span class="pill sample">${esc(pill)}</span>
       <span class="sub">${esc(d.symbol || "")}</span>
     </div>
     <h3>${esc(d.title)}</h3>
@@ -1063,14 +1126,18 @@ function renderDiagrams() {
     host.innerHTML = `<p class="feed-msg">暂无回测图示。可写入 data/backtest-diagrams.json。</p>`;
     return;
   }
-  const items = (data.items || []).filter((d) => {
-    if (d.net_pnl != null && d.net_pnl >= (data.min_net_pnl ?? 2000)) return true;
-    if (d.ret_pct != null && d.ret_pct >= (data.min_ret_pct ?? 30)) return true;
-    return false;
-  });
+  const items = data.solo
+    ? data.items || []
+    : (data.items || []).filter((d) => {
+        if (d.kind === "signal" || d.kind === "trade") return true;
+        if (d.net_pnl != null && d.net_pnl >= (data.min_net_pnl ?? 2000)) return true;
+        if (d.ret_pct != null && d.ret_pct >= (data.min_ret_pct ?? 30)) return true;
+        return false;
+      });
   if (stamp) {
     const bits = [];
-    if (data.note) bits.push("高净利样本");
+    if (data.script) bits.push(data.script);
+    else if (data.note) bits.push(String(data.note).slice(0, 24));
     if (data.updated_at) bits.push(`数据 ${fmtShanghai(data.updated_at) || String(data.updated_at).slice(0, 19)}`);
     bits.push(`${items.length} 张图示`);
     stamp.textContent = bits.join(" · ");
@@ -1080,11 +1147,50 @@ function renderDiagrams() {
     : `<p class="feed-msg">暂无达到净利门槛的图示。</p>`;
 }
 
+function bySignalTable(rows) {
+  if (!rows?.length) return "";
+  const body = rows
+    .map(
+      (r) => `<tr>
+      <td>${esc(r.signal)}</td>
+      <td>${r.n != null ? esc(r.n) : "—"}</td>
+      <td class="${Number(r.pnl) >= 0 ? "up" : "down"}">${r.pnl != null ? num(r.pnl, 1) : "—"}</td>
+      <td>${r.winrate != null ? num(r.winrate, 1, "%") : "—"}</td>
+    </tr>`
+    )
+    .join("");
+  return `<table class="bt-table"><thead><tr><th>信号</th><th>笔数</th><th>净利</th><th>胜率</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+
+function reasonsLine(reasons) {
+  if (!reasons || typeof reasons !== "object") return "";
+  const bits = Object.entries(reasons).map(([k, v]) => `${k} ${v}`);
+  return bits.length ? `<p class="strat-extra"><span class="kicker">离场结构</span> ${esc(bits.join(" · "))}</p>` : "";
+}
+
+function monthlyMini(monthly) {
+  if (!monthly || typeof monthly !== "object") return "";
+  const entries = Object.entries(monthly);
+  if (!entries.length) return "";
+  const vals = entries.map(([, v]) => Number(v));
+  const max = Math.max(...vals.map(Math.abs), 1);
+  const bars = entries
+    .map(([k, v]) => {
+      const n = Number(v);
+      const h = Math.max(4, Math.round((Math.abs(n) / max) * 36));
+      const cls = n >= 0 ? "up" : "down";
+      return `<i class="${cls}" title="${esc(k)}: ${num(n, 1)}" style="height:${h}px"></i>`;
+    })
+    .join("");
+  return `<div class="month-bars" aria-label="月度盈亏"><span class="kicker">月度</span><div class="month-track">${bars}</div></div>`;
+}
+
 function renderSymbol(s, venue) {
   const { status, label } = stratStatus(s);
   const venueName = s.exchange || venue.title || venue.id || "";
   const inst = s.instId || s.symbol || "";
   const rule = pick(s, "rule", "params");
+  const script = s.script || "";
   const sig = lastSignalFor(s, venue);
   let sigLine = "暂无推送";
   if (sig) {
@@ -1101,15 +1207,23 @@ function renderSymbol(s, venue) {
   if (s.maxdd_pct != null) bits.push(`回撤 ${num(s.maxdd_pct, 2, "%")}`);
   if (s.trades != null) bits.push(`${s.trades} 笔`);
   if (s.winrate != null) bits.push(`胜率 ${num(s.winrate, 1, "%")}`);
-  return `<article class="strat-card status-${esc(status)}">
+  if (s.payoff != null) bits.push(`盈亏比 ${num(s.payoff, 2)}`);
+  if (s.pf != null) bits.push(`PF ${num(s.pf, 2)}`);
+  const notes = (s.notes || []).slice(0, 3).map((n) => `<li>${esc(n)}</li>`).join("");
+  return `<article class="strat-card status-${esc(status)} is-detail">
     <div class="strat-top">
       <span class="pill ${esc(status === "live" ? "live" : status === "sample" ? "sample" : status)}">${esc(label)}</span>
       <span class="tag venue">${esc([venueName, inst].filter(Boolean).join(" · "))}</span>
     </div>
-    <h2>${esc(s.name)}</h2>
+    <h2>${esc(s.name)}${script ? ` · ${esc(script)}` : ""}</h2>
     ${rule ? `<p class="strat-rule">${esc(rule)}</p>` : ""}
+    ${s.params && s.params !== rule ? `<p class="strat-extra"><span class="kicker">参数</span> ${esc(s.params)}</p>` : ""}
     <p class="strat-signal"><span class="kicker">最近信号</span> ${esc(sigLine)}</p>
     ${bits.length ? `<p class="strat-metrics">${esc(bits.join(" · "))}</p>` : ""}
+    ${bySignalTable(s.by_signal)}
+    ${reasonsLine(s.reasons)}
+    ${monthlyMini(s.monthly)}
+    ${notes ? `<ul class="bt-notes">${notes}</ul>` : ""}
   </article>`;
 }
 
@@ -1131,16 +1245,18 @@ function renderStrats() {
   const venues = (data.venues || [{ id: "okx", title: "OKX", symbols: data.symbols || [] }])
     .map((v) => ({
       ...v,
-      symbols: (v.symbols || []).filter((s) => isHighProfitStrat(s, data)),
+      symbols: data.solo
+        ? v.symbols || []
+        : (v.symbols || []).filter((s) => isHighProfitStrat(s, data)),
     }))
     .filter((v) => (v.symbols || []).length);
   const count = venues.reduce((n, v) => n + (v.symbols || []).length, 0);
   if (stamp) {
     const bits = [];
-    if (data.filter_note) bits.push("已过滤低净利");
+    if (data.filter_note) bits.push(data.filter_note);
     else if (data.sample) bits.push("示例回测，脚本可覆盖");
     if (data.updated_at) bits.push(`数据 ${fmtShanghai(data.updated_at) || data.updated_at}`);
-    bits.push(`${count} 份高净利报告`);
+    bits.push(`${count} 份报告`);
     stamp.textContent = bits.join(" · ");
   }
   if (!count) {
@@ -1154,7 +1270,7 @@ function renderStrats() {
       return `<section class="venue">
         <h2>${esc(v.title || v.id || "策略")}</h2>
         ${v.lede ? `<p class="lede">${esc(v.lede)}</p>` : ""}
-        <div class="strat-grid">${cards}</div>
+        <div class="strat-grid ${data.solo ? "solo" : ""}">${cards}</div>
       </section>`;
     })
     .join("");

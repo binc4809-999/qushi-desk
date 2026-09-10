@@ -268,12 +268,12 @@
       <header class="view-head">
         <div>
           <h1>策略回测报告展示</h1>
-          <p class="lede">只展示净利润水平高的历史回测（默认：净利 ≥ 2000 USDT 或 收益 ≥ 30%）。上方为回测权益 / 指标图示，下方为对应脚本卡片。数据来自 <code>data/strategies.json</code> 与 <code>data/backtest-diagrams.json</code>。</p>
+          <p class="lede">当前只展示 <code>QUSHIIZIYOU_BTCUSDT_V6.py</code>（BTC-USDT-SWAP 价突破 V6）的详细回测：权益曲线、四类买卖点示意与样本成交图。其它脚本回测暂不展示。</p>
         </div>
       </header>
       <section class="diagram-block" id="diagram-block">
         <div class="quotes-head">
-          <h2 class="block-title">回测图示</h2>
+          <h2 class="block-title">买卖点示意与回测图</h2>
           <p class="hint" id="diagram-stamp"></p>
         </div>
         <div class="diagram-grid" id="diagram-grid">
@@ -282,7 +282,7 @@
       </section>
       <section class="strat-block" id="backtest-block">
         <div class="quotes-head">
-          <h2 class="block-title">高净利脚本报告</h2>
+          <h2 class="block-title">详细回测报告</h2>
           <p class="hint" id="strat-stamp"></p>
         </div>
         <div id="strat-venues">
@@ -400,6 +400,6 @@
   </footer>
 
   <script src="./js/kline.js?v=20260910b" defer></script>
-  <script src="./js/app.js?v=20260910d" defer></script>
+  <script src="./js/app.js?v=20260910e" defer></script>
 </body>
 </html>
