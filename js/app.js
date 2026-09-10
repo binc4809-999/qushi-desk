@@ -331,8 +331,8 @@ function chartCard(spec, kicker) {
         <h3>${esc(spec.name || spec.symbol)}<span class="sub">${esc([spec.symbol, spec.venue].filter(Boolean).join(" · "))}</span></h3>
         <p class="chart-script">脚本 <strong>${esc(script)}</strong>${spec.message ? ` · ${esc(spec.message)}` : ""}</p>
       </div>
-      <div class="filters" role="group" aria-label="周期">${chips.join("")}</div>
     </div>
+    <div class="filters tf-row" role="group" aria-label="周期">${chips.join("")}</div>
     <div class="kline-host" id="kline-${esc(id)}"></div>
     <p class="chart-note">K 线为示意数据 · 标的由脚本固定 · 可拖动查看，切换周期不改标的</p>
   </article>`;

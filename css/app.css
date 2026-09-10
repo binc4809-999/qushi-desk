@@ -853,6 +853,10 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
   gap: 12px;
   margin-bottom: 8px;
 }
+.tf-row {
+  margin: 0 0 8px;
+  justify-content: flex-end;
+}
 .chart-kicker {
   margin: 0 0 4px;
   color: var(--brass);

@@ -155,10 +155,10 @@
     }
     times.reverse();
 
-    const volScale = interval === "1d" ? 0.018 : 0.008;
+    const volScale = interval === "1d" ? 0.016 : 0.007;
     const bars = times.map((time) => {
       const drift = (rand() - 0.48) * price * volScale;
-      const shock = price * (0.003 + rand() * volScale);
+      const shock = price * (0.002 + rand() * volScale);
       const open = price;
       const close = Math.max(price * 0.2, open + drift);
       const high = Math.max(open, close) + rand() * shock;
@@ -168,8 +168,27 @@
       return { time, open, high, low, close, volume };
     });
 
+    const target =
+      Number(spec.price) ||
+      Number((spec.markers || []).filter((m) => Number(m.price) > 0).slice(-1)[0]?.price) ||
+      0;
+    pinEndPrice(bars, target);
     applyMarkers(bars, spec.markers || []);
     return bars;
+  }
+
+  function pinEndPrice(bars, target) {
+    if (!bars.length || !target || !Number.isFinite(target) || target <= 0) return;
+    const last = bars[bars.length - 1].close;
+    if (!last) return;
+    const scale = target / last;
+    if (!Number.isFinite(scale) || scale <= 0) return;
+    bars.forEach((b) => {
+      b.open *= scale;
+      b.high *= scale;
+      b.low *= scale;
+      b.close *= scale;
+    });
   }
 
   function nearestIndex(bars, ts) {
@@ -193,18 +212,20 @@
       const i = nearestIndex(bars, ts);
       const bar = bars[i];
       const px = Number(m.price);
-      if (!Number.isNaN(px) && px > 0) {
+      const side = m.side || "alert";
+      const near =
+        Number.isFinite(px) && px > 0 && Math.abs(px - bar.close) / Math.max(bar.close, 1e-9) < 0.04;
+      if (near) {
         bar.high = Math.max(bar.high, px);
         bar.low = Math.min(bar.low, px);
-        if (m.side === "buy") bar.close = px;
-        if (m.side === "sell") bar.close = px;
       }
+      const y = near ? px : side === "buy" ? bar.low : side === "sell" ? bar.high : bar.close;
       bar._marks = bar._marks || [];
       bar._marks.push({
-        side: m.side || "alert",
+        side,
         label: m.label || "",
         script_id: m.script_id || "",
-        price: Number.isNaN(px) ? bar.close : px,
+        price: y,
       });
     });
     return bars;
@@ -428,31 +449,47 @@
     vis.forEach((b, i) => {
       (b._marks || []).forEach((m, mi) => {
         const x = xOf(i);
-        const y = yOf(m.price);
         const side = m.side;
-        ctx.fillStyle = side === "buy" ? c.up : side === "sell" ? c.down : c.brass;
+        const color = side === "buy" ? c.up : side === "sell" ? c.down : c.brass;
+        let y = yOf(m.price);
+        y = Math.max(pad.t + 14, Math.min(pad.t + plotH - 14, y));
+        if (mi) y += side === "sell" ? -12 : 12;
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = 0.55;
+        ctx.beginPath();
+        ctx.moveTo(x, yOf(b.close));
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = color;
         ctx.beginPath();
         if (side === "buy") {
-          ctx.moveTo(x, y + 10);
-          ctx.lineTo(x - 5, y + 2);
-          ctx.lineTo(x + 5, y + 2);
+          ctx.moveTo(x, y + 8);
+          ctx.lineTo(x - 7, y - 4);
+          ctx.lineTo(x + 7, y - 4);
         } else if (side === "sell") {
-          ctx.moveTo(x, y - 10);
-          ctx.lineTo(x - 5, y - 2);
-          ctx.lineTo(x + 5, y - 2);
+          ctx.moveTo(x, y - 8);
+          ctx.lineTo(x - 7, y + 4);
+          ctx.lineTo(x + 7, y + 4);
         } else {
-          ctx.moveTo(x, y - 6);
-          ctx.lineTo(x + 5, y);
-          ctx.lineTo(x, y + 6);
-          ctx.lineTo(x - 5, y);
+          ctx.moveTo(x, y - 7);
+          ctx.lineTo(x + 6, y);
+          ctx.lineTo(x, y + 7);
+          ctx.lineTo(x - 6, y);
         }
         ctx.closePath();
         ctx.fill();
         const label = m.label || (side === "buy" ? "买" : side === "sell" ? "卖" : "警");
-        ctx.font = "10px Segoe UI, PingFang SC, sans-serif";
+        ctx.font = "11px Segoe UI, PingFang SC, sans-serif";
+        const tw = ctx.measureText(label).width;
+        const lx = Math.min(x + 8, w - pad.r - tw - 10);
+        const ly = y - 8;
+        ctx.fillStyle = "rgba(14,16,20,0.86)";
+        ctx.fillRect(lx - 3, ly - 2, tw + 6, 14);
+        ctx.fillStyle = color;
         ctx.textAlign = "left";
-        ctx.textBaseline = "middle";
-        ctx.fillText(label, x + 7, y + (mi ? 10 : 0));
+        ctx.textBaseline = "top";
+        ctx.fillText(label, lx, ly);
       });
     });
 
