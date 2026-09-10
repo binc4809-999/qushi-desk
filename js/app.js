@@ -122,6 +122,8 @@ function setView(name, opts = {}) {
   $$(".view").forEach((v) => v.classList.toggle("is-on", v.id === `view-${name}`));
   const tab = opts.tab || name;
   $$(".tab").forEach((t) => t.classList.toggle("is-on", t.dataset.hash === tab));
+  document.body.classList.toggle("is-marketing", name === "home" || name === "contact");
+  document.body.dataset.view = name;
   if (name !== "opps") closeDetail({ restoreFocus: false });
   if (name === "desk") {
     requestAnimationFrame(() => chartInstances.forEach((c) => c.resize?.()));
@@ -1350,12 +1352,12 @@ function markedPlaceholder(value, flag) {
 }
 
 function channelCard(label, value, href, placeholder) {
-  const text = String(value || "待填写").trim() || "待填写";
-  const flag = placeholder ? `<span class="placeholder-flag">待填写</span>` : "";
+  const empty = markedPlaceholder(value, placeholder);
+  const text = empty ? "待填写" : String(value).trim();
   const body =
-    href && !placeholder
-      ? `<a class="contact-value" href="${esc(href)}">${esc(text)}</a>${flag}`
-      : `<p class="contact-value">${esc(text)}${flag}</p>`;
+    href && !empty
+      ? `<a class="contact-value" href="${esc(href)}">${esc(text)}</a>`
+      : `<p class="contact-value">${empty ? `<span class="placeholder-flag">待填写</span>` : esc(text)}</p>`;
   return `<article class="channel-card"><h3>${esc(label)}</h3>${body}</article>`;
 }
 
@@ -1410,11 +1412,11 @@ function renderContact() {
     const emailBody = emailPh
       ? `<p class="contact-value">${esc(c.email || "待填写")}<span class="placeholder-flag">待填写</span></p>`
       : `<a class="contact-value" href="mailto:${esc(c.email)}">${esc(c.email)}</a>`;
-    const wechatHint = `${esc(wechat.hint || "扫二维码添加好友")} · ${esc(wechat.id || "待填写")}`;
+    const wechatHint = esc(wechat.hint || "扫二维码添加好友");
     const wechatImg = wechat.qr
       ? `<img class="wechat-qr" src="${esc(wechat.qr)}" alt="微信二维码" width="240" height="320">`
       : "";
-    const payHint = `${esc(pay.hint || "")}${pay.id ? ` · ${esc(pay.id)}` : ""}`;
+    const payHint = `${esc(pay.hint || "")}${pay.id && !markedPlaceholder(pay.id, pay.placeholder) ? ` · ${esc(pay.id)}` : ""}`;
     const payImg = pay.qr
       ? `<img class="pay-qr" src="${esc(pay.qr)}" alt="${esc(pay.label || "币安收款码")}" width="280" height="420">`
       : `<p class="contact-value">待填写<span class="placeholder-flag">待填写</span></p>`;
