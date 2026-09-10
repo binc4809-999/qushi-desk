@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "sample": true,
+  "updated_at": "2026-09-10T05:20:00+00:00",
+  "kline_note": "页面 K 线先用按标的种子生成的示意数据；实盘脚本日后覆盖 bars 或改走行情源。买卖点以 markers 落在对应 K 线上。",
+  "top3": [
+    {
+      "id": "top3-600519",
+      "rank": 1,
+      "kind": "stock",
+      "symbol": "600519",
+      "name": "贵州茅台",
+      "venue": "A股",
+      "script_id": "monitor",
+      "script_name": "monitor",
+      "default_interval": "1d",
+      "price": 1486.20,
+      "chg_pct": 1.42,
+      "message": "EXPMA 点火 · 量比 2.41",
+      "markers": [
+        {
+          "ts": "2026-09-10T07:00:00+00:00",
+          "price": 1486.20,
+          "side": "buy",
+          "label": "买入",
+          "script_id": "monitor"
+        },
+        {
+          "ts": "2026-09-04T07:00:00+00:00",
+          "price": 1458.00,
+          "side": "alert",
+          "label": "观察",
+          "script_id": "scanner"
+        }
+      ]
+    },
+    {
+      "id": "top3-300750",
+      "rank": 2,
+      "kind": "stock",
+      "symbol": "300750",
+      "name": "宁德时代",
+      "venue": "A股",
+      "script_id": "monitor11",
+      "script_name": "monitor11",
+      "default_interval": "1d",
+      "price": 254.80,
+      "chg_pct": 2.36,
+      "message": "量比 + 涨速同时过线",
+      "markers": [
+        {
+          "ts": "2026-09-10T07:00:00+00:00",
+          "price": 254.80,
+          "side": "buy",
+          "label": "买入",
+          "script_id": "monitor11"
+        }
+      ]
+    },
+    {
+      "id": "top3-002594",
+      "rank": 3,
+      "kind": "stock",
+      "symbol": "002594",
+      "name": "比亚迪",
+      "venue": "A股",
+      "script_id": "monitor",
+      "script_name": "monitor",
+      "default_interval": "1d",
+      "price": 109.05,
+      "chg_pct": 1.88,
+      "message": "回踩后放量",
+      "markers": [
+        {
+          "ts": "2026-09-10T07:00:00+00:00",
+          "price": 109.05,
+          "side": "buy",
+          "label": "买入",
+          "script_id": "monitor"
+        },
+        {
+          "ts": "2026-09-08T07:00:00+00:00",
+          "price": 106.40,
+          "side": "alert",
+          "label": "入池",
+          "script_id": "scanner"
+        }
+      ]
+    }
+  ],
+  "crypto": [
+    {
+      "id": "crypto-btcusdt",
+      "kind": "crypto",
+      "symbol": "BTCUSDT",
+      "name": "BTC/USDT",
+      "venue": "Binance",
+      "script_id": "macd_crypto_bot_no_squeeze",
+      "script_name": "macd_crypto_bot_no_squeeze",
+      "default_interval": "30m",
+      "price": 64180,
+      "chg_pct": 0.86,
+      "message": "MACD 金叉 · no squeeze",
+      "markers": [
+        {
+          "ts": "2026-09-10T03:30:00+00:00",
+          "price": 64180,
+          "side": "buy",
+          "label": "买入",
+          "script_id": "macd_crypto_bot_no_squeeze"
+        }
+      ]
+    },
+    {
+      "id": "crypto-ethusdt",
+      "kind": "crypto",
+      "symbol": "ETHUSDT",
+      "name": "ETH/USDT",
+      "venue": "Binance",
+      "script_id": "s_v3_binance_monitor",
+      "script_name": "s_v3_binance_monitor",
+      "default_interval": "30m",
+      "price": 3462.5,
+      "chg_pct": -0.64,
+      "message": "趋势转弱 · EMA 死叉",
+      "markers": [
+        {
+          "ts": "2026-09-10T04:00:00+00:00",
+          "price": 3462.5,
+          "side": "sell",
+          "label": "卖出",
+          "script_id": "s_v3_binance_monitor"
+        }
+      ]
+    }
+  ]
+}

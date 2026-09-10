@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "sample": true,
+  "updated_at": "2026-09-10T05:20:00+00:00",
+  "count": 8,
+  "items": [
+    {
+      "id": "tip-monitor-600519-buy",
+      "ts": "2026-09-10T05:18:00+00:00",
+      "side": "buy",
+      "symbol": "600519",
+      "name": "贵州茅台",
+      "venue": "A股",
+      "message": "EXPMA 池点火 · 量比 2.41 · 涨速 1.82% · 结构分过线",
+      "script_id": "monitor",
+      "script_name": "monitor",
+      "price": 1486.20,
+      "live": false
+    },
+    {
+      "id": "tip-monitor11-300750-buy",
+      "ts": "2026-09-10T05:12:00+00:00",
+      "side": "buy",
+      "symbol": "300750",
+      "name": "宁德时代",
+      "venue": "A股",
+      "message": "monitor11 TOP3 · 量比 3.05 · 涨速 2.14% · 当日未重复报警",
+      "script_id": "monitor11",
+      "script_name": "monitor11",
+      "price": 254.80,
+      "live": false
+    },
+    {
+      "id": "tip-macd-btcusdt-buy",
+      "ts": "2026-09-10T03:30:00+00:00",
+      "side": "buy",
+      "symbol": "BTCUSDT",
+      "name": "BTC/USDT",
+      "venue": "Binance",
+      "message": "MACD 金叉 · 30m · no squeeze · 开多",
+      "script_id": "macd_crypto_bot_no_squeeze",
+      "script_name": "macd_crypto_bot_no_squeeze",
+      "price": 64180,
+      "live": false
+    },
+    {
+      "id": "tip-sv3-ethusdt-sell",
+      "ts": "2026-09-10T04:00:00+00:00",
+      "side": "sell",
+      "symbol": "ETHUSDT",
+      "name": "ETH/USDT",
+      "venue": "Binance",
+      "message": "s_v3 趋势转弱 · 30m EMA 死叉 · 平多/开空",
+      "script_id": "s_v3_binance_monitor",
+      "script_name": "s_v3_binance_monitor",
+      "price": 3462.5,
+      "live": false
+    },
+    {
+      "id": "tip-scanner-002594-alert",
+      "ts": "2026-09-10T01:40:00+00:00",
+      "side": "alert",
+      "symbol": "002594",
+      "name": "比亚迪",
+      "venue": "A股",
+      "message": "入选 scanner 当日池 · 等待 monitor 点火",
+      "script_id": "scanner",
+      "script_name": "scanner",
+      "price": 108.62,
+      "live": false
+    },
+    {
+      "id": "tip-scanner11-601318-alert",
+      "ts": "2026-09-10T01:36:00+00:00",
+      "side": "alert",
+      "symbol": "601318",
+      "name": "中国平安",
+      "venue": "A股",
+      "message": "scanner11 池更新 · 量能抬升",
+      "script_id": "scanner11",
+      "script_name": "scanner11",
+      "price": 58.41,
+      "live": false
+    },
+    {
+      "id": "tip-zdsdb-000858-alert",
+      "ts": "2026-09-10T02:05:00+00:00",
+      "side": "alert",
+      "symbol": "000858",
+      "name": "五粮液",
+      "venue": "A股",
+      "message": "涨跌速度榜前列 · 涨速 1.56%",
+      "script_id": "zhangdiesudubang",
+      "script_name": "zhangdiesudubang修正版",
+      "price": 129.18,
+      "live": false
+    },
+    {
+      "id": "tip-monitor-002594-buy",
+      "ts": "2026-09-10T05:08:00+00:00",
+      "side": "buy",
+      "symbol": "002594",
+      "name": "比亚迪",
+      "venue": "A股",
+      "message": "monitor TOP3 · 量比 2.18 · 回踩后放量",
+      "script_id": "monitor",
+      "script_name": "monitor",
+      "price": 109.05,
+      "live": false
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 公网地址：https://binc4809-999.github.io/qushi-desk/
 
-全球可访问的静态站点：展示调研里的投资机会，以及 OKX BTC/SOL 趋势脚本的预警。
+全球可访问的静态站点。首页（`#desk`）只看当前买卖点：哪只标的、买还是卖、哪条脚本推的、以及对应 K 线。投资机会与实盘心跳仍在 `#opps` / `#live`。
 
 **不是投资建议。** 页面上的收益和回撤来自公开指数、基金净值，或本仓库 2023-09-07 至 2026-09-07 的回测。
 
@@ -29,7 +29,9 @@ python -m http.server 8080
 
 ## 研究脚本怎么驱动页面
 
-机会表和管道心跳来自 `data/opportunities.json` 与 `data/last_run.json`，不是手写 HTML。预警流与策略卡片来自 `data/alerts.json` 与 `data/strategies.json`。各 PyCharm 脚本的运行中心跳（最新一行日志）来自 `data/runners.json`。合同、字段和发布方式见 [docs/data-contract.md](docs/data-contract.md)。
+首页买卖点、选股池、TOP3 / 加密 K 线来自 `data/tips.json`、`data/pools.json`、`data/charts.json`。机会表和管道心跳来自 `data/opportunities.json` 与 `data/last_run.json`。预警流与策略卡片来自 `data/alerts.json` 与 `data/strategies.json`。各 PyCharm 脚本的运行中心跳来自 `data/runners.json`。合同、字段和发布方式见 [docs/data-contract.md](docs/data-contract.md)。
+
+锚点：`#desk` 买卖点首页 · `#tips` 列表 · `#pool` 选股池 · `#top3` 股票 TOP3 · `#crypto` 加密 K 线 · `#opps` 投资机会 · `#live` 脚本心跳 / 预警流 · `#contact` 联系。
 
 行情仍由 `publisher/refresh_quotes.py` 写 `data/quotes.json`（成功/失败时会更新心跳）。机会表请用你的 PyCharm 脚本覆盖 JSON 后 push `main`，或走与预警相同的 GitHub Contents API。
 

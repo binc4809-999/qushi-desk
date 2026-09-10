@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>迦南美地 · The Promised Land</title>
-  <meta name="description" content="迦南美地 The Promised Land：投资机会、脚本开平仓与选股监控预警。研究备忘，非投资建议。">
+  <meta name="description" content="迦南美地 The Promised Land：脚本买卖点、选股池与 K 线上下文。研究备忘，非投资建议。">
   <meta name="theme-color" content="#0e1014">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./css/app.css">
@@ -17,7 +17,8 @@
       <p class="brand-sub">THE PROMISED LAND</p>
     </div>
     <nav class="tabs" aria-label="栏目">
-      <button type="button" class="tab is-on" data-view="opps">投资机会</button>
+      <button type="button" class="tab is-on" data-view="desk">买卖点</button>
+      <button type="button" class="tab" data-view="opps">投资机会</button>
       <button type="button" class="tab" data-view="live">实盘策略/预警</button>
       <button type="button" class="tab" data-view="contact">联系我们</button>
     </nav>
@@ -30,7 +31,99 @@
   <p class="ticker" id="ticker" aria-live="polite"></p>
 
   <main id="main">
-    <section id="view-opps" class="view is-on">
+    <section id="view-desk" class="view is-on">
+      <header class="view-head">
+        <div>
+          <h1>当前买卖点</h1>
+          <p class="lede">只看脚本正在推的买 / 卖 / 预警。每条标明脚本，便于事后整改追溯。标的由脚本固定；K 线可拖动、可切换周期。</p>
+        </div>
+        <div class="filter-stack">
+          <div class="filter-row">
+            <span class="filter-label">方向</span>
+            <div class="filters" id="tip-side-filters" role="group" aria-label="买卖方向">
+              <button type="button" class="chip is-on" data-side="all">全部</button>
+              <button type="button" class="chip" data-side="buy">买入</button>
+              <button type="button" class="chip" data-side="sell">卖出</button>
+              <button type="button" class="chip" data-side="alert">预警</button>
+            </div>
+          </div>
+          <div class="filter-row">
+            <span class="filter-label">市场</span>
+            <div class="filters" id="tip-venue-filters" role="group" aria-label="市场过滤">
+              <button type="button" class="chip is-on" data-venue="all">全部</button>
+              <button type="button" class="chip" data-venue="cn">A股</button>
+              <button type="button" class="chip" data-venue="crypto">加密</button>
+            </div>
+          </div>
+        </div>
+      </header>
+      <aside class="pipeline js-last-run" id="desk-pipeline" aria-live="polite">
+        <span class="pl-kicker">管道</span>
+        <span class="pl-line">正在读取脚本心跳…</span>
+      </aside>
+      <button type="button" class="pipeline runner-strip js-runner-strip" id="desk-runners" data-status="unknown">
+        <span class="pl-kicker">脚本</span>
+        <span class="pl-line">正在读取运行状态…</span>
+      </button>
+      <p class="tip-tally" id="tip-tally"></p>
+
+      <section id="tips" class="tips-block">
+        <div class="quotes-head">
+          <h2 class="block-title">买卖点</h2>
+          <p class="hint" id="tips-stamp"></p>
+        </div>
+        <ol class="feed tip-feed" id="tip-feed">
+          <li class="feed-msg">正在加载买卖点…</li>
+        </ol>
+      </section>
+
+      <section id="pool" class="pool-block">
+        <div class="quotes-head">
+          <h2 class="block-title">选股池</h2>
+          <p class="hint" id="pool-stamp"></p>
+        </div>
+        <div class="table-wrap" id="pool-wrap">
+          <table class="grid compact">
+            <thead>
+              <tr>
+                <th>代码</th>
+                <th>名称</th>
+                <th>现价</th>
+                <th>涨跌幅</th>
+                <th>涨速</th>
+                <th>量比</th>
+                <th>备注</th>
+              </tr>
+            </thead>
+            <tbody id="pool-body">
+              <tr class="msg-row"><td colspan="7">正在加载选股池…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="top3" class="chart-block">
+        <div class="quotes-head">
+          <h2 class="block-title">TOP3 · 日线</h2>
+          <p class="hint" id="top3-stamp"></p>
+        </div>
+        <div class="chart-stack" id="top3-charts">
+          <p class="feed-msg">正在加载 TOP3…</p>
+        </div>
+      </section>
+
+      <section id="crypto" class="chart-block">
+        <div class="quotes-head">
+          <h2 class="block-title">加密币对 · 30分</h2>
+          <p class="hint" id="crypto-stamp"></p>
+        </div>
+        <div class="chart-stack crypto-stack" id="crypto-charts">
+          <p class="feed-msg">正在加载加密 K 线…</p>
+        </div>
+      </section>
+    </section>
+
+    <section id="view-opps" class="view">
       <header class="view-head">
         <div>
           <h1>投资机会</h1>
@@ -275,6 +368,7 @@
     <p class="foot-meta">阅读路径全部走 CDN 缓存。脚本写入走独立发布接口，不经过浏览流量。</p>
   </footer>
 
+  <script src="./js/kline.js" defer></script>
   <script src="./js/app.js" defer></script>
 </body>
 </html>

@@ -14,6 +14,9 @@
 | `data/alerts.json` | `publisher/publish_alert.py` 或实盘脚本 | 「实盘策略/预警」预警流 |
 | `data/strategies.json` | 策略/回测脚本 | 同页策略卡片（名称、交易所、状态、规则） |
 | `data/runners.json` | `publisher/write_runner.py`（循环内心跳） | 「脚本运行状态」：谁在跑、最新一行日志 |
+| `data/tips.json` | 监控 / 扫描 / 加密脚本 | 首页「当前买卖点」：买 / 卖 / 预警 + 脚本归因 |
+| `data/pools.json` | `scanner` / `scanner11` | 首页选股池表（`selected_id` 决定展示哪一池） |
+| `data/charts.json` | `monitor` / `monitor11` / 加密脚本 | 首页 TOP3 与加密币对 K 线的标的、默认周期、markers |
 
 时间一律 **UTC ISO-8601**（例 `2026-09-09T16:06:56+00:00`）。前端用 `Asia/Shanghai` 显示。
 
@@ -242,6 +245,184 @@ python publisher/write_runner.py --id monitor --status running --script monitor.
 
 仓库里的示例带 `"sample": true`，方便你对照 PyCharm 运行面板；脚本写入正式心跳后不要带 `sample`，或设 `false`。
 
+## `data/tips.json`（首页买卖点）
+
+首页只展示当前买 / 卖 / 预警，**每条必须能追溯到脚本**。时间仍是 UTC ISO，页面显示上海时区。字段名请按表写，便于日后整改对照。
+
+```json
+{
+  "schema_version": 1,
+  "sample": true,
+  "updated_at": "2026-09-10T05:20:00+00:00",
+  "count": 1,
+  "items": [
+    {
+      "id": "tip-monitor-600519-buy",
+      "ts": "2026-09-10T05:18:00+00:00",
+      "side": "buy",
+      "symbol": "600519",
+      "name": "贵州茅台",
+      "venue": "A股",
+      "message": "EXPMA 池点火 · 量比 2.41",
+      "script_id": "monitor",
+      "script_name": "monitor",
+      "price": 1486.20,
+      "live": false
+    }
+  ]
+}
+```
+
+每条 `items[]`：
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `id` | 是 | 稳定主键；同一脚本反复覆盖同一条 |
+| `ts` | 是 | UTC ISO；页面显示上海时间 |
+| `side` | 是 | `buy` / `sell` / `alert`（买入 / 卖出 / 预警） |
+| `symbol` | 是 | 代码或币对，由脚本固定，访客不能改 |
+| `name` | 建议 | 中文名 / 展示名 |
+| `venue` | 建议 | `A股` / `Binance` / `OKX` …；首页可按 A股 / 加密筛选 |
+| `message` | 是 | 短说明（触发条件、量比、涨速等） |
+| `script_id` | 是 | 脚本稳定 id，与 `runners.json` 的 `id` 对齐，例如 `monitor` / `monitor11` / `scanner` / `macd_crypto_bot_no_squeeze` / `s_v3_binance_monitor` / `zhangdiesudubang` |
+| `script_name` | 建议 | 展示名（如 `zhangdiesudubang修正版`）；缺省用 `script_id` |
+| `price` | 否 | 提示价 |
+| `live` | 是 | `true` 标 LIVE；`false` 标 SAMPLE |
+| `source` | 否 | 旧字段别名；若无 `script_id` 会回退到这里（不推荐） |
+
+不要把密钥写进 `message`。SAMPLE 条目请保留到实盘脚本推送 `live: true`。
+
+## `data/pools.json`（scanner 选股池）
+
+`scanner` / `scanner11` 把当前选中的股票池写到这里。页面只渲染 `selected_id` 对应的那一池。
+
+```json
+{
+  "schema_version": 1,
+  "sample": true,
+  "updated_at": "2026-09-10T01:40:00+00:00",
+  "selected_id": "scanner",
+  "pools": [
+    {
+      "id": "scanner",
+      "script_id": "scanner",
+      "script_name": "scanner",
+      "title": "scanner 当日选股池",
+      "venue": "A股",
+      "as_of": "2026-09-10T01:40:00+00:00",
+      "members": [
+        {
+          "symbol": "600519",
+          "name": "贵州茅台",
+          "price": 1486.20,
+          "chg_pct": 1.42,
+          "speed_pct": 0.38,
+          "volume_ratio": 1.62,
+          "note": "酒"
+        }
+      ]
+    }
+  ]
+}
+```
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `selected_id` | 是 | 展示哪一池；与 `pools[].id` 对应 |
+| `pools[].id` | 是 | 池主键 |
+| `pools[].script_id` / `script_name` | 是 | 产出该池的脚本 |
+| `pools[].members[]` | 是 | 池内标的 |
+| `members[].symbol` | 是 | 代码 |
+| `members[].name` | 建议 | 名称 |
+| `members[].price` / `chg_pct` / `speed_pct` / `volume_ratio` | 建议 | 现价、涨跌幅、涨速、量比 |
+| `members[].note` | 否 | 短备注 |
+
+## `data/charts.json`（TOP3 + 加密 K 线 markers）
+
+`monitor` / `monitor11` 写 `top3`（默认周期 **日线 `1d`**）。加密脚本写 `crypto`（默认周期 **30 分 `30m`**）。标的由脚本固定；访客只能拖动 K 线和切换周期。
+
+每条图表下的 `markers[]` 会画在对应币对 / 股票 K 线上（买 / 卖 / 预警），不要只发文字。
+
+```json
+{
+  "schema_version": 1,
+  "sample": true,
+  "updated_at": "2026-09-10T05:20:00+00:00",
+  "top3": [
+    {
+      "id": "top3-600519",
+      "rank": 1,
+      "kind": "stock",
+      "symbol": "600519",
+      "name": "贵州茅台",
+      "venue": "A股",
+      "script_id": "monitor",
+      "script_name": "monitor",
+      "default_interval": "1d",
+      "message": "EXPMA 点火",
+      "markers": [
+        {
+          "ts": "2026-09-10T07:00:00+00:00",
+          "price": 1486.20,
+          "side": "buy",
+          "label": "买入",
+          "script_id": "monitor"
+        }
+      ]
+    }
+  ],
+  "crypto": [
+    {
+      "id": "crypto-btcusdt",
+      "kind": "crypto",
+      "symbol": "BTCUSDT",
+      "name": "BTC/USDT",
+      "venue": "Binance",
+      "script_id": "macd_crypto_bot_no_squeeze",
+      "script_name": "macd_crypto_bot_no_squeeze",
+      "default_interval": "30m",
+      "markers": [
+        {
+          "ts": "2026-09-10T03:30:00+00:00",
+          "price": 64180,
+          "side": "buy",
+          "label": "买入",
+          "script_id": "macd_crypto_bot_no_squeeze"
+        }
+      ]
+    }
+  ]
+}
+```
+
+`top3[]` / `crypto[]` 共用字段：
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `id` | 是 | 图表主键 |
+| `symbol` | 是 | 固定标的 |
+| `name` / `venue` | 建议 | 展示名、场所 |
+| `kind` | 建议 | `stock` / `crypto`（决定默认周期与可选周期） |
+| `rank` | TOP3 建议 | 1 / 2 / 3 |
+| `script_id` / `script_name` | 是 | 产出该图的脚本 |
+| `default_interval` | 建议 | 股票默认 `1d`，加密默认 `30m`；也认 `5m` / `15m` / `1h` / `4h` |
+| `message` | 否 | 图标题旁的短说明 |
+| `markers` | 建议 | 画在 K 线上的买卖点 |
+
+`markers[]`：
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `ts` | 是 | UTC ISO；前端对齐到最近一根 K 线 |
+| `price` | 建议 | 标记价；缺省用该根收盘价 |
+| `side` | 是 | `buy` / `sell` / `alert` |
+| `label` | 建议 | 图上短标签（买入 / 卖出 / 观察） |
+| `script_id` | 建议 | 该标记来自哪个脚本 |
+
+当前页面的 K 线 OHLC **先按 `symbol` 种子生成示意数据**（可拖动、切周期）。脚本以后若要推真实 bar，可再扩展 `bars[]`；现阶段以 UX + markers + 脚本归因为准。
+
+兼容：也接受顶层 `charts[]`，用 `kind` / `role`（`top3` / `pair`）分流到股票 / 加密。
+
 ## 怎么发布到公网
 
 站点只在 **`main` 上的文件** 经 GitHub Pages 工作流上线（`pages.yml` 复制 `css/` `js/` `data/` `img/`）。任选一种：
@@ -257,4 +438,4 @@ SIGNAL_DESK_BRANCH=main
 
 然后 `record_run(..., push=True)`、`heartbeat(..., push=True)` 或 `python publisher/refresh_quotes.py --push`。token 不要写进 JSON、不要提交进仓库。
 
-行情刷新继续只写 `data/quotes.json`；它现在也会更新 `last_run.json`。机会表请由你的调研脚本覆盖 `opportunities.json`，预警请走 `publisher/publish_alert.py`，策略卡片覆盖 `strategies.json`，进程心跳走 `publisher/write_runner.py`，不要手改 `index.html`。
+行情刷新继续只写 `data/quotes.json`；它现在也会更新 `last_run.json`。首页买卖点覆盖 `tips.json`，选股池覆盖 `pools.json`，TOP3 / 加密 K 线与 markers 覆盖 `charts.json`。机会表请由你的调研脚本覆盖 `opportunities.json`，预警请走 `publisher/publish_alert.py`，策略卡片覆盖 `strategies.json`，进程心跳走 `publisher/write_runner.py`，不要手改 `index.html`。
