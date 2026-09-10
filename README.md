@@ -48,16 +48,18 @@ SIGNAL_DESK_TOKEN=<github token，需要 repo 权限>
 
 ## 脚本怎么上报运行状态
 
-循环里每隔几分钟（或状态变化时）调用 `publisher/write_runner.py`，不要每秒推：
+公网站点**不能自动发现 PyCharm**。Run 标签开着不会出现在 `#live`；每个进程必须自己调用 `publisher.write_runner.heartbeat`（或 CLI）并带 `push=True`。
+
+循环里每隔几分钟（或状态变化时）调用，不要每秒推：
 
 ```python
 from publisher.write_runner import heartbeat
 
 heartbeat(
-    id="monitor11",
-    status="waiting",
-    last_message="[monitor11] 非交易时段，等待 09-10 09:30 开盘...",
-    script="monitor11.py",
+    id="monitor",
+    status="running",
+    last_message="[monitor] 13:20 共29只 · [mail] TOP3 邮件发送失败 · 暂无点火标的",
+    script="monitor.py",
     venue="A股",
     push=True,
 )
