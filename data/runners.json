@@ -1,24 +1,8 @@
 {
   "schema_version": 1,
-  "sample": true,
-  "updated_at": "2026-09-10T05:20:46+00:00",
+  "updated_at": "2026-09-10T03:43:36+00:00",
   "count": 5,
   "runners": [
-    {
-      "id": "monitor",
-      "name": "monitor",
-      "script": "monitor.py",
-      "status": "running",
-      "status_label": "运行中",
-      "last_message": "[monitor] 13:20:46 已开盘141分钟 · 共29只 · 排序结构10%+量比50%+涨速40% · 入场涨幅>1%涨速>1%量比>2.5结构>35 · 刷新100s · 时段9:30-11:30/13:00-15:00 · [mail] TOP3 邮件发送失败 · 暂无点火标的",
-      "updated_at": "2026-09-10T05:20:46+00:00",
-      "started_at": "2026-09-10T01:10:00+00:00",
-      "venue": "A股",
-      "symbol": "",
-      "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。",
-      "detail_url": "https://binc4809-999.github.io/qushi-desk/#live",
-      "sample": true
-    },
     {
       "id": "scanner",
       "name": "scanner",
@@ -74,6 +58,17 @@
       "symbol": "",
       "notes": "PyCharm 运行配置 s_v3_binance_monitor。示例心跳。",
       "sample": true
+    },
+    {
+      "id": "monitor",
+      "name": "monitor",
+      "script": "monitor.py",
+      "status": "running",
+      "last_message": "[desk] wiring smoke test",
+      "updated_at": "2026-09-10T03:43:36+00:00",
+      "started_at": "2026-09-10T01:10:00+00:00",
+      "venue": "A股",
+      "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
     }
   ]
 }
