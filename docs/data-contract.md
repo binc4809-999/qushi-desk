@@ -438,7 +438,7 @@ python publisher/write_runner.py --id monitor --status running --script monitor.
   "tel_href": "",
   "wechat": { "id": "待填写", "placeholder": true, "qr": "./img/wechat-qr.jpg", "hint": "扫二维码添加好友" },
   "binance": { "label": "BINANCE 收款码", "id": "待填写", "qr": "./img/binance-pay.jpg", "hint": "使用币安 App 扫码支付" },
-  "form": { "mailto": "you@example.com", "subject": "【迦南美地】预约交流" }
+  "form": { "mailto": "you@example.com", "subject": "【五饼二鱼】预约交流" }
 }
 ```
 

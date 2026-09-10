@@ -12,9 +12,9 @@
       "channel": "system",
       "venue": "SITE",
       "symbol": "SITE",
-      "title": "迦南美地已上线 · 机会与心跳由脚本发布",
+      "title": "五饼二鱼已上线 · 机会与心跳由脚本发布",
       "body": "投资机会页顶部是最近一次研究/行情脚本的心跳（成功时间、摘要）。开平仓与选股监控推送到本栏后会盖掉这条系统说明；未推送前，下面仍是字段结构样例。",
-      "source": "promised-land",
+      "source": "site",
       "live": false
     },
     {
