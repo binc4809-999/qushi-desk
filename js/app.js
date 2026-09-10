@@ -516,6 +516,9 @@ function renderOpps() {
   const cnBlock = $("#cn-block");
   const oppBlock = $("#opp-block");
   const stamp = $("#opp-stamp");
+  // 投资机会页已下线；无 DOM 时直接跳过，避免打断 boot
+  if (!oppBlock && !cnBlock && !$("#opp-body")) return;
+
   const showCn = state.region === "cn";
   const rows = visibleOpps();
   const regionCount = regionOpps().length;
@@ -533,19 +536,19 @@ function renderOpps() {
   }
 
   if (oppBlock) oppBlock.classList.toggle("is-hidden", showCn);
-  cnBlock.classList.toggle("is-hidden", !showCn);
+  cnBlock?.classList.toggle("is-hidden", !showCn);
 
   if (state.opportunitiesError) {
     const html = msgRow(state.opportunitiesError, true);
-    $("#opp-body").innerHTML = html;
-    $("#cn-body").innerHTML = html;
+    if ($("#opp-body")) $("#opp-body").innerHTML = html;
+    if ($("#cn-body")) $("#cn-body").innerHTML = html;
   } else {
     const empty = emptyOppMessage(regionCount, rows.length);
     const html = rows.length ? rows.map(rowHtml).join("") : msgRow(empty);
     if (showCn) {
-      $("#opp-body").innerHTML = "";
-      $("#cn-body").innerHTML = html;
-    } else {
+      if ($("#opp-body")) $("#opp-body").innerHTML = "";
+      if ($("#cn-body")) $("#cn-body").innerHTML = html;
+    } else if ($("#opp-body")) {
       $("#opp-body").innerHTML = html;
     }
   }
