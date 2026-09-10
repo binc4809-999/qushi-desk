@@ -172,7 +172,7 @@ python publisher/write_last_run.py --status success --script my_research.py --su
 
 ## `data/runners.json`
 
-多脚本心跳，和 `last_run.json`（整次作业结束）分开。PyCharm 里同时开着的 monitor11 / BTC V6 / SOL V6 各写一条，按 `id` 覆盖。前端在「实盘策略/预警」展示，投资机会页有一行摘要。
+多脚本心跳，和 `last_run.json`（整次作业结束）分开。页面**不能自动发现 PyCharm**；每个进程必须调用 `publisher.write_runner.heartbeat(..., push=True)`（或 CLI `--push`），按 `id` 覆盖。当前本机对照集：`monitor` / `scanner` / `zhangdiesudubang修正版` / `macd_crypto_bot_no_squeeze` / `s_v3_binance_monitor`。前端在「实盘策略/预警」展示，投资机会页有一行摘要。
 
 ```json
 {
@@ -182,16 +182,15 @@ python publisher/write_last_run.py --status success --script my_research.py --su
   "count": 1,
   "runners": [
     {
-      "id": "monitor11",
-      "name": "monitor11",
-      "script": "monitor11.py",
-      "status": "waiting",
-      "last_message": "[monitor11] 非交易时段，等待 09-10 09:30 开盘...",
-      "updated_at": "2026-09-10T01:10:00+00:00",
-      "started_at": "2026-09-09T23:55:00+00:00",
+      "id": "monitor",
+      "name": "monitor",
+      "script": "monitor.py",
+      "status": "running",
+      "last_message": "[monitor] 13:20 共29只 · [mail] TOP3 邮件发送失败 · 暂无点火标的",
+      "updated_at": "2026-09-10T05:20:46+00:00",
+      "started_at": "2026-09-10T01:10:00+00:00",
       "venue": "A股",
-      "symbol": "monitor11",
-      "notes": "EXPMA 池监控",
+      "notes": "stock_convergence/monitor.py",
       "detail_url": "https://binc4809-999.github.io/qushi-desk/#live",
       "sample": true
     }
@@ -215,7 +214,7 @@ python publisher/write_last_run.py --status success --script my_research.py --su
 | `detail_url` | 否 | 点开后的外链 |
 | `sample` | 否 | 示例心跳为 `true`；实盘脚本不要带，或设 `false` |
 
-`status` 语义：`running` 在干活；`waiting` 进程还在、只是等开盘/等条件（monitor11 非交易时段）；`idle` 空闲；`error` 异常；`stopped` 已停。
+`status` 语义：`running` 在干活；`waiting` 进程还在、只是等开盘/等条件；`idle` 空闲；`error` 异常；`stopped` 已停。
 
 在循环里调用（不要每秒推一次，2–5 分钟或状态变化时即可）：
 
@@ -224,10 +223,10 @@ from write_runner import heartbeat          # 若从 publisher/ 目录运行
 # 或: from publisher.write_runner import heartbeat
 
 heartbeat(
-    id="monitor11",
-    status="waiting",                       # running / waiting / idle / error / stopped
+    id="monitor",
+    status="running",                       # running / waiting / idle / error / stopped
     last_message=line,                      # 最近一行 print
-    script="monitor11.py",
+    script="monitor.py",
     venue="A股",
     push=True,                              # 需要 SIGNAL_DESK_TOKEN 或 gh auth
 )
@@ -236,7 +235,7 @@ heartbeat(
 命令行：
 
 ```
-python publisher/write_runner.py --id monitor11 --status waiting --script monitor11.py --venue A股 --message "[monitor11] 非交易时段，等待 09-10 09:30 开盘..." --push
+python publisher/write_runner.py --id monitor --status running --script monitor.py --venue A股 --message "[monitor] 暂无点火标的" --push
 ```
 
 发布器按 `id` 覆盖本地文件；`--push` 时先 GET 远端 `data/runners.json` 再合并后 PUT，避免把别的脚本心跳盖掉。省略的 `name` / `script` / `venue` 会沿用上一条。
