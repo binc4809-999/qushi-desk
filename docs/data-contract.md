@@ -14,9 +14,10 @@
 | `data/alerts.json` | `publisher/publish_alert.py` 或实盘脚本 | 「实盘策略/预警」预警流 |
 | `data/strategies.json` | 策略/回测脚本 | 同页策略卡片（名称、交易所、状态、规则） |
 | `data/runners.json` | `publisher/write_runner.py`（循环内心跳） | 「脚本运行状态」：谁在跑、最新一行日志 |
-| `data/tips.json` | 监控 / 扫描 / 加密脚本 | 首页「当前买卖点」：买 / 卖 / 预警 + 脚本归因 |
-| `data/pools.json` | `scanner` / `scanner11` | 首页选股池表（`selected_id` 决定展示哪一池） |
-| `data/charts.json` | `monitor` / `monitor11` / 加密脚本 | 首页 TOP3 与加密币对 K 线的标的、默认周期、markers |
+| `data/tips.json` | 监控 / 扫描 / 加密脚本 | 演示台「当前买卖点」：买 / 卖 / 预警 + 脚本归因 |
+| `data/pools.json` | `scanner` / `scanner11` | 演示台选股池表（`selected_id` 决定展示哪一池） |
+| `data/charts.json` | `monitor` / `monitor11` / 加密脚本 | 演示台 TOP3 与加密币对 K 线的标的、默认周期、markers |
+| `data/contact.json` | 人手填写 | 首页获客表与「联系」页：邮件 / 电话 / 微信；未知项写「待填写」 |
 
 时间一律 **UTC ISO-8601**（例 `2026-09-09T16:06:56+00:00`）。前端用 `Asia/Shanghai` 显示。
 
@@ -245,9 +246,9 @@ python publisher/write_runner.py --id monitor --status running --script monitor.
 
 仓库里的示例带 `"sample": true`，方便你对照 PyCharm 运行面板；脚本写入正式心跳后不要带 `sample`，或设 `false`。
 
-## `data/tips.json`（首页买卖点）
+## `data/tips.json`（演示台买卖点）
 
-首页只展示当前买 / 卖 / 预警，**每条必须能追溯到脚本**。时间仍是 UTC ISO，页面显示上海时区。字段名请按表写，便于日后整改对照。
+`#desk` 展示当前买 / 卖 / 预警，**每条必须能追溯到脚本**。时间仍是 UTC ISO，页面显示上海时区。字段名请按表写，便于日后整改对照。首页营销页的产品卡片链到这里。
 
 ```json
 {
@@ -423,6 +424,26 @@ python publisher/write_runner.py --id monitor --status running --script monitor.
 
 兼容：也接受顶层 `charts[]`，用 `kind` / `role`（`top3` / `pair`）分流到股票 / 加密。
 
+## `data/contact.json`（获客联系方式）
+
+首页预约表和「联系」页读这份文件。**未知项写中文「待填写」**，并设 `placeholder: true`；不要编造看起来像真的电话或微信号。改完 push `main` 即可，不必改 HTML。
+
+```json
+{
+  "schema_version": 1,
+  "headline": "预约交流 / 合作对接",
+  "lede": "面向基金管理人的研究台演示、脚本对接或内容合作。",
+  "email": "you@example.com",
+  "tel": "待填写",
+  "tel_href": "",
+  "wechat": { "id": "待填写", "placeholder": true, "qr": "./img/wechat-qr.jpg", "hint": "扫二维码添加好友" },
+  "binance": { "label": "BINANCE 收款码", "id": "待填写", "qr": "./img/binance-pay.jpg", "hint": "使用币安 App 扫码支付" },
+  "form": { "mailto": "you@example.com", "subject": "【迦南美地】预约交流" }
+}
+```
+
+`form.mailto` 决定「发送邮件预约」是否可用。邮件客户端在访客本机打开，站点不收集表单。
+
 ## 怎么发布到公网
 
 站点只在 **`main` 上的文件** 经 GitHub Pages 工作流上线（`pages.yml` 复制 `css/` `js/` `data/` `img/`）。任选一种：
@@ -438,4 +459,4 @@ SIGNAL_DESK_BRANCH=main
 
 然后 `record_run(..., push=True)`、`heartbeat(..., push=True)` 或 `python publisher/refresh_quotes.py --push`。token 不要写进 JSON、不要提交进仓库。
 
-行情刷新继续只写 `data/quotes.json`；它现在也会更新 `last_run.json`。首页买卖点覆盖 `tips.json`，选股池覆盖 `pools.json`，TOP3 / 加密 K 线与 markers 覆盖 `charts.json`。机会表请由你的调研脚本覆盖 `opportunities.json`，预警请走 `publisher/publish_alert.py`，策略卡片覆盖 `strategies.json`，进程心跳走 `publisher/write_runner.py`，不要手改 `index.html`。
+行情刷新继续只写 `data/quotes.json`；它现在也会更新 `last_run.json`。演示台买卖点覆盖 `tips.json`，选股池覆盖 `pools.json`，TOP3 / 加密 K 线与 markers 覆盖 `charts.json`。机会表请由你的调研脚本覆盖 `opportunities.json`，预警请走 `publisher/publish_alert.py`，策略卡片覆盖 `strategies.json`，进程心跳走 `publisher/write_runner.py`。获客联系方式只改 `data/contact.json`（未知项写「待填写」），不要把电话/微信写死在 HTML。

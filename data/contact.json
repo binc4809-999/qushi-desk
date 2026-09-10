@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "headline": "预约交流 / 合作对接",
+  "lede": "面向基金管理人的研究台演示、脚本对接或内容合作。留下机构与联系方式，我们用邮件回复。未知字段标「待填写」，改本文件即可上墙。",
+  "email": "binc4809@gmail.com",
+  "tel": "+86 176 2170 4123",
+  "tel_href": "tel:+8617621704123",
+  "wechat": {
+    "id": "待填写",
+    "placeholder": true,
+    "qr": "./img/wechat-qr.jpg",
+    "hint": "扫二维码添加好友"
+  },
+  "binance": {
+    "label": "BINANCE 收款码",
+    "id": "RuYingTengShang20250320",
+    "placeholder": false,
+    "qr": "./img/binance-pay.jpg",
+    "hint": "使用币安 App 扫码支付"
+  },
+  "form": {
+    "mailto": "binc4809@gmail.com",
+    "subject": "【迦南美地】预约交流"
+  }
+}
