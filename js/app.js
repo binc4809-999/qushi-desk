@@ -15,6 +15,8 @@ const state = {
   selectedId: null,
   channel: "all",
   alertSource: "all",
+  tipSide: "all",
+  tipVenue: "all",
   opportunities: [],
   opportunitiesMeta: null,
   opportunitiesError: null,
@@ -31,8 +33,28 @@ const state = {
   runnersMeta: null,
   runnersError: null,
   selectedRunnerId: null,
+  tips: [],
+  tipsMeta: null,
+  tipsError: null,
+  pools: [],
+  poolsMeta: null,
+  poolsError: null,
+  charts: { top3: [], crypto: [] },
+  chartsMeta: null,
+  chartsError: null,
+  chartTf: {},
   meta: null,
 };
+
+const chartInstances = new Map();
+const DESK_SECTIONS = {
+  tips: "tips",
+  pool: "pool",
+  top3: "top3",
+  crypto: "crypto",
+  desk: "view-desk",
+};
+const SIDE_LABEL = { buy: "买入", sell: "卖出", alert: "预警" };
 
 async function loadJson(path) {
   const res = await fetch(path, { cache: "default" });
@@ -87,12 +109,31 @@ function tickClock() {
   el.textContent = new Date().toLocaleString("zh-CN", { hour12: false });
 }
 
-function setView(name) {
+function setView(name, opts = {}) {
   $$(".view").forEach((v) => v.classList.toggle("is-on", v.id === `view-${name}`));
   $$(".tab").forEach((t) => t.classList.toggle("is-on", t.dataset.view === name));
   if (name !== "opps") closeDetail({ restoreFocus: false });
+  if (name === "desk") {
+    requestAnimationFrame(() => chartInstances.forEach((c) => c.resize?.()));
+  }
+  if (opts.hash === false) return;
   if (name && location.hash !== `#${name}`) {
     history.replaceState(null, "", `#${name}`);
+  }
+}
+
+function applyLocation() {
+  const raw = (location.hash || "").replace("#", "");
+  if (raw === "opps" || raw === "live" || raw === "contact") {
+    setView(raw, { hash: false });
+    return;
+  }
+  setView("desk", { hash: false });
+  const id = DESK_SECTIONS[raw];
+  if (raw && raw !== "desk" && id) {
+    requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 }
 
@@ -106,13 +147,309 @@ function pctClass(n) {
   return n >= 0 ? "up" : "down";
 }
 
+function tipTs(t) {
+  const n = Date.parse(t?.ts || "");
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function sortedTips() {
+  return [...state.tips].sort((a, b) => tipTs(b) - tipTs(a));
+}
+
+function tipVenueGroup(t) {
+  const v = String(t.venue || "").toLowerCase();
+  const s = String(t.symbol || "").toUpperCase();
+  if (v.includes("a股") || v.includes("cn") || /^\d{6}$/.test(String(t.symbol || ""))) return "cn";
+  if (v.includes("crypto") || v.includes("加密") || v.includes("binance") || v.includes("okx") || /USDT/.test(s)) {
+    return "crypto";
+  }
+  return "other";
+}
+
+function visibleTips() {
+  return sortedTips().filter((t) => {
+    if (state.tipSide !== "all" && (t.side || "alert") !== state.tipSide) return false;
+    if (state.tipVenue !== "all" && tipVenueGroup(t) !== state.tipVenue) return false;
+    return true;
+  });
+}
+
+function tipScript(t) {
+  return pick(t, "script_name", "script_id", "source") || "—";
+}
+
 function renderTicker() {
+  const tips = sortedTips();
+  if (tips.length) {
+    const live = tips.filter((t) => t.live).slice(0, 3);
+    const row = (live.length ? live : tips.slice(0, 4))
+      .map((t) => `${esc(t.symbol || t.name)} · ${esc(SIDE_LABEL[t.side] || t.side)} · ${esc(tipScript(t))}`)
+      .join("    ·    ");
+    $("#ticker").textContent = row;
+    return;
+  }
   const ordered = sortedAlerts();
   const live = ordered.filter((a) => a.live).slice(0, 3);
   const row = (live.length ? live : ordered.slice(0, 3))
     .map((a) => `${esc(a.symbol)} · ${esc(pick(a, "action", "title"))}`)
     .join("    ·    ");
-  $("#ticker").textContent = row || "暂无预警";
+  $("#ticker").textContent = row || "暂无买卖点";
+}
+
+function emptyTipMessage(total, visible) {
+  if (state.tipsError) return state.tipsError;
+  if (!total) return "暂无买卖点。脚本写入 data/tips.json 后刷新即可。";
+  if (!visible) return "该筛选下暂无买卖点。可改选「全部」。";
+  return "";
+}
+
+function tipCard(t) {
+  const side = t.side || "alert";
+  const live = Boolean(t.live);
+  const pair = [t.venue, t.symbol].filter(Boolean).join(" · ");
+  const script = tipScript(t);
+  const scriptId = pick(t, "script_id") || "";
+  const when = fmtShanghai(t.ts);
+  return `<li class="card tip-card side-${esc(side)}" data-symbol="${esc(t.symbol || "")}" tabindex="0">
+    <div class="card-top">
+      <div class="card-meta">
+        <span class="pill ${esc(side)}">${esc(SIDE_LABEL[side] || side)}</span>
+        ${pair ? `<span class="tag venue">${esc(pair)}</span>` : ""}
+        <span class="pill ${live ? "live" : "sample"}">${live ? "LIVE" : "SAMPLE"}</span>
+      </div>
+      <time datetime="${esc(t.ts || "")}">${esc(when || "—")}（上海）</time>
+    </div>
+    <h2>${esc(t.name || t.symbol || "未命名")}</h2>
+    ${t.message ? `<p class="card-body">${esc(t.message)}</p>` : ""}
+    <p class="tip-script">脚本 <strong>${esc(script)}</strong>${scriptId && scriptId !== script ? ` · ${esc(scriptId)}` : ""}${t.price != null ? ` · 价 ${esc(t.price)}` : ""}</p>
+  </li>`;
+}
+
+function renderTipTally() {
+  const host = $("#tip-tally");
+  if (!host) return;
+  const rows = state.tips;
+  const buy = rows.filter((t) => t.side === "buy").length;
+  const sell = rows.filter((t) => t.side === "sell").length;
+  const alert = rows.filter((t) => (t.side || "alert") === "alert").length;
+  host.textContent = rows.length
+    ? `当前 ${buy} 买 · ${sell} 卖 · ${alert} 预警`
+    : "";
+}
+
+function renderTips() {
+  renderTipTally();
+  const host = $("#tip-feed");
+  const stamp = $("#tips-stamp");
+  if (!host) return;
+  const total = state.tips.length;
+  const liveN = state.tips.filter((t) => t.live).length;
+  if (stamp) {
+    const bits = [];
+    if (state.tipsMeta?.sample || (total && !liveN)) bits.push("示例数据，脚本可覆盖");
+    bits.push("每条标明脚本");
+    bits.push("点一条可跳到对应 K 线");
+    stamp.textContent = bits.join(" · ");
+  }
+  if (state.tipsError && !total) {
+    host.innerHTML = `<li class="feed-msg is-error">${esc(state.tipsError)}</li>`;
+    return;
+  }
+  const rows = visibleTips();
+  const empty = emptyTipMessage(total, rows.length);
+  host.innerHTML = rows.length ? rows.map(tipCard).join("") : `<li class="feed-msg">${esc(empty)}</li>`;
+}
+
+function selectedPool() {
+  const list = state.pools || [];
+  const sid = state.poolsMeta?.selected_id;
+  return list.find((p) => p.id === sid) || list[0] || null;
+}
+
+function renderPool() {
+  const body = $("#pool-body");
+  const stamp = $("#pool-stamp");
+  if (!body) return;
+  if (state.poolsError && !state.pools.length) {
+    if (stamp) stamp.textContent = "";
+    body.innerHTML = msgRow(state.poolsError, true);
+    return;
+  }
+  const pool = selectedPool();
+  if (!pool) {
+    if (stamp) stamp.textContent = "脚本写入 data/pools.json 后显示 scanner 池";
+    body.innerHTML = msgRow("暂无选股池。scanner / scanner11 写入 data/pools.json 后刷新即可。");
+    return;
+  }
+  const members = pool.members || [];
+  const script = pick(pool, "script_name", "script_id") || "scanner";
+  if (stamp) {
+    const bits = [];
+    if (state.poolsMeta?.sample || pool.sample) bits.push("示例数据，脚本可覆盖");
+    bits.push(`脚本 ${script}`);
+    if (pool.title) bits.push(pool.title);
+    if (pool.as_of) bits.push(`数据 ${fmtShanghai(pool.as_of) || pool.as_of}（上海）`);
+    bits.push(`${members.length} 只`);
+    stamp.textContent = bits.join(" · ");
+  }
+  if (!members.length) {
+    body.innerHTML = msgRow("该池暂无标的。");
+    return;
+  }
+  body.innerHTML = members
+    .map(
+      (r) => `<tr>
+        <td>${esc(r.symbol)}</td>
+        <td><span class="name">${esc(r.name || r.symbol)}</span></td>
+        <td>${fmtNum(r.price)}</td>
+        <td class="${pctClass(Number(r.chg_pct))}">${r.chg_pct == null ? "—" : `${Number(r.chg_pct) >= 0 ? "+" : ""}${fmtNum(r.chg_pct)}%`}</td>
+        <td class="${pctClass(Number(r.speed_pct))}">${r.speed_pct == null ? "—" : `${fmtNum(r.speed_pct)}%`}</td>
+        <td>${fmtNum(r.volume_ratio)}</td>
+        <td>${esc(r.note || "")}</td>
+      </tr>`
+    )
+    .join("");
+}
+
+function destroyCharts() {
+  chartInstances.forEach((c) => c.destroy?.());
+  chartInstances.clear();
+}
+
+function chartCard(spec, kicker) {
+  const id = spec.id || spec.symbol;
+  const tf = state.chartTf[id] || (globalThis.DeskKline?.defaultInterval(spec) ?? spec.default_interval);
+  const chips = (globalThis.DeskKline?.tfList(spec) || []).map(
+    (x) => `<button type="button" class="chip${x.id === tf ? " is-on" : ""}" data-tf="${esc(x.id)}">${esc(x.label)}</button>`
+  );
+  const script = pick(spec, "script_name", "script_id") || "—";
+  const rank = spec.rank ? `TOP${spec.rank}` : kicker;
+  return `<article class="chart-card" data-chart-id="${esc(id)}" data-symbol="${esc(spec.symbol || "")}">
+    <div class="chart-head">
+      <div>
+        ${rank ? `<p class="chart-kicker">${esc(rank)}</p>` : ""}
+        <h3>${esc(spec.name || spec.symbol)}<span class="sub">${esc([spec.symbol, spec.venue].filter(Boolean).join(" · "))}</span></h3>
+        <p class="chart-script">脚本 <strong>${esc(script)}</strong>${spec.message ? ` · ${esc(spec.message)}` : ""}</p>
+      </div>
+    </div>
+    <div class="filters tf-row" role="group" aria-label="周期">${chips.join("")}</div>
+    <div class="kline-host" id="kline-${esc(id)}"></div>
+    <p class="chart-note">K 线为示意数据 · 标的由脚本固定 · 可拖动查看，切换周期不改标的</p>
+  </article>`;
+}
+
+function mountChart(spec) {
+  const id = spec.id || spec.symbol;
+  const host = document.getElementById(`kline-${id}`);
+  if (!host || !globalThis.DeskKline) return;
+  const tf = state.chartTf[id] || DeskKline.defaultInterval(spec);
+  state.chartTf[id] = tf;
+  const chart = DeskKline.mount(host, { ...spec, default_interval: tf });
+  chartInstances.set(id, chart);
+}
+
+function renderChartGroup(hostId, stampId, list, emptyText, kicker, stampLead) {
+  const host = document.getElementById(hostId);
+  const stamp = document.getElementById(stampId);
+  if (!host) return;
+  if (state.chartsError && !list.length) {
+    if (stamp) stamp.textContent = "";
+    host.innerHTML = `<p class="feed-msg is-error">${esc(state.chartsError)}</p>`;
+    return;
+  }
+  if (stamp) {
+    const bits = [];
+    if (state.chartsMeta?.sample) bits.push("示例数据，脚本可覆盖");
+    if (stampLead) bits.push(stampLead);
+    bits.push("标的固定 · 可拖动 · 可切换周期");
+    stamp.textContent = bits.join(" · ");
+  }
+  if (!list.length) {
+    host.innerHTML = `<p class="feed-msg">${esc(emptyText)}</p>`;
+    return;
+  }
+  host.innerHTML = list.map((spec) => chartCard(spec, kicker)).join("");
+  list.forEach((spec) => mountChart(spec));
+}
+
+function renderCharts() {
+  destroyCharts();
+  const top3 = state.charts.top3 || [];
+  const crypto = state.charts.crypto || [];
+  renderChartGroup(
+    "top3-charts",
+    "top3-stamp",
+    top3,
+    "暂无 TOP3。monitor / monitor11 写入 data/charts.json 的 top3 后刷新即可。",
+    "TOP3",
+    "默认日线"
+  );
+  renderChartGroup(
+    "crypto-charts",
+    "crypto-stamp",
+    crypto,
+    "暂无加密币对。脚本写入 data/charts.json 的 crypto 后刷新即可。",
+    "加密",
+    "默认 30 分"
+  );
+}
+
+function renderDesk() {
+  renderTips();
+  renderPool();
+  renderCharts();
+}
+
+function focusChartForSymbol(symbol) {
+  if (!symbol) return;
+  const card = document.querySelector(`#view-desk .chart-card[data-symbol="${CSS.escape(symbol)}"]`);
+  if (!card) return;
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function applyTips(data, fallbackError) {
+  if (data && Array.isArray(data.items)) {
+    state.tips = data.items;
+    state.tipsMeta = data;
+    state.tipsError = null;
+    return;
+  }
+  if (!state.tips.length) {
+    state.tips = [];
+    state.tipsMeta = data;
+    state.tipsError = fallbackError;
+  }
+}
+
+function applyPools(data, fallbackError) {
+  if (data && Array.isArray(data.pools)) {
+    state.pools = data.pools;
+    state.poolsMeta = data;
+    state.poolsError = null;
+    return;
+  }
+  if (!state.pools.length) {
+    state.pools = [];
+    state.poolsMeta = data;
+    state.poolsError = fallbackError;
+  }
+}
+
+function applyCharts(data, fallbackError) {
+  if (data && (Array.isArray(data.top3) || Array.isArray(data.crypto) || Array.isArray(data.charts))) {
+    state.charts = {
+      top3: data.top3 || (data.charts || []).filter((c) => c.role === "top3" || c.kind === "stock"),
+      crypto: data.crypto || (data.charts || []).filter((c) => c.role === "pair" || c.kind === "crypto"),
+    };
+    state.chartsMeta = data;
+    state.chartsError = null;
+    return;
+  }
+  if (!(state.charts.top3 || []).length && !(state.charts.crypto || []).length) {
+    state.charts = { top3: [], crypto: [] };
+    state.chartsMeta = data;
+    state.chartsError = fallbackError;
+  }
 }
 
 function oppId(o) {
@@ -911,6 +1248,59 @@ async function refreshRunners() {
   }
 }
 
+async function refreshTips() {
+  try {
+    const url = state.meta?.tips_url || "./data/tips.json";
+    const bucket = Math.floor(Date.now() / (state.meta?.poll_ms || 30000));
+    const join = url.includes("?") ? "&" : "?";
+    const data = await loadJson(`${url}${join}t=${bucket}`);
+    applyTips(data, "买卖点加载失败：无法读取 data/tips.json");
+    renderTips();
+    renderTicker();
+  } catch (err) {
+    console.warn("[tips]", err);
+    if (!state.tips.length) {
+      state.tipsError = `买卖点加载失败：${err.message}`;
+      renderTips();
+      renderTicker();
+    }
+  }
+}
+
+async function refreshPools() {
+  try {
+    const url = state.meta?.pools_url || "./data/pools.json";
+    const bucket = Math.floor(Date.now() / 120000);
+    const join = url.includes("?") ? "&" : "?";
+    const data = await loadJson(`${url}${join}t=${bucket}`);
+    applyPools(data, "选股池加载失败：无法读取 data/pools.json");
+    renderPool();
+  } catch (err) {
+    console.warn("[pools]", err);
+    if (!state.pools.length) {
+      state.poolsError = `选股池加载失败：${err.message}`;
+      renderPool();
+    }
+  }
+}
+
+async function refreshCharts() {
+  try {
+    const url = state.meta?.charts_url || "./data/charts.json";
+    const bucket = Math.floor(Date.now() / 120000);
+    const join = url.includes("?") ? "&" : "?";
+    const data = await loadJson(`${url}${join}t=${bucket}`);
+    applyCharts(data, "K 线上下文加载失败：无法读取 data/charts.json");
+    renderCharts();
+  } catch (err) {
+    console.warn("[charts]", err);
+    if (!(state.charts.top3 || []).length && !(state.charts.crypto || []).length) {
+      state.chartsError = `K 线上下文加载失败：${err.message}`;
+      renderCharts();
+    }
+  }
+}
+
 async function refreshAlerts() {
   try {
     const url = state.meta?.alerts_url || "./data/alerts.json";
@@ -946,7 +1336,7 @@ async function boot() {
   layoutChrome();
   window.addEventListener("resize", layoutChrome);
 
-  const [meta, opps, alerts, strats, market, kzz, quotes, lastRun, runners] = await Promise.all([
+  const [meta, opps, alerts, strats, market, kzz, quotes, lastRun, runners, tips, pools, charts] = await Promise.all([
     loadJson("./data/meta.json"),
     loadOptional("./data/opportunities.json"),
     loadOptional("./data/alerts.json"),
@@ -956,6 +1346,9 @@ async function boot() {
     loadJson("./data/quotes.json").catch(() => null),
     loadOptional("./data/last_run.json"),
     loadOptional("./data/runners.json"),
+    loadOptional("./data/tips.json"),
+    loadOptional("./data/pools.json"),
+    loadOptional("./data/charts.json"),
   ]);
   state.meta = meta;
   state.lastRun = lastRun;
@@ -997,10 +1390,14 @@ async function boot() {
     state.runnersMeta = runners;
     state.runnersError = "脚本状态加载失败：无法读取 data/runners.json";
   }
+  applyTips(tips, "买卖点加载失败：无法读取 data/tips.json");
+  applyPools(pools, "选股池加载失败：无法读取 data/pools.json");
+  applyCharts(charts, "K 线上下文加载失败：无法读取 data/charts.json");
   $("#disclaimer").textContent = meta.disclaimer;
   $("#cap").textContent = "CDN 静态分发 · 约 10 万并发阅读";
 
   renderLastRun();
+  renderDesk();
   renderOpps();
   renderQuotes();
   renderKzz();
@@ -1008,11 +1405,11 @@ async function boot() {
   renderTicker();
   renderStrats();
   renderRunners();
-  const hash = (location.hash || "").replace("#", "");
-  if (hash === "live" || hash === "contact" || hash === "opps") setView(hash);
+  applyLocation();
   layoutChrome();
 
   $$(".tab").forEach((btn) => btn.addEventListener("click", () => setView(btn.dataset.view)));
+  window.addEventListener("hashchange", applyLocation);
   $$(".js-runner-strip").forEach((btn) => {
     btn.addEventListener("click", () => {
       setView("live");
@@ -1082,8 +1479,48 @@ async function boot() {
       renderAlerts();
     });
   });
+  $$("#tip-side-filters .chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.tipSide = btn.dataset.side;
+      $$("#tip-side-filters .chip").forEach((c) => c.classList.toggle("is-on", c === btn));
+      renderTips();
+    });
+  });
+  $$("#tip-venue-filters .chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.tipVenue = btn.dataset.venue;
+      $$("#tip-venue-filters .chip").forEach((c) => c.classList.toggle("is-on", c === btn));
+      renderTips();
+    });
+  });
+  $("#view-desk")?.addEventListener("click", (e) => {
+    const tfBtn = e.target.closest("[data-tf]");
+    if (tfBtn) {
+      const card = tfBtn.closest("[data-chart-id]");
+      const id = card?.dataset.chartId;
+      const tf = tfBtn.dataset.tf;
+      if (id && tf) {
+        state.chartTf[id] = tf;
+        card.querySelectorAll("[data-tf]").forEach((c) => c.classList.toggle("is-on", c === tfBtn));
+        chartInstances.get(id)?.setInterval(tf);
+      }
+      return;
+    }
+    const tip = e.target.closest(".tip-card[data-symbol]");
+    if (tip) focusChartForSymbol(tip.dataset.symbol);
+  });
+  $("#view-desk")?.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const tip = e.target.closest(".tip-card[data-symbol]");
+    if (!tip || e.target !== tip) return;
+    e.preventDefault();
+    focusChartForSymbol(tip.dataset.symbol);
+  });
 
   setInterval(refreshAlerts, meta.poll_ms || 30000);
+  setInterval(refreshTips, meta.poll_ms || 30000);
+  setInterval(refreshPools, 120000);
+  setInterval(refreshCharts, 120000);
   setInterval(refreshQuotes, 120000);
   setInterval(refreshLastRun, 120000);
   setInterval(refreshRunners, 60000);
