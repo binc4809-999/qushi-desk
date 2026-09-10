@@ -1511,12 +1511,11 @@ function renderHomeProof() {
   const selected = state.pools.find((p) => p.id === state.poolsMeta?.selected_id) || state.pools[0];
   const poolN = (selected?.members || []).length;
   const running = state.runners.filter((r) => String(r.status || "").toLowerCase() === "running").length;
-  const cryptoN = (state.charts.crypto || []).length;
   host.innerHTML = [
-    `<li><a href="#tips">${state.tips.length} 条买卖点</a></li>`,
-    `<li><a href="#pool">选股池 ${poolN} 只</a></li>`,
-    `<li><a href="#crypto">加密图 ${cryptoN} 组</a></li>`,
-    `<li><a href="#runners">${running} 个脚本运行中</a></li>`,
+    `<li><a href="#tips">演示 · ${state.tips.length} 条信号</a></li>`,
+    `<li><a href="#pool">演示 · 选股池 ${poolN} 只</a></li>`,
+    `<li><a href="#live">高净利回测可阅</a></li>`,
+    `<li><a href="#runners">${running} 路策略运行中</a></li>`,
   ].join("");
 }
 
@@ -1592,7 +1591,7 @@ function wireLeadForms() {
         `兴趣：${fd.get("interest") || ""}`,
         `备注：${fd.get("note") || ""}`,
       ].join("\n");
-      const subject = state.contact?.form?.subject || "【五饼二鱼】预约交流";
+      const subject = state.contact?.form?.subject || "【五饼二鱼】预约定制方案";
       window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     });
   });
@@ -1672,7 +1671,7 @@ async function boot() {
   applyCharts(charts, "K 线上下文加载失败：无法读取 data/charts.json");
   state.contact = contact || {};
   $("#disclaimer").textContent = meta.disclaimer;
-  $("#cap").textContent = "基金经理研究台 · 静态 CDN";
+  $("#cap").textContent = "专业投资者定制台 · 静态 CDN";
 
   renderLastRun();
   renderDesk();
