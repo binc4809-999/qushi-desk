@@ -13,6 +13,7 @@
 | `data/quotes.json` | 已有 `publisher/refresh_quotes.py` | 「全球行情」面板；**不要改结构去迁就机会表** |
 | `data/alerts.json` | `publisher/publish_alert.py` 或实盘脚本 | 「实盘策略/预警」预警流 |
 | `data/strategies.json` | 策略/回测脚本 | 同页策略卡片（名称、交易所、状态、规则） |
+| `data/runners.json` | `publisher/write_runner.py`（循环内心跳） | 「脚本运行状态」：谁在跑、最新一行日志 |
 
 时间一律 **UTC ISO-8601**（例 `2026-09-09T16:06:56+00:00`）。前端用 `Asia/Shanghai` 显示。
 
@@ -148,6 +149,8 @@ python publisher/write_last_run.py --status success --script my_research.py --su
 
 可选：预警脚本跑完后另调 `record_run(...)` 更新 `last_run.json`，实盘页顶部的「管道」心跳就会一起变。预警流自己的新鲜度看本文件的 `updated_at`。
 
+进程还在跑、只是挂起等开盘时，请另写 `data/runners.json`（见下），不要用 `last_run` 覆盖成一次「成功结束」。
+
 ## `data/strategies.json`
 
 顶层：`venues[]`，每组下 `symbols[]`。旧的回测数字（`ret_pct` / `by_signal` 等）仍可写，页面只扫读：**名称、交易所、状态、最近信号、一句话规则**。
@@ -167,6 +170,79 @@ python publisher/write_last_run.py --status success --script my_research.py --su
 
 `lede` 可以留在 JSON 里给脚本注释用，页面不再当营销长文展示。
 
+## `data/runners.json`
+
+多脚本心跳，和 `last_run.json`（整次作业结束）分开。PyCharm 里同时开着的 monitor11 / BTC V6 / SOL V6 各写一条，按 `id` 覆盖。前端在「实盘策略/预警」展示，投资机会页有一行摘要。
+
+```json
+{
+  "schema_version": 1,
+  "sample": true,
+  "updated_at": "2026-09-10T01:14:00+00:00",
+  "count": 1,
+  "runners": [
+    {
+      "id": "monitor11",
+      "name": "monitor11",
+      "script": "monitor11.py",
+      "status": "waiting",
+      "last_message": "[monitor11] 非交易时段，等待 09-10 09:30 开盘...",
+      "updated_at": "2026-09-10T01:10:00+00:00",
+      "started_at": "2026-09-09T23:55:00+00:00",
+      "venue": "A股",
+      "symbol": "monitor11",
+      "notes": "EXPMA 池监控",
+      "detail_url": "https://binc4809-999.github.io/qushi-desk/#live",
+      "sample": true
+    }
+  ]
+}
+```
+
+每条 `runners[]`（`items[]` 也可，前端同样认）：
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `id` | 是 | 稳定主键；同一脚本反复覆盖 |
+| `name` | 建议 | PyCharm 运行配置名 / 展示名；缺省用 `id` |
+| `script` | 建议 | 脚本文件名 |
+| `status` | 是 | `running` \| `waiting` \| `idle` \| `error` \| `stopped` |
+| `last_message` | 建议 | `last_line` — 控制台最新一行，原样上墙 |
+| `updated_at` | 是 | UTC ISO；页面显示上海时间 |
+| `started_at` | 否 | 本次进程启动；waiting/running 时发布器会继承 |
+| `venue` / `symbol` | 否 | 场所、品种 |
+| `notes` | 否 | 点开卡片后的补充说明 |
+| `detail_url` | 否 | 点开后的外链 |
+| `sample` | 否 | 示例心跳为 `true`；实盘脚本不要带，或设 `false` |
+
+`status` 语义：`running` 在干活；`waiting` 进程还在、只是等开盘/等条件（monitor11 非交易时段）；`idle` 空闲；`error` 异常；`stopped` 已停。
+
+在循环里调用（不要每秒推一次，2–5 分钟或状态变化时即可）：
+
+```python
+from write_runner import heartbeat          # 若从 publisher/ 目录运行
+# 或: from publisher.write_runner import heartbeat
+
+heartbeat(
+    id="monitor11",
+    status="waiting",                       # running / waiting / idle / error / stopped
+    last_message=line,                      # 最近一行 print
+    script="monitor11.py",
+    venue="A股",
+    push=True,                              # 需要 SIGNAL_DESK_TOKEN 或 gh auth
+)
+```
+
+命令行：
+
+```
+python publisher/write_runner.py --id monitor11 --status waiting --script monitor11.py --venue A股 --message "[monitor11] 非交易时段，等待 09-10 09:30 开盘..." --push
+```
+
+发布器按 `id` 覆盖本地文件；`--push` 时先 GET 远端 `data/runners.json` 再合并后 PUT，避免把别的脚本心跳盖掉。省略的 `name` / `script` / `venue` 会沿用上一条。
+
+仓库里的示例带 `"sample": true`，方便你对照 PyCharm 运行面板；脚本写入正式心跳后不要带 `sample`，或设 `false`。
+
 ## 怎么发布到公网
 
 站点只在 **`main` 上的文件** 经 GitHub Pages 工作流上线（`pages.yml` 复制 `css/` `js/` `data/` `img/`）。任选一种：
@@ -180,6 +256,6 @@ SIGNAL_DESK_TOKEN=<github token，repo 权限>
 SIGNAL_DESK_BRANCH=main
 ```
 
-然后 `record_run(..., push=True)` 或 `python publisher/refresh_quotes.py --push`。token 不要写进 JSON、不要提交进仓库。
+然后 `record_run(..., push=True)`、`heartbeat(..., push=True)` 或 `python publisher/refresh_quotes.py --push`。token 不要写进 JSON、不要提交进仓库。
 
-行情刷新继续只写 `data/quotes.json`；它现在也会更新 `last_run.json`。机会表请由你的调研脚本覆盖 `opportunities.json`，预警请走 `publisher/publish_alert.py`，策略卡片覆盖 `strategies.json`，不要手改 `index.html`。
+行情刷新继续只写 `data/quotes.json`；它现在也会更新 `last_run.json`。机会表请由你的调研脚本覆盖 `opportunities.json`，预警请走 `publisher/publish_alert.py`，策略卡片覆盖 `strategies.json`，进程心跳走 `publisher/write_runner.py`，不要手改 `index.html`。

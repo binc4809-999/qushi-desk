@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "sample": true,
+  "updated_at": "2026-09-10T01:14:00+00:00",
+  "count": 5,
+  "runners": [
+    {
+      "id": "qushi-btcusdt-v6",
+      "name": "QUSHIZIYOU_BTCUSDT_V6",
+      "script": "实盘包_20260906_BTC_QUSHIZIYOU_BTCUSDT_V6.py",
+      "status": "running",
+      "status_label": "运行中",
+      "last_message": "[BTCUSDT V6] 实盘循环中 · 无新信号 · 盯盘 15m",
+      "updated_at": "2026-09-10T01:14:00+00:00",
+      "started_at": "2026-09-09T23:40:00+00:00",
+      "venue": "Binance",
+      "symbol": "BTCUSDT",
+      "notes": "趋势自由 V6 价突破 · 与策略卡 Binance BTC 对应。示例心跳，实盘脚本覆盖后请设 sample=false。",
+      "detail_url": "https://binc4809-999.github.io/qushi-desk/#live",
+      "sample": true
+    },
+    {
+      "id": "qushi-solusdt-v6",
+      "name": "QUSHIZIYOU_SOLUSDT_V6",
+      "script": "实盘包_20260906_BTC_QUSHIZIYOU_SOLUSDT_V6.py",
+      "status": "running",
+      "status_label": "运行中",
+      "last_message": "[SOLUSDT V6] 实盘循环中 · 无新信号 · 盯盘 15m",
+      "updated_at": "2026-09-10T01:13:00+00:00",
+      "started_at": "2026-09-09T23:40:00+00:00",
+      "venue": "Binance",
+      "symbol": "SOLUSDT",
+      "notes": "趋势自由 V6 · 与策略卡 Binance SOL 对应。示例心跳。",
+      "sample": true
+    },
+    {
+      "id": "yahoo-expma-screener",
+      "name": "雅虎金融筛选选后EXPMA",
+      "script": "scanner11.py",
+      "status": "running",
+      "status_label": "运行中",
+      "last_message": "[EXPMA] 盘后筛选进行中 · 已扫 86/220 · 下一轮 90s",
+      "updated_at": "2026-09-10T01:11:00+00:00",
+      "started_at": "2026-09-10T00:05:00+00:00",
+      "venue": "Yahoo",
+      "symbol": "",
+      "notes": "美股盘后 EXPMA 筛选。PyCharm 运行配置名与截图一致。",
+      "sample": true
+    },
+    {
+      "id": "monitor11",
+      "name": "monitor11",
+      "script": "monitor11.py",
+      "status": "waiting",
+      "status_label": "等待开盘",
+      "last_message": "[monitor11] 非交易时段，等待 09-10 09:30 开盘...",
+      "updated_at": "2026-09-10T01:10:00+00:00",
+      "started_at": "2026-09-09T23:55:00+00:00",
+      "venue": "A股",
+      "symbol": "monitor11",
+      "notes": "EXPMA 池监控。进程仍在跑，只是非交易时段挂起；开盘后 status 改为 running。",
+      "sample": true
+    },
+    {
+      "id": "gaodidianfanglangyujing",
+      "name": "gaodidianfanglangyujing",
+      "script": "高低点放量预警.py",
+      "status": "waiting",
+      "status_label": "等待开盘",
+      "last_message": "[高低点放量] 非交易时段，等待 09-10 09:30 开盘...",
+      "updated_at": "2026-09-10T01:08:00+00:00",
+      "started_at": "2026-09-09T23:50:00+00:00",
+      "venue": "A股",
+      "notes": "高低点放量预警。示例心跳，对应 PyCharm 运行配置 gaodidianfanglangyujing。",
+      "sample": true
+    }
+  ]
+}
