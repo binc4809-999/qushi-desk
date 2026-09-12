@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-11T15:22:26+00:00",
+  "updated_at": "2026-09-12T12:58:24+00:00",
   "count": 5,
   "runners": [
+    {
+      "id": "scanner",
+      "name": "scanner",
+      "script": "scanner.py",
+      "status": "running",
+      "last_message": "[scan] 开始选股 preset=default",
+      "updated_at": "2026-09-12T12:58:24+00:00",
+      "started_at": "2026-09-10T01:05:00+00:00",
+      "venue": "A股",
+      "notes": "PyCharm 运行配置 scanner / scanner.py。示例心跳，脚本接入 heartbeat(push=True) 后覆盖。"
+    },
     {
       "id": "zhangdiesudubang",
       "name": "zhangdiesudubang修正版",
@@ -55,17 +66,6 @@
       "started_at": "2026-09-10T01:10:00+00:00",
       "venue": "A股",
       "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
-    },
-    {
-      "id": "scanner",
-      "name": "scanner",
-      "script": "scanner.py",
-      "status": "idle",
-      "last_message": "[scan] 共选出 9 只 preset=default",
-      "updated_at": "2026-09-11T15:22:26+00:00",
-      "started_at": "2026-09-10T01:05:00+00:00",
-      "venue": "A股",
-      "notes": "PyCharm 运行配置 scanner / scanner.py。示例心跳，脚本接入 heartbeat(push=True) 后覆盖。"
     }
   ]
 }
