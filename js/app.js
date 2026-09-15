@@ -64,6 +64,8 @@ const HASH_ROUTE = {
   live: { view: "live", tab: "live", scroll: "diagram-block" },
   backtest: { view: "live", tab: "live", scroll: "diagram-block" },
   runners: { view: "live", tab: "live", scroll: "runner-block" },
+  crowdfund: { view: "crowdfund", tab: "crowdfund", top: true },
+  plan: { view: "crowdfund", tab: "crowdfund", top: true },
   contact: { view: "contact", tab: "contact", top: true },
 };
 const SIDE_LABEL = { buy: "买入", sell: "卖出", alert: "预警" };
@@ -125,7 +127,7 @@ function setView(name, opts = {}) {
   $$(".view").forEach((v) => v.classList.toggle("is-on", v.id === `view-${name}`));
   const tab = opts.tab || name;
   $$(".tab").forEach((t) => t.classList.toggle("is-on", t.dataset.hash === tab));
-  document.body.classList.toggle("is-marketing", name === "home" || name === "contact");
+  document.body.classList.toggle("is-marketing", name === "home" || name === "contact" || name === "crowdfund");
   document.body.dataset.view = name;
   if (name !== "live") closeDetail({ restoreFocus: false });
   if (name === "desk") {
