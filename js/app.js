@@ -1753,7 +1753,7 @@ async function boot() {
   const [meta, opps, alerts, strats, diagrams, market, kzz, quotes, lastRun, runners, tips, pools, charts, contact] = await Promise.all([
     loadJson("./data/meta.json"),
     loadOptional("./data/opportunities.json"),
-    loadOptional("./data/alerts.json"),
+    loadOptional("./data/alerts.json?v=20260916c"),
     loadOptional("./data/strategies.json"),
     loadOptional("./data/backtest-diagrams.json"),
     loadJson("./data/market-links.json"),
@@ -1818,7 +1818,7 @@ async function boot() {
   applyCharts(charts, "K 线上下文加载失败：无法读取 data/charts.json");
   state.contact = contact || {};
   $("#disclaimer").textContent = meta.disclaimer;
-  $("#cap").textContent = "脚本预警 · A股 / 加密 / 美股";
+  $("#cap").textContent = "邮箱预警展示";
 
   renderLastRun();
   renderDesk();
