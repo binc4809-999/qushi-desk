@@ -17,7 +17,7 @@ const state = {
   alertSource: "all",
   tipSide: "all",
   tipVenue: "all",
-  marketFilter: "cn",
+  marketFilter: "all",
   opportunities: [],
   opportunitiesMeta: null,
   opportunitiesError: null,
@@ -667,7 +667,7 @@ const KIND_LABEL = {
   info: "信息",
   data: "数据",
 };
-const MARKET_LABEL = { cn: "A股", crypto: "加密", us: "美股" };
+const MARKET_LABEL = { all: "全部", cn: "A股", crypto: "加密", us: "美股" };
 const CHANNEL_LABEL = { trade: "开平仓", monitor: "选股监控", system: "系统" };
 const SEV_LABEL = { signal: "信号", risk: "风险", info: "信息", system: "系统" };
 const STRAT_STATUS_LABEL = {
@@ -842,7 +842,7 @@ function inferAlertMarket(a) {
 
 function visibleAlerts() {
   return sortedAlerts().filter((a) => {
-    if (inferAlertMarket(a) !== state.marketFilter) return false;
+    if (state.marketFilter !== "all" && inferAlertMarket(a) !== state.marketFilter) return false;
     if (state.alertSource === "live" && !a.live) return false;
     return true;
   });
@@ -851,9 +851,9 @@ function visibleAlerts() {
 function emptyAlertMessage(total, visible) {
   if (state.alertsError) return state.alertsError;
   const m = MARKET_LABEL[state.marketFilter] || state.marketFilter;
-  if (!total) return "暂无预警。脚本写入 data/alerts.json 后刷新即可。";
-  if (!visible && state.alertSource === "live") return `「${m}」暂无 LIVE 预警。`;
-  if (!visible) return `「${m}」暂无预警。可切换其它分类，或等脚本推送。`;
+  if (!total) return "暂无邮件预警。邮箱入库或脚本写入 data/alerts.json 后刷新即可。";
+  if (!visible && state.alertSource === "live") return `「${m}」暂无 LIVE 邮件预警。`;
+  if (!visible) return `「${m}」暂无邮件预警。可切回「全部」，或等邮箱推送。`;
   return "";
 }
 
@@ -889,11 +889,17 @@ function alertCard(a) {
   const venue = a.venue || "";
   const symbol = a.symbol || "";
   const pair = [MARKET_LABEL[market] || market, venue, symbol].filter(Boolean).join(" · ");
-  const foot = [a.source ? `脚本 ${a.source}` : "", live ? "LIVE" : "SAMPLE"].filter(Boolean);
+  const viaMail = String(a.via || "").toLowerCase() === "mail" || /mailbox|imap|mail/i.test(String(a.source || ""));
+  const foot = [
+    viaMail ? "来自邮件" : "",
+    a.source ? `来源 ${a.source}` : "",
+    live ? "LIVE" : "SAMPLE",
+  ].filter(Boolean);
   return `<li class="card sev-${esc(a.severity || "info")} ${live ? "is-live" : "is-sample"}">
         <div class="card-top">
           <div class="card-meta">
             <span class="pill ${live ? "live" : "sample"}">${live ? "LIVE" : "SAMPLE"}</span>
+            ${viaMail ? `<span class="tag">邮件</span>` : ""}
             <span class="tag">${esc(KIND_LABEL[kind] || kind || "提醒")}</span>
             ${pair ? `<span class="tag venue">${esc(pair)}</span>` : ""}
           </div>
@@ -912,9 +918,13 @@ function renderAlerts() {
   if (!host) return;
   const total = state.alerts.length;
   const liveN = state.alerts.filter((a) => a.live).length;
-  const marketCount = state.alerts.filter((a) => inferAlertMarket(a) === state.marketFilter).length;
+  const marketCount =
+    state.marketFilter === "all"
+      ? total
+      : state.alerts.filter((a) => inferAlertMarket(a) === state.marketFilter).length;
   if (stamp) {
     const bits = [];
+    bits.push("邮件预警");
     bits.push(MARKET_LABEL[state.marketFilter] || state.marketFilter);
     if (state.alertsMeta?.sample || (total && !liveN)) bits.push("含 SAMPLE");
     bits.push(`${marketCount} 条`);
@@ -1882,7 +1892,7 @@ async function boot() {
   });
   $$("#market-tabs .chip").forEach((btn) => {
     btn.addEventListener("click", () => {
-      state.marketFilter = btn.dataset.market || "cn";
+      state.marketFilter = btn.dataset.market || "all";
       renderAlerts();
     });
   });

@@ -50,6 +50,12 @@ ALERT_HINTS = (
     "失败",
     "USDT",
     "选股",
+    "成交",
+    "预警",
+    "买入",
+    "卖出",
+    "信号",
+    "SWAP",
 )
 
 
@@ -282,7 +288,7 @@ def ingest_once(days: int = 2, dry_run: bool = False) -> int:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="邮箱预警 → 五饼二鱼脚本预警")
+    ap = argparse.ArgumentParser(description="邮箱预警 → 五饼二鱼邮件预警页")
     ap.add_argument("--loop", action="store_true", help="常驻轮询")
     ap.add_argument("--interval", type=float, default=45, help="轮询秒数")
     ap.add_argument("--days", type=int, default=2, help="回溯天数")

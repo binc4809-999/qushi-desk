@@ -299,6 +299,9 @@ def publish(event: dict) -> dict:
 
 def publish_from_email(subject: str, body: str, source: str = "", extra: Optional[dict] = None) -> dict:
     event = infer_event(subject, body, source)
+    event["via"] = "mail"
+    if not event.get("source") or event.get("source") == "script":
+        event["source"] = source or "mailbox"
     if extra:
         event.update({k: v for k, v in extra.items() if v is not None})
     return publish(event)

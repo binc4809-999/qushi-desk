@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "sample": true,
-  "updated_at": "2026-09-16T11:00:00+00:00",
+  "updated_at": "2026-09-16T12:00:00+00:00",
   "count": 6,
   "items": [
     {
-      "id": "cn-monitor-600519",
+      "id": "mail-cn-600519",
       "ts": "2026-09-16T05:18:00+00:00",
       "market": "cn",
       "severity": "signal",
@@ -13,13 +13,14 @@
       "channel": "monitor",
       "venue": "A股",
       "symbol": "600519",
-      "title": "买入预警 · 贵州茅台",
-      "body": "EXPMA 池点火 · 量比 2.41 · 涨速 1.82% · 结构分过线。脚本发到邮箱后同步本页。",
-      "source": "monitor",
+      "title": "【预警】买入预警 · 贵州茅台 600519",
+      "body": "主题：买入预警 · 贵州茅台\n\nEXPMA 池点火 · 量比 2.41 · 涨速 1.82% · 结构分过线。\n（样例：模拟邮箱收到的预警正文）",
+      "source": "mailbox",
+      "via": "mail",
       "live": false
     },
     {
-      "id": "cn-scanner-002594",
+      "id": "mail-cn-002594",
       "ts": "2026-09-16T01:40:00+00:00",
       "market": "cn",
       "severity": "info",
@@ -27,13 +28,14 @@
       "channel": "monitor",
       "venue": "A股",
       "symbol": "002594",
-      "title": "选股池更新 · 比亚迪",
-      "body": "入选 scanner 当日池 · 等待 monitor 点火。",
-      "source": "scanner",
+      "title": "【选股】选股池更新 · 比亚迪 002594",
+      "body": "主题：选股池更新 · 比亚迪\n\n入选 scanner 当日池 · 等待 monitor 点火。\n（样例邮件正文）",
+      "source": "mailbox",
+      "via": "mail",
       "live": false
     },
     {
-      "id": "crypto-btc-open",
+      "id": "mail-crypto-btc-open",
       "ts": "2026-09-16T04:00:00+00:00",
       "market": "crypto",
       "severity": "signal",
@@ -41,13 +43,14 @@
       "channel": "trade",
       "venue": "OKX",
       "symbol": "BTC-USDT-SWAP",
-      "title": "开仓 · 30B 做多",
-      "body": "合约 BTC-USDT-SWAP · 信号 30B · 5x 逐仓。来自脚本邮件预警样例。",
-      "source": "QUSHIIZIYOU_BTCUSDT_V6",
+      "title": "开仓 · BTC-USDT-SWAP · 30B 做多",
+      "body": "主题：开仓 · 30B 做多\n\n合约 BTC-USDT-SWAP · 信号 30B · 5x 逐仓。\n（样例：脚本发到邮箱的开仓预警）",
+      "source": "mailbox",
+      "via": "mail",
       "live": false
     },
     {
-      "id": "crypto-eth-close",
+      "id": "mail-crypto-eth-close",
       "ts": "2026-09-16T03:30:00+00:00",
       "market": "crypto",
       "severity": "info",
@@ -56,12 +59,13 @@
       "venue": "Binance",
       "symbol": "ETHUSDT",
       "title": "平仓 / 转弱 · ETHUSDT",
-      "body": "s_v3 趋势转弱 · 30m EMA 死叉 · 平多/开空。",
-      "source": "s_v3_binance_monitor",
+      "body": "主题：平仓 / 转弱 · ETHUSDT\n\ns_v3 趋势转弱 · 30m EMA 死叉 · 平多/开空。\n（样例邮件正文）",
+      "source": "mailbox",
+      "via": "mail",
       "live": false
     },
     {
-      "id": "us-aapl-alert",
+      "id": "mail-us-aapl",
       "ts": "2026-09-16T02:00:00+00:00",
       "market": "us",
       "severity": "signal",
@@ -69,13 +73,14 @@
       "channel": "monitor",
       "venue": "美股",
       "symbol": "AAPL",
-      "title": "美股监控 · AAPL",
-      "body": "样例：脚本监控美股标的后发邮件，本页按「美股」分类展示。实盘推送后替换。",
-      "source": "us_monitor_sample",
+      "title": "美股监控预警 · AAPL",
+      "body": "主题：美股监控 · AAPL\n\n脚本监控美股标的后发邮件；本页展示邮件主题与正文。\n（样例）",
+      "source": "mailbox",
+      "via": "mail",
       "live": false
     },
     {
-      "id": "us-tsla-fill",
+      "id": "mail-us-tsla",
       "ts": "2026-09-15T20:15:00+00:00",
       "market": "us",
       "severity": "info",
@@ -84,8 +89,9 @@
       "venue": "美股",
       "symbol": "TSLA",
       "title": "成交回报 · TSLA",
-      "body": "样例成交回执字段：方向、数量、价格、时间。脚本邮件入库后显示为 LIVE。",
-      "source": "us_monitor_sample",
+      "body": "主题：成交回报 · TSLA\n\n方向、数量、价格、时间（样例字段）。邮箱入库后显示为 LIVE。",
+      "source": "mailbox",
+      "via": "mail",
       "live": false
     }
   ]

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>五饼二鱼 · Five Loaves & Two Fish — 脚本预警看板</title>
-  <meta name="description" content="五饼二鱼：按 A股 / 加密 / 美股 分类展示脚本邮箱预警（开仓、平仓、成交、监控）。研究备忘，非投资建议。">
+  <title>五饼二鱼 · Five Loaves & Two Fish — 邮件预警</title>
+  <meta name="description" content="五饼二鱼：展示邮箱收到的脚本预警内容。研究备忘，非投资建议。">
   <meta name="theme-color" content="#0e1014">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./css/app.css">
@@ -17,12 +17,12 @@
       <p class="brand-sub">Five Loaves & Two Fish</p>
     </a>
     <nav class="tabs" aria-label="栏目">
-      <a class="tab is-on" href="#home" data-hash="home">预警</a>
+      <a class="tab is-on" href="#home" data-hash="home">邮件预警</a>
       <a class="tab" href="#contact" data-hash="contact">联系</a>
     </nav>
     <div class="mast-right">
       <p class="clock" id="clock">--:--:--</p>
-      <p class="cap" id="cap">脚本预警 · A股 / 加密 / 美股</p>
+      <p class="cap" id="cap">邮箱预警展示</p>
     </div>
   </header>
 
@@ -32,25 +32,22 @@
     <section id="view-home" class="view is-on">
       <header class="view-head simple-head">
         <div>
-          <p class="section-kicker">Script mail desk</p>
-          <h1>脚本预警</h1>
-          <p class="lede">按 <strong>A股 / 加密 / 美股</strong> 分类展示脚本发到邮箱的提醒：开仓、平仓、成交、监控等。数据来自 <code>data/alerts.json</code>。</p>
+          <p class="section-kicker">Mailbox alerts</p>
+          <h1>邮件预警</h1>
+          <p class="lede">展示邮箱收到的脚本预警（主题 + 正文）。可选按 A股 / 加密 / 美股 过滤。</p>
         </div>
       </header>
       <div class="filters market-tabs" id="market-tabs" role="tablist" aria-label="市场分类">
-        <button type="button" class="chip is-on" data-market="cn" role="tab" aria-selected="true">A股</button>
+        <button type="button" class="chip is-on" data-market="all" role="tab" aria-selected="true">全部</button>
+        <button type="button" class="chip" data-market="cn" role="tab" aria-selected="false">A股</button>
         <button type="button" class="chip" data-market="crypto" role="tab" aria-selected="false">加密</button>
         <button type="button" class="chip" data-market="us" role="tab" aria-selected="false">美股</button>
       </div>
       <p class="hint" id="feed-stamp"></p>
-      <aside class="pipeline js-last-run" id="home-pipeline" aria-live="polite">
-        <span class="pl-kicker">管道</span>
-        <span class="pl-line">读取心跳…</span>
-      </aside>
       <ol class="feed" id="home-feed">
-        <li class="feed-msg">正在加载预警…</li>
+        <li class="feed-msg">正在加载邮件预警…</li>
       </ol>
-      <p class="simple-more">联系见导航 · 旧模块暂留：<a href="#desk">演示台</a> · <a href="#live">回测</a> · <a href="#crowdfund">众筹</a></p>
+      <p class="simple-more">数据：邮箱 → <code>ingest_mailbox.py</code> → <code>data/alerts.json</code> · <a href="#contact">联系</a></p>
     </section>
 
     <section id="view-desk" class="view">
@@ -504,6 +501,6 @@
   </footer>
 
   <script src="./js/kline.js?v=20260910b" defer></script>
-  <script src="./js/app.js?v=20260916a" defer></script>
+  <script src="./js/app.js?v=20260916b" defer></script>
 </body>
 </html>
