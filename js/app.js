@@ -17,6 +17,7 @@ const state = {
   alertSource: "all",
   tipSide: "all",
   tipVenue: "all",
+  marketFilter: "cn",
   opportunities: [],
   opportunitiesMeta: null,
   opportunitiesError: null,
@@ -52,20 +53,20 @@ const state = {
 const chartInstances = new Map();
 const HASH_ROUTE = {
   home: { view: "home", tab: "home", top: true },
-  products: { view: "home", tab: "products", scroll: "products" },
-  about: { view: "home", tab: "home", scroll: "about" },
-  lead: { view: "home", tab: "home", scroll: "lead" },
-  desk: { view: "desk", tab: "desk", scroll: "view-desk" },
-  tips: { view: "desk", tab: "desk", scroll: "tips" },
-  pool: { view: "desk", tab: "desk", scroll: "pool" },
-  top3: { view: "desk", tab: "desk", scroll: "top3" },
-  crypto: { view: "desk", tab: "desk", scroll: "crypto" },
-  opps: { view: "live", tab: "live", top: true },
-  live: { view: "live", tab: "live", scroll: "diagram-block" },
-  backtest: { view: "live", tab: "live", scroll: "diagram-block" },
-  runners: { view: "live", tab: "live", scroll: "runner-block" },
-  crowdfund: { view: "crowdfund", tab: "crowdfund", top: true },
-  plan: { view: "crowdfund", tab: "crowdfund", top: true },
+  products: { view: "home", tab: "home", top: true },
+  about: { view: "home", tab: "home", top: true },
+  lead: { view: "contact", tab: "contact", top: true },
+  desk: { view: "desk", tab: "home", scroll: "view-desk" },
+  tips: { view: "desk", tab: "home", scroll: "tips" },
+  pool: { view: "desk", tab: "home", scroll: "pool" },
+  top3: { view: "desk", tab: "home", scroll: "top3" },
+  crypto: { view: "desk", tab: "home", scroll: "crypto" },
+  opps: { view: "home", tab: "home", top: true },
+  live: { view: "live", tab: "home", scroll: "diagram-block" },
+  backtest: { view: "live", tab: "home", scroll: "diagram-block" },
+  runners: { view: "live", tab: "home", scroll: "runner-block" },
+  crowdfund: { view: "crowdfund", tab: "home", top: true },
+  plan: { view: "crowdfund", tab: "home", top: true },
   contact: { view: "contact", tab: "contact", top: true },
 };
 const SIDE_LABEL = { buy: "买入", sell: "卖出", alert: "预警" };
@@ -658,6 +659,7 @@ const STATUS_LABEL = { success: "成功", failed: "失败", running: "运行中"
 const KIND_LABEL = {
   open: "开仓",
   close: "平仓",
+  fill: "成交",
   tp: "止盈",
   sl: "止损",
   monitor: "监控",
@@ -665,6 +667,7 @@ const KIND_LABEL = {
   info: "信息",
   data: "数据",
 };
+const MARKET_LABEL = { cn: "A股", crypto: "加密", us: "美股" };
 const CHANNEL_LABEL = { trade: "开平仓", monitor: "选股监控", system: "系统" };
 const SEV_LABEL = { signal: "信号", risk: "风险", info: "信息", system: "系统" };
 const STRAT_STATUS_LABEL = {
@@ -826,10 +829,20 @@ function fmtConfidence(v) {
   return String(v);
 }
 
+function inferAlertMarket(a) {
+  const explicit = String(a?.market || "").toLowerCase();
+  if (explicit === "cn" || explicit === "crypto" || explicit === "us") return explicit;
+  const blob = `${a?.venue || ""} ${a?.symbol || ""} ${a?.title || ""} ${a?.body || ""}`;
+  const up = blob.toUpperCase();
+  if (/美股|NASDAQ|NYSE|\b(AAPL|TSLA|NVDA|MSFT|AMZN|GOOGL|META|SPY|QQQ)\b/.test(up)) return "us";
+  if (/USDT|OKX|BINANCE|币安|永续|SWAP|BTC|ETH|SOL|加密/.test(up)) return "crypto";
+  if (/\b\d{6}\b/.test(blob) || /A股|EXPMA|选股|MONITOR|SCANNER|涨速|量比/.test(up)) return "cn";
+  return "cn";
+}
+
 function visibleAlerts() {
   return sortedAlerts().filter((a) => {
-    const channel = a.channel || "system";
-    if (state.channel !== "all" && channel !== state.channel) return false;
+    if (inferAlertMarket(a) !== state.marketFilter) return false;
     if (state.alertSource === "live" && !a.live) return false;
     return true;
   });
@@ -837,9 +850,10 @@ function visibleAlerts() {
 
 function emptyAlertMessage(total, visible) {
   if (state.alertsError) return state.alertsError;
+  const m = MARKET_LABEL[state.marketFilter] || state.marketFilter;
   if (!total) return "暂无预警。脚本写入 data/alerts.json 后刷新即可。";
-  if (!visible && state.alertSource === "live") return "暂无 LIVE 预警。SAMPLE 仍保留在「全部」，实盘推送后会出现在这里。";
-  if (!visible) return "该筛选下暂无预警。可改选「全部」或其它频道。";
+  if (!visible && state.alertSource === "live") return `「${m}」暂无 LIVE 预警。`;
+  if (!visible) return `「${m}」暂无预警。可切换其它分类，或等脚本推送。`;
   return "";
 }
 
@@ -869,25 +883,18 @@ function renderAlertHeartbeat() {
 function alertCard(a) {
   const live = Boolean(a.live);
   const kind = a.kind || "";
-  const channel = a.channel || "system";
+  const market = inferAlertMarket(a);
   const action = pick(a, "action", "title") || KIND_LABEL[kind] || "预警";
   const trigger = pick(a, "trigger", "body");
   const venue = a.venue || "";
   const symbol = a.symbol || "";
-  const pair = [venue, symbol].filter(Boolean).join(" · ");
-  const conf = fmtConfidence(a.confidence);
-  const sev = SEV_LABEL[a.severity] || a.severity || "";
-  const foot = [
-    sev ? `状态 ${sev}` : "",
-    conf ? `置信 ${conf}` : "",
-    a.source ? a.source : "",
-  ].filter(Boolean);
+  const pair = [MARKET_LABEL[market] || market, venue, symbol].filter(Boolean).join(" · ");
+  const foot = [a.source ? `脚本 ${a.source}` : "", live ? "LIVE" : "SAMPLE"].filter(Boolean);
   return `<li class="card sev-${esc(a.severity || "info")} ${live ? "is-live" : "is-sample"}">
         <div class="card-top">
           <div class="card-meta">
             <span class="pill ${live ? "live" : "sample"}">${live ? "LIVE" : "SAMPLE"}</span>
-            <span class="tag">${esc(KIND_LABEL[kind] || kind)}</span>
-            <span class="tag muted">${esc(CHANNEL_LABEL[channel] || channel)}</span>
+            <span class="tag">${esc(KIND_LABEL[kind] || kind || "提醒")}</span>
             ${pair ? `<span class="tag venue">${esc(pair)}</span>` : ""}
           </div>
           <time datetime="${esc(a.ts || "")}">${esc(fmtShanghai(a.ts) || "—")}（上海）</time>
@@ -900,14 +907,17 @@ function alertCard(a) {
 
 function renderAlerts() {
   renderAlertHeartbeat();
-  const stamp = $("#alert-stamp");
-  const host = $("#alert-feed");
+  const stamp = $("#feed-stamp") || $("#alert-stamp");
+  const host = $("#home-feed") || $("#alert-feed");
   if (!host) return;
   const total = state.alerts.length;
   const liveN = state.alerts.filter((a) => a.live).length;
+  const marketCount = state.alerts.filter((a) => inferAlertMarket(a) === state.marketFilter).length;
   if (stamp) {
     const bits = [];
-    if (state.alertsMeta?.sample || (total && !liveN)) bits.push("含 SAMPLE，不是实时成交");
+    bits.push(MARKET_LABEL[state.marketFilter] || state.marketFilter);
+    if (state.alertsMeta?.sample || (total && !liveN)) bits.push("含 SAMPLE");
+    bits.push(`${marketCount} 条`);
     bits.push("按时间倒序");
     stamp.textContent = bits.join(" · ");
   }
@@ -918,6 +928,11 @@ function renderAlerts() {
   const rows = visibleAlerts();
   const empty = emptyAlertMessage(total, rows.length);
   host.innerHTML = rows.length ? rows.map(alertCard).join("") : `<li class="feed-msg">${esc(empty)}</li>`;
+  $$("#market-tabs .chip").forEach((btn) => {
+    const on = btn.dataset.market === state.marketFilter;
+    btn.classList.toggle("is-on", on);
+    btn.setAttribute("aria-selected", on ? "true" : "false");
+  });
 }
 
 function normSym(s) {
@@ -1793,7 +1808,7 @@ async function boot() {
   applyCharts(charts, "K 线上下文加载失败：无法读取 data/charts.json");
   state.contact = contact || {};
   $("#disclaimer").textContent = meta.disclaimer;
-  $("#cap").textContent = "专业投资者定制台 · 静态 CDN";
+  $("#cap").textContent = "脚本预警 · A股 / 加密 / 美股";
 
   renderLastRun();
   renderDesk();
@@ -1864,6 +1879,12 @@ async function boot() {
     if (!card || e.target !== card) return;
     e.preventDefault();
     toggleRunner(card.dataset.id);
+  });
+  $$("#market-tabs .chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.marketFilter = btn.dataset.market || "cn";
+      renderAlerts();
+    });
   });
   $$("#alert-filters .chip").forEach((btn) => {
     btn.addEventListener("click", () => {

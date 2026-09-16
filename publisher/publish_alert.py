@@ -66,20 +66,51 @@ def _slug(text: str) -> str:
     return (raw or "alert")[:48]
 
 
+def infer_market(subject: str, body: str, venue: str = "", symbol: str = "") -> str:
+    blob = f"{subject or ''}\n{body or ''}\n{venue or ''}\n{symbol or ''}"
+    up = blob.upper()
+    if any(k in blob for k in ("美股", "NASDAQ", "NYSE", "美股盘")) or re.search(
+        r"\b(AAPL|TSLA|NVDA|MSFT|AMZN|GOOGL|META|SPY|QQQ)\b", up
+    ):
+        return "us"
+    if any(
+        k in blob
+        for k in ("USDT", "OKX", "Binance", "币安", "永续", "SWAP", "BTC", "ETH", "SOL", "加密")
+    ) or re.search(r"[A-Z0-9]+-USDT", up):
+        return "crypto"
+    if re.search(r"\b\d{6}\b", blob) or any(
+        k in blob for k in ("A股", "EXPMA", "选股", "monitor", "scanner", "涨速", "量比")
+    ):
+        return "cn"
+    if venue in ("A股", "CN"):
+        return "cn"
+    if venue in ("OKX", "Binance", "Crypto"):
+        return "crypto"
+    if venue in ("美股", "US", "NASDAQ", "NYSE"):
+        return "us"
+    return "crypto" if "USDT" in up else "cn"
+
+
 def infer_event(subject: str, body: str, source: str = "") -> dict:
     sub = subject or ""
     blob = f"{sub}\n{body or ''}"
     kind, severity, channel, venue = "info", "info", "system", "MAIL"
 
-    if any(k in blob for k in ("开仓", "平仓", "止盈", "止损", "MOVE_SL", "EMA55", "USDT-SWAP", "USDT")):
+    if any(k in blob for k in ("开仓", "平仓", "止盈", "止损", "MOVE_SL", "EMA55", "USDT-SWAP", "USDT", "成交")):
         channel, venue = "trade", "OKX"
     if any(k in blob for k in ("EXPMA", "点火", "收敛池", "选股", "量比", "涨速")):
         channel, venue = "monitor", "A股"
     if "Binance" in blob or "币安" in blob:
         venue = "Binance" if channel == "trade" else venue
+    if any(k in blob for k in ("美股", "NASDAQ", "NYSE")) or re.search(
+        r"\b(AAPL|TSLA|NVDA|MSFT|AMZN|GOOGL|META)\b", blob, re.I
+    ):
+        venue = "美股"
 
     if "开仓" in sub:
         kind, severity = "open", "signal"
+    elif "成交" in sub:
+        kind, severity = "fill", "info"
     elif any(k in sub for k in ("平仓", "MOVE_SL")):
         kind, severity = "close", "info"
     elif "EMA55" in sub or "止盈" in sub:
@@ -96,13 +127,19 @@ def infer_event(subject: str, body: str, source: str = "") -> dict:
     if m:
         symbol = f"{m.group(1).upper()}-USDT-SWAP"
     else:
-        m2 = re.search(r"\b([0-9]{6})\b", blob)
-        if m2 and channel == "monitor":
-            symbol = m2.group(1)
+        m_us = re.search(r"\b(AAPL|TSLA|NVDA|MSFT|AMZN|GOOGL|META|SPY|QQQ)\b", blob, re.I)
+        if m_us:
+            symbol = m_us.group(1).upper()
+        else:
+            m2 = re.search(r"\b([0-9]{6})\b", blob)
+            if m2 and channel == "monitor":
+                symbol = m2.group(1)
 
+    market = infer_market(sub, body or "", venue, symbol)
     return {
         "id": f"{_slug(source or 'script')}-{_slug(sub)}-{int(time.time())}",
         "ts": _now_iso(),
+        "market": market,
         "severity": severity,
         "kind": kind,
         "channel": channel,

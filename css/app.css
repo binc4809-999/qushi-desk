@@ -1407,6 +1407,29 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
   .plan-hero-stats { grid-template-columns: 1fr; }
 }
 
+.market-tabs {
+  margin: 0 0 12px;
+  gap: 10px;
+}
+.simple-head { margin-bottom: 8px; }
+.simple-more {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.simple-more a {
+  color: var(--brass);
+  text-decoration: none;
+}
+.simple-more a:hover { color: var(--ink); }
+#home-feed.feed {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
 .desk-jump {
   display: flex;
   flex-wrap: wrap;
