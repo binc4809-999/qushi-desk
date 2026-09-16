@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-16T14:22:40+00:00",
+  "updated_at": "2026-09-16T14:23:49+00:00",
   "count": 5,
   "runners": [
+    {
+      "id": "s_v3_binance_monitor",
+      "name": "s_v3_binance_monitor",
+      "script": "s_v3_binance_monitor.py",
+      "status": "running",
+      "last_message": "[S-monitor] cycle=1 matched=0/21 elapsed=38.6s",
+      "updated_at": "2026-09-16T14:23:49+00:00",
+      "started_at": "2026-09-09T23:45:00+00:00",
+      "venue": "Binance",
+      "notes": "PyCharm 运行配置 s_v3_binance_monitor。示例心跳。"
+    },
     {
       "id": "scanner",
       "name": "scanner",
@@ -40,20 +51,6 @@
       "venue": "crypto",
       "symbol": "",
       "notes": "PyCharm 运行配置 macd_crypto_bot_no_squeeze。加密货币。示例心跳。",
-      "sample": true
-    },
-    {
-      "id": "s_v3_binance_monitor",
-      "name": "s_v3_binance_monitor",
-      "script": "s_v3_binance_monitor.py",
-      "status": "running",
-      "status_label": "运行中",
-      "last_message": "[s_v3] Binance 监控循环中",
-      "updated_at": "2026-09-10T05:16:00+00:00",
-      "started_at": "2026-09-09T23:45:00+00:00",
-      "venue": "Binance",
-      "symbol": "",
-      "notes": "PyCharm 运行配置 s_v3_binance_monitor。示例心跳。",
       "sample": true
     },
     {
