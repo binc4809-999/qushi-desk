@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-23T05:41:51+00:00",
+  "updated_at": "2026-09-23T05:43:33+00:00",
   "count": 5,
   "runners": [
     {
@@ -8,8 +8,8 @@
       "name": "monitor",
       "script": "monitor.py",
       "status": "running",
-      "last_message": "[monitor] 13:41:51 监控10只 · 暂无点火标的",
-      "updated_at": "2026-09-23T05:41:51+00:00",
+      "last_message": "[monitor] 13:43:32 监控10只 · 暂无点火标的",
+      "updated_at": "2026-09-23T05:43:33+00:00",
       "started_at": "2026-09-10T01:10:00+00:00",
       "venue": "A股",
       "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
