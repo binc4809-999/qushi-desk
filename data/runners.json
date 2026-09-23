@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-23T07:01:16+00:00",
+  "updated_at": "2026-09-23T07:01:42+00:00",
   "count": 5,
   "runners": [
     {
@@ -26,17 +26,6 @@
       "notes": "PyCharm 运行配置 macd_crypto_bot_no_squeeze。加密货币。示例心跳。"
     },
     {
-      "id": "monitor",
-      "name": "monitor",
-      "script": "monitor.py",
-      "status": "running",
-      "last_message": "[monitor] 14:59:59 监控10只 · 暂无点火标的",
-      "updated_at": "2026-09-23T07:00:00+00:00",
-      "started_at": "2026-09-10T01:10:00+00:00",
-      "venue": "A股",
-      "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
-    },
-    {
       "id": "zhangdiesudubang",
       "name": "zhangdiesudubang修正版",
       "script": "zhangdiesudubang.py",
@@ -49,6 +38,17 @@
       "symbol": "",
       "notes": "PyCharm 运行配置 zhangdiesudubang修正版 / zhangdiesudubang.py。示例心跳。",
       "sample": true
+    },
+    {
+      "id": "monitor",
+      "name": "monitor",
+      "script": "monitor.py",
+      "status": "waiting",
+      "last_message": "[monitor] 非 A 股交易时段，等待 09-24 09:30 开盘…",
+      "updated_at": "2026-09-23T07:01:42+00:00",
+      "started_at": "2026-09-10T01:10:00+00:00",
+      "venue": "A股",
+      "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
     },
     {
       "id": "scanner",
