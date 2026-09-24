@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-24T05:07:12+00:00",
+  "updated_at": "2026-09-24T05:08:30+00:00",
   "count": 5,
   "runners": [
+    {
+      "id": "monitor",
+      "name": "monitor",
+      "script": "monitor.py",
+      "status": "running",
+      "last_message": "[monitor] 13:08:29 监控10只 · 暂无点火标的",
+      "updated_at": "2026-09-24T05:08:30+00:00",
+      "started_at": "2026-09-10T01:10:00+00:00",
+      "venue": "A股",
+      "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
+    },
     {
       "id": "macd_crypto_bot_no_squeeze",
       "name": "macd_crypto_bot_no_squeeze",
@@ -13,17 +24,6 @@
       "started_at": "2026-09-09T23:50:00+00:00",
       "venue": "Binance",
       "notes": "PyCharm 运行配置 macd_crypto_bot_no_squeeze。加密货币。示例心跳。"
-    },
-    {
-      "id": "monitor",
-      "name": "monitor",
-      "script": "monitor.py",
-      "status": "running",
-      "last_message": "[monitor] 13:06:47 监控10只 · 暂无点火标的",
-      "updated_at": "2026-09-24T05:06:48+00:00",
-      "started_at": "2026-09-10T01:10:00+00:00",
-      "venue": "A股",
-      "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
     },
     {
       "id": "s_v3_binance_monitor",
