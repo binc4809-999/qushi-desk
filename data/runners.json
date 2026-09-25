@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-25T01:29:04+00:00",
+  "updated_at": "2026-09-25T01:29:25+00:00",
   "count": 5,
   "runners": [
     {
@@ -45,7 +45,7 @@
       "script": "monitor.py",
       "status": "waiting",
       "last_message": "[monitor] 非 A 股交易时段，等待 09-25 09:30 开盘…",
-      "updated_at": "2026-09-25T01:27:24+00:00",
+      "updated_at": "2026-09-25T01:29:25+00:00",
       "started_at": "2026-09-10T01:10:00+00:00",
       "venue": "A股",
       "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
