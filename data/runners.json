@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-25T00:18:42+00:00",
+  "updated_at": "2026-09-25T00:20:09+00:00",
   "count": 5,
   "runners": [
     {
@@ -8,8 +8,8 @@
       "name": "macd_crypto_bot_no_squeeze",
       "script": "macd_crypto_bot_no_squeeze.py",
       "status": "running",
-      "last_message": "[MACD no-squeeze] cycle=5978 2026-09-25 08:17:52 symbols=21 LIVE",
-      "updated_at": "2026-09-25T00:18:42+00:00",
+      "last_message": "[MACD no-squeeze] cycle=5979 2026-09-25 08:19:19 symbols=21 LIVE",
+      "updated_at": "2026-09-25T00:20:09+00:00",
       "started_at": "2026-09-09T23:50:00+00:00",
       "venue": "Binance",
       "notes": "PyCharm 运行配置 macd_crypto_bot_no_squeeze。加密货币。示例心跳。"
