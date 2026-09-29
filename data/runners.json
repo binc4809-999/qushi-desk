@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-29T04:56:41+00:00",
+  "updated_at": "2026-09-29T04:57:06+00:00",
   "count": 5,
   "runners": [
     {
@@ -55,8 +55,8 @@
       "name": "scanner",
       "script": "scanner.py",
       "status": "idle",
-      "last_message": "[scan] 共选出 5 只 preset=relax2",
-      "updated_at": "2026-09-20T15:58:55+00:00",
+      "last_message": "[scan] 共选出 1 只 preset=default",
+      "updated_at": "2026-09-29T04:57:06+00:00",
       "started_at": "2026-09-10T01:05:00+00:00",
       "venue": "A股",
       "notes": "PyCharm 运行配置 scanner / scanner.py。示例心跳，脚本接入 heartbeat(push=True) 后覆盖。"
