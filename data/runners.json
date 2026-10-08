@@ -1,8 +1,18 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-08T14:52:50+00:00",
-  "count": 6,
+  "updated_at": "2026-10-08T14:52:43+00:00",
+  "count": 7,
   "runners": [
+    {
+      "id": "crypto_monitor",
+      "name": "crypto_monitor",
+      "script": "monitor.py",
+      "status": "running",
+      "last_message": "[monitor] 22:52:42 监控4个 · 榜内0个",
+      "updated_at": "2026-10-08T14:52:43+00:00",
+      "started_at": "2026-10-08T14:52:43+00:00",
+      "venue": "加密"
+    },
     {
       "id": "macd_crypto_bot_no_squeeze",
       "name": "macd_crypto_bot_no_squeeze",
