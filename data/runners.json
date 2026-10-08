@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-08T14:48:42+00:00",
-  "count": 5,
+  "updated_at": "2026-10-08T14:49:05+00:00",
+  "count": 6,
   "runners": [
     {
       "id": "macd_crypto_bot_no_squeeze",
@@ -49,6 +49,16 @@
       "started_at": "2026-09-10T01:10:00+00:00",
       "venue": "A股",
       "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
+    },
+    {
+      "id": "crypto_scanner",
+      "name": "crypto_scanner",
+      "script": "scanner.py",
+      "status": "idle",
+      "last_message": "[scan] 1d 选出 4 个 preset=relax",
+      "updated_at": "2026-10-08T14:49:05+00:00",
+      "started_at": "2026-10-08T14:48:23+00:00",
+      "venue": "加密"
     },
     {
       "id": "scanner",
