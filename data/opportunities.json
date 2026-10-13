@@ -225,8 +225,8 @@
       "drawdown": "收盘口径可很低，不含强平路径",
       "evidence": "Ayuso / EPFL；加密调研 2026-09-07",
       "cost": "单腿强平、资金费翻负、对手方",
-      "status": "research",
-      "status_label": "研究笔记，非交易建议"
+      "status": "stopped",
+      "status_label": "研究笔记，非交易建议 · 已停止"
     }
   ]
 }
