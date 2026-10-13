@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-13T15:34:16+00:00",
+  "updated_at": "2026-10-13T15:34:44+00:00",
   "count": 7,
   "runners": [
     {
@@ -13,16 +13,6 @@
       "started_at": "2026-09-09T23:50:00+00:00",
       "venue": "Binance",
       "notes": "PyCharm 运行配置 macd_crypto_bot_no_squeeze。加密货币。示例心跳。"
-    },
-    {
-      "id": "crypto_scanner",
-      "name": "crypto_scanner",
-      "script": "scanner.py",
-      "status": "running",
-      "last_message": "[scan] 开始选币 1d preset=default",
-      "updated_at": "2026-10-13T15:32:17+00:00",
-      "started_at": "2026-10-08T14:48:23+00:00",
-      "venue": "加密"
     },
     {
       "id": "s_v3_binance_monitor",
@@ -69,6 +59,16 @@
       "started_at": "2026-09-10T01:10:00+00:00",
       "venue": "A股",
       "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
+    },
+    {
+      "id": "crypto_scanner",
+      "name": "crypto_scanner",
+      "script": "scanner.py",
+      "status": "idle",
+      "last_message": "[scan] 1d 选出 0 个 preset=default",
+      "updated_at": "2026-10-13T15:34:44+00:00",
+      "started_at": "2026-10-08T14:48:23+00:00",
+      "venue": "加密"
     },
     {
       "id": "scanner",
