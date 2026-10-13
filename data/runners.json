@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-13T15:44:29+00:00",
+  "updated_at": "2026-10-13T15:44:47+00:00",
   "count": 7,
   "runners": [
     {
@@ -36,16 +36,6 @@
       "notes": "PyCharm 运行配置 s_v3_binance_monitor。示例心跳。"
     },
     {
-      "id": "crypto_monitor",
-      "name": "crypto_monitor",
-      "script": "monitor.py",
-      "status": "running",
-      "last_message": "[monitor] 22:52:42 监控4个 · 榜内0个",
-      "updated_at": "2026-10-08T14:52:43+00:00",
-      "started_at": "2026-10-08T14:52:43+00:00",
-      "venue": "加密"
-    },
-    {
       "id": "zhangdiesudubang",
       "name": "zhangdiesudubang修正版",
       "script": "zhangdiesudubang.py",
@@ -58,6 +48,16 @@
       "symbol": "",
       "notes": "PyCharm 运行配置 zhangdiesudubang修正版 / zhangdiesudubang.py。示例心跳。",
       "sample": true
+    },
+    {
+      "id": "crypto_monitor",
+      "name": "crypto_monitor",
+      "script": "monitor.py",
+      "status": "waiting",
+      "last_message": "[monitor] 23:44:40 币池为空，等待 scanner 更新 …",
+      "updated_at": "2026-10-13T15:44:47+00:00",
+      "started_at": "2026-10-08T14:52:43+00:00",
+      "venue": "加密"
     },
     {
       "id": "monitor",
