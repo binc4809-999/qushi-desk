@@ -247,7 +247,7 @@ function tipCard(t) {
     </div>
     <h2>${esc(t.name || t.symbol || "未命名")}</h2>
     ${t.message ? `<p class="card-body">${esc(t.message)}</p>` : ""}
-    <p class="tip-script">脚本 <strong>${esc(script)}</strong>${scriptId && scriptId !== script ? ` · ${esc(scriptId)}` : ""}${t.price != null ? ` · 价 ${esc(t.price)}` : ""}</p>
+    <p class="tip-script">脚本 <strong>${esc(script)}</strong>${scriptId && scriptId !== script ? ` · ${esc(scriptId)}` : ""}${t.price != null ? ` · 示意价 ${esc(t.price)}` : ""}</p>
   </li>`;
 }
 
