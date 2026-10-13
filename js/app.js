@@ -664,9 +664,9 @@ function openDetail(id) {
 
 const STATUS_LABEL = { success: "成功", failed: "失败", running: "运行中" };
 const KIND_LABEL = {
-  open: "开仓",
-  close: "平仓",
-  fill: "成交",
+  open: "规则触发",
+  close: "规则触发",
+  fill: "规则触发",
   tp: "止盈",
   sl: "止损",
   monitor: "监控",
@@ -675,7 +675,7 @@ const KIND_LABEL = {
   data: "数据",
 };
 const MARKET_LABEL = { all: "全部", cn: "A股", crypto: "加密", us: "美股" };
-const CHANNEL_LABEL = { trade: "开平仓", monitor: "选股监控", system: "系统" };
+const CHANNEL_LABEL = { trade: "规则触发", monitor: "选股监控", system: "系统" };
 const SEV_LABEL = { signal: "信号", risk: "风险", info: "信息", system: "系统" };
 const RESEARCH_RECORD_LABEL = "回测未通过风控，仅作研究记录";
 const STRAT_STATUS_LABEL = {
@@ -1452,13 +1452,13 @@ async function refreshTips() {
     const bucket = Math.floor(Date.now() / (state.meta?.poll_ms || 30000));
     const join = url.includes("?") ? "&" : "?";
     const data = await loadJson(`${url}${join}t=${bucket}`);
-    applyTips(data, "买卖点加载失败：无法读取 data/tips.json");
+    applyTips(data, "规则演示加载失败：无法读取 data/tips.json");
     renderTips();
     renderTicker();
   } catch (err) {
     console.warn("[tips]", err);
     if (!state.tips.length) {
-      state.tipsError = `买卖点加载失败：${err.message}`;
+      state.tipsError = `规则演示加载失败：${err.message}`;
       renderTips();
       renderTicker();
     }
@@ -1711,7 +1711,7 @@ async function boot() {
     state.runnersMeta = runners;
     state.runnersError = "脚本状态加载失败：无法读取 data/runners.json";
   }
-  applyTips(tips, "买卖点加载失败：无法读取 data/tips.json");
+  applyTips(tips, "规则演示加载失败：无法读取 data/tips.json");
   applyPools(pools, "选股池加载失败：无法读取 data/pools.json");
   applyCharts(charts, "K 线上下文加载失败：无法读取 data/charts.json");
   state.contact = contact || {};
