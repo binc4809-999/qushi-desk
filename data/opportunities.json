@@ -13,13 +13,14 @@
       "klass": "A",
       "klass_label": "结构性溢价",
       "name": "巨灾债券 / ILS",
+      "note_label": "研究笔记，非交易建议",
       "thesis": "保险风险转移溢价，与股债近零相关。2002 年以来 24 年仅 1 个负年份；2023–2025 连续双位数。",
       "expected": "2026 预期约 6%–8%",
       "drawdown": "飓风年峰值约 10%–16%",
       "evidence": "Swiss Re / 公开 ILS 指数；调研报告 2026-09-07",
       "cost": "尾部灾害风险，不是经典无风险套利",
       "status": "watch",
-      "status_label": "观察",
+      "status_label": "研究笔记，非交易建议",
       "as_of": "2026-09-07",
       "source": "Swiss Re / 公开 ILS 指数；调研报告 2026-09-07",
       "links": [
@@ -34,13 +35,14 @@
       "klass": "A",
       "klass_label": "相对价值",
       "name": "保守型可转债套利",
+      "note_label": "研究笔记，非交易建议",
       "thesis": "Delta 对冲 + 短端 carry。2023–2025 明确复苏；避开高杠杆与加密发行人。",
       "expected": "ARBIX 2024 +7.53%，2025 +8.29%",
       "drawdown": "约 -4.3%（样本期）",
       "evidence": "ARBIX 净值；2025 美国可转债发行约 1240 亿美元",
       "cost": "2008 类危机下对冲基金版曾崩",
       "status": "watch",
-      "status_label": "观察",
+      "status_label": "研究笔记，非交易建议",
       "as_of": "2026-09-07",
       "source": "ARBIX 净值；2025 美国可转债发行约 1240 亿美元"
     },
@@ -86,13 +88,14 @@
       "klass": "B",
       "klass_label": "类套利",
       "name": "可转债双低轮动",
+      "note_label": "研究笔记，非交易建议",
       "thesis": "WIND 双低指数可核对。吃的是低估值修复，不是无风险利差。容量大约 3 亿量级开始自我冲击。",
       "expected": "2018 初–2024 末年化 13.72%",
       "drawdown": "2024 年 8.73%",
       "evidence": "WIND 889047.WI；申万宏源 2025-01-09",
       "cost": "正股下跌 + 杀估值时一样会亏；因子 2022 年后会失效",
       "status": "watch",
-      "status_label": "观察"
+      "status_label": "研究笔记，非交易建议"
     },
     {
       "id": "cb-high-ytm",
@@ -102,13 +105,14 @@
       "klass": "B",
       "klass_label": "债性策略",
       "name": "高 YTM / 低价债性转债",
+      "note_label": "研究笔记，非交易建议",
       "thesis": "B 类里防守性较好的公开样本。更接近持有到期，而不是高频轮动。",
       "expected": "国海样本年化约 14.55%",
       "drawdown": "10.71%",
       "evidence": "国海证券 2026 转债策略报告（2021 初–2025-10）",
       "cost": "流动性差，容量更紧",
       "status": "watch",
-      "status_label": "观察"
+      "status_label": "研究笔记，非交易建议"
     },
     {
       "id": "funding-carry",
@@ -118,13 +122,14 @@
       "klass": "A",
       "klass_label": "Delta 中性",
       "name": "现货 + 空永续资金费",
+      "note_label": "研究笔记，非交易建议",
       "thesis": "利润来自资金费，不是价格方向。公开证据：无杠杆年化大约 3%–6%；高频阈值交易会把同一利差做成 -9% 到 -15%。",
       "expected": "无杠杆约 3%–6%",
       "drawdown": "收盘口径可低于 2%（不含强平路径）",
       "evidence": "Ayuso / EPFL 等公开研究；2026-09-07 加密调研",
       "cost": "资金费翻负、单腿强平、对手方、再平衡",
-      "status": "research",
-      "status_label": "研究"
+      "status": "stopped",
+      "status_label": "研究笔记，非交易建议 · 已停止"
     },
     {
       "id": "dated-basis",
@@ -214,13 +219,14 @@
       "klass": "P",
       "klass_label": "低风险套利",
       "name": "加密资金费只做低频、低杠杆",
+      "note_label": "研究笔记，非交易建议",
       "thesis": "无杠杆年化大约 3%–6%。同一利差若改成高频阈值交易，公开样本会被手续费做成 -9% 到 -15%。趋势账户若要降回撤，用 BTC/ETH 现货+空永续当袖套，不要叠高换手跨所机器人。",
       "expected": "3%–6% 无杠杆",
       "drawdown": "收盘口径可很低，不含强平路径",
       "evidence": "Ayuso / EPFL；加密调研 2026-09-07",
       "cost": "单腿强平、资金费翻负、对手方",
       "status": "research",
-      "status_label": "方法"
+      "status_label": "研究笔记，非交易建议"
     }
   ]
 }
