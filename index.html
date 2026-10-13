@@ -59,7 +59,7 @@
       <header class="view-head">
         <div>
           <h1>当前买卖点</h1>
-          <p class="lede">能力演示：脚本正在推的买 / 卖 / 预警。每条标明脚本来源，便于整改追溯。</p>
+          <p class="lede">这些点来自尚未通过风控的研究规则，不是交易建议。每条标明脚本来源，便于整改追溯。</p>
           <nav class="desk-jump" aria-label="演示台章节">
             <a href="#tips">买卖点</a>
             <a href="#pool">选股池</a>
@@ -71,10 +71,10 @@
         <div class="filter-stack">
           <div class="filter-row">
             <span class="filter-label">方向</span>
-            <div class="filters" id="tip-side-filters" role="group" aria-label="买卖方向">
+            <div class="filters" id="tip-side-filters" role="group" aria-label="规则触发">
               <button type="button" class="chip is-on" data-side="all">全部</button>
-              <button type="button" class="chip" data-side="buy">买入</button>
-              <button type="button" class="chip" data-side="sell">卖出</button>
+              <button type="button" class="chip" data-side="buy">规则触发：做多条件</button>
+              <button type="button" class="chip" data-side="sell">规则触发：平仓条件</button>
               <button type="button" class="chip" data-side="alert">预警</button>
             </div>
           </div>
@@ -88,6 +88,7 @@
           </div>
         </div>
       </header>
+      <p class="research-banner">这些点来自尚未通过风控的研究规则，不是交易建议。</p>
       <aside class="pipeline js-last-run" id="desk-pipeline" aria-live="polite">
         <span class="pl-kicker">管道</span>
         <span class="pl-line">正在读取脚本心跳…</span>
@@ -162,9 +163,10 @@
       <header class="view-head">
         <div>
           <h1>策略回测报告展示</h1>
-          <p class="lede">当前只展示 <code>QUSHIIZIYOU_BTCUSDT_V6.py</code> 的<strong>卡玛实盘</strong>全样本回测（约 +65.8% / 胜率 73.3%）：权益曲线、四类买卖点示意与样本内外对照。其它脚本回测暂不展示。</p>
+          <p class="lede">记录对象是 <code>QUSHIIZIYOU_BTCUSDT_V6.py</code> 的研究规则：触发条件如何写成。其它脚本回测暂不展示。</p>
         </div>
       </header>
+      <p class="research-banner">回测未通过风控，仅作研究记录</p>
       <aside class="risk-note" role="note">
         <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
       </aside>
@@ -207,7 +209,7 @@
         <header class="view-head" style="padding:0;margin:0 0 12px;border:0">
           <div>
             <h2 class="block-title">附：预警流</h2>
-            <p class="hint">SAMPLE 不是实时成交；实盘推送后会标 LIVE。</p>
+            <p class="hint">SAMPLE 不是实时成交。来源标 LIVE 只表示记录标记，不表示已通过风控。</p>
           </div>
           <div class="filter-stack">
             <div class="filter-row">
@@ -285,7 +287,7 @@
             <h3>五饼二鱼研究台</h3>
             <p>策略回测报告、买卖点看板、选股池、脚本心跳。面向专业投资者的定制化投研工程与专属看板交付。</p>
             <ul>
-              <li>高净利回测报告上墙</li>
+              <li>回测未通过风控，仅作研究记录</li>
               <li>监控 / 预警 / 运行态</li>
               <li>按品种·周期·风控定制</li>
             </ul>
@@ -428,7 +430,7 @@
       <section class="plan-block">
         <h2>八、团队能力与壁垒</h2>
         <ul class="plan-list">
-          <li>已上线公网研究台与真实回测报告展示能力（可打开「策略回测报告」验证）。</li>
+          <li>已上线公网研究台。策略回测未通过风控，仅作研究记录。</li>
           <li>量化脚本、邮件预警、静态 CDN 发布链路已跑通，交付不是从零讲故事。</li>
           <li>AI 赋能编码与运维文档，边际成本低于传统外包工作室。</li>
           <li>壁垒在「投研懂行 + 能上线 + 能运维」，而不是单一卖 VPN 或卖云。</li>
@@ -451,7 +453,7 @@
         <p>留下机构、预算区间与感兴趣的业务线（研究台 / 云主机 / VPN / 远程环境 / 运维包）。我们回复档期、合同要点与认筹方式。</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#lead">登记众筹意向</a>
-          <a class="btn btn-ghost" href="#live">先看回测实力</a>
+          <a class="btn btn-ghost" href="#live">查看研究记录</a>
           <a class="btn btn-ghost" href="#contact">电话 / 邮件 / 微信</a>
         </div>
       </section>
@@ -601,6 +603,6 @@
   </footer>
 
   <script src="./js/kline.js?v=20260910b" defer></script>
-  <script src="./js/app.js?v=20261013a" defer></script>
+  <script src="./js/app.js?v=20261013b" defer></script>
 </body>
 </html>

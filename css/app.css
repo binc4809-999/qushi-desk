@@ -1427,6 +1427,17 @@ h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
 .subscribe-cta .btn { margin-top: 4px; }
 .suite-go a { color: var(--brass); text-decoration: none; }
 .suite-go a:hover { color: var(--ink); }
+.research-banner {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--risk);
+  background: rgba(196, 137, 74, 0.12);
+  color: var(--risk);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.55;
+}
 .risk-note {
   margin: 0 0 16px;
   padding: 12px 14px;
