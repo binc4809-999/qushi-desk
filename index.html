@@ -18,6 +18,7 @@
     </a>
     <nav class="tabs" aria-label="栏目">
       <a class="tab is-on" href="#home" data-hash="home">邮件预警</a>
+      <a class="tab" href="#subscribe" data-hash="subscribe">订阅</a>
       <a class="tab" href="#contact" data-hash="contact">联系</a>
     </nav>
     <div class="mast-right">
@@ -37,6 +38,10 @@
           <p class="lede">展示邮箱收到的脚本预警（主题 + 正文）。可选按 A股 / 加密 / 美股 过滤。</p>
         </div>
       </header>
+      <aside class="risk-note" role="note">
+        <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+      </aside>
+      <p class="hint">此页为研究备忘，不是已开放的每日信号推送。</p>
       <div class="filters market-tabs" id="market-tabs" role="tablist" aria-label="市场分类">
         <button type="button" class="chip is-on" data-market="all" role="tab" aria-selected="true">全部</button>
         <button type="button" class="chip" data-market="cn" role="tab" aria-selected="false">A股</button>
@@ -94,6 +99,10 @@
       <p class="tip-tally" id="tip-tally"></p>
 
       <section id="tips" class="tips-block">
+        <aside class="risk-note" role="note">
+          <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+        </aside>
+        <p class="hint">此节为研究备忘，用来看规则如何呈现，不是已开放的每日信号推送。</p>
         <div class="quotes-head">
           <h2 class="block-title">买卖点</h2>
           <p class="hint" id="tips-stamp"></p>
@@ -156,6 +165,9 @@
           <p class="lede">当前只展示 <code>QUSHIIZIYOU_BTCUSDT_V6.py</code> 的<strong>卡玛实盘</strong>全样本回测（约 +65.8% / 胜率 73.3%）：权益曲线、四类买卖点示意与样本内外对照。其它脚本回测暂不展示。</p>
         </div>
       </header>
+      <aside class="risk-note" role="note">
+        <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+      </aside>
       <section class="diagram-block" id="diagram-block">
         <div class="quotes-head">
           <h2 class="block-title">买卖点示意与回测图</h2>
@@ -216,6 +228,9 @@
             </div>
           </div>
         </header>
+        <aside class="risk-note" role="note">
+          <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+        </aside>
         <aside class="pipeline" id="alert-heartbeat" data-status="unknown" aria-live="polite">
           <span class="pl-kicker">预警</span>
           <span class="pl-line">正在读取预警流…</span>
@@ -442,6 +457,90 @@
       </section>
     </section>
 
+    <section id="view-subscribe" class="view">
+      <header class="view-head plan-head">
+        <div>
+          <p class="section-kicker">Subscription</p>
+          <h1>低成本投资助理</h1>
+          <p class="lede">出售工具和方法。信号规则写清楚，脚本可以按你的条件定制；是否投资，由你自己决定。</p>
+        </div>
+        <div class="plan-cta-rail">
+          <a class="btn btn-primary" href="#contact">定制脚本咨询</a>
+        </div>
+      </header>
+
+      <section class="plan-hero-stats" aria-label="订阅要点">
+        <article><span>定位</span><b>低成本投资助理</b></article>
+        <article><span>提供</span><b>工具与方法</b></article>
+        <article><span>决策</span><b>客户自己决定是否投资</b></article>
+        <article><span>每日信号</span><b>即将上线</b></article>
+      </section>
+
+      <section class="plan-block" id="pricing">
+        <h2>价格</h2>
+        <p>两档都是工具与方法的使用费。每日信号推送尚未开放，不在当前交付里。</p>
+        <div class="plan-grid price-grid">
+          <article class="plan-card price-card">
+            <p class="suite-kicker">月费</p>
+            <p class="price-num">¥99</p>
+            <p>首单 6 折。</p>
+          </article>
+          <article class="plan-card price-card">
+            <p class="suite-kicker">年费</p>
+            <p class="price-num">¥1188</p>
+            <p>再送 2 个月。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="plan-block">
+        <h2>提供什么</h2>
+        <div class="plan-grid">
+          <article class="plan-card">
+            <h3>信号规则透明</h3>
+            <p>说明信号怎么算出来的：周期、指标、阈值和触发条件写在规则里，计算过程可以核对。</p>
+            <p class="suite-go"><a href="#signal-rules">查看规则说明</a></p>
+          </article>
+          <article class="plan-card">
+            <h3>定制脚本</h3>
+            <p>按你的条件编写脚本，输入、过滤和输出格式单独约定。脚本是工具，用来执行你写好的规则。</p>
+          </article>
+          <article class="plan-card">
+            <h3>决策在客户</h3>
+            <p>客户自己决定是否投资。规则触发只说明条件成立，行动与否由你判断。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="plan-block" id="signal-push">
+        <h2>每日信号推送 <span class="soon-flag">即将上线</span></h2>
+        <p>每日信号推送尚未开放，只在某一策略通过风险审批之后才会打开。当前订阅不会收到每日推送，本页也不提供正在推送的信号。</p>
+        <aside class="risk-note" role="note">
+          <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+        </aside>
+      </section>
+
+      <section class="plan-block" id="signal-rules">
+        <h2>信号怎么算出来</h2>
+        <ol class="plan-list">
+          <li><strong>先定规则。</strong>写明周期、指标、阈值，以及哪些条件同时成立才触发。</li>
+          <li><strong>再跑计算。</strong>脚本只按这套规则读取输入并给出是否触发。</li>
+          <li><strong>结果可核对。</strong>同一套输入得到同一套触发结果；规则若有变更，会单独说明。</li>
+          <li><strong>你来决定。</strong>触发只说明规则成立。是否采取行动，由客户自己决定。</li>
+        </ol>
+        <p>站内的<a href="#home">邮件预警</a>和<a href="#tips">规则演示</a>是研究备忘，用来看一条规则如何呈现，不是已经上线的每日信号推送。</p>
+        <aside class="risk-note" role="note">
+          <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+        </aside>
+      </section>
+
+      <section class="plan-block plan-close subscribe-cta" id="script-consult">
+        <h2>定制脚本咨询</h2>
+        <p>想把你的规则做成可运行脚本，从这里开始。联系页已有表单、邮件和电话。</p>
+        <a class="btn btn-primary" href="#contact">定制脚本咨询</a>
+      </section>
+    </section>
+
     <section id="view-contact" class="view">
       <header class="view-head">
         <div>
@@ -479,6 +578,7 @@
             <select name="interest">
               <option value="">请选择</option>
               <option value="众筹意向登记">众筹意向登记</option>
+              <option value="定制脚本咨询">定制脚本咨询</option>
               <option value="定制策略落地">定制策略落地</option>
               <option value="AI赋能研究台">AI 赋能研究台</option>
               <option value="海外云服务器">海外云服务器</option>
@@ -501,6 +601,6 @@
   </footer>
 
   <script src="./js/kline.js?v=20260910b" defer></script>
-  <script src="./js/app.js?v=20260916c" defer></script>
+  <script src="./js/app.js?v=20261013a" defer></script>
 </body>
 </html>
