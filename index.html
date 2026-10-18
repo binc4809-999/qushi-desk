@@ -18,6 +18,7 @@
     </a>
     <nav class="tabs" aria-label="栏目">
       <a class="tab is-on" href="#home" data-hash="home">邮件预警</a>
+      <a class="tab" href="#subscribe" data-hash="subscribe">订阅</a>
       <a class="tab" href="#contact" data-hash="contact">联系</a>
     </nav>
     <div class="mast-right">
@@ -37,6 +38,10 @@
           <p class="lede">展示邮箱收到的脚本预警（主题 + 正文）。可选按 A股 / 加密 / 美股 过滤。</p>
         </div>
       </header>
+      <aside class="risk-note" role="note">
+        <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+      </aside>
+      <p class="hint">此页为研究备忘，不是已开放的每日信号推送。</p>
       <div class="filters market-tabs" id="market-tabs" role="tablist" aria-label="市场分类">
         <button type="button" class="chip is-on" data-market="all" role="tab" aria-selected="true">全部</button>
         <button type="button" class="chip" data-market="cn" role="tab" aria-selected="false">A股</button>
@@ -53,10 +58,10 @@
     <section id="view-desk" class="view">
       <header class="view-head">
         <div>
-          <h1>当前买卖点</h1>
-          <p class="lede">能力演示：脚本正在推的买 / 卖 / 预警。每条标明脚本来源，便于整改追溯。</p>
+          <h1>规则演示</h1>
+          <p class="lede">这些点来自尚未通过风控的研究规则，不是交易建议。每条标明脚本来源，便于整改追溯。</p>
           <nav class="desk-jump" aria-label="演示台章节">
-            <a href="#tips">买卖点</a>
+            <a href="#tips">规则演示</a>
             <a href="#pool">选股池</a>
             <a href="#top3">TOP3 日线</a>
             <a href="#crypto">加密 30m</a>
@@ -66,10 +71,10 @@
         <div class="filter-stack">
           <div class="filter-row">
             <span class="filter-label">方向</span>
-            <div class="filters" id="tip-side-filters" role="group" aria-label="买卖方向">
+            <div class="filters" id="tip-side-filters" role="group" aria-label="规则触发">
               <button type="button" class="chip is-on" data-side="all">全部</button>
-              <button type="button" class="chip" data-side="buy">买入</button>
-              <button type="button" class="chip" data-side="sell">卖出</button>
+              <button type="button" class="chip" data-side="buy">规则触发：做多条件</button>
+              <button type="button" class="chip" data-side="sell">规则触发：平仓条件</button>
               <button type="button" class="chip" data-side="alert">预警</button>
             </div>
           </div>
@@ -83,6 +88,7 @@
           </div>
         </div>
       </header>
+      <p class="research-banner">这些点来自尚未通过风控的研究规则，不是交易建议。</p>
       <aside class="pipeline js-last-run" id="desk-pipeline" aria-live="polite">
         <span class="pl-kicker">管道</span>
         <span class="pl-line">正在读取脚本心跳…</span>
@@ -94,12 +100,16 @@
       <p class="tip-tally" id="tip-tally"></p>
 
       <section id="tips" class="tips-block">
+        <aside class="risk-note" role="note">
+          <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+        </aside>
+        <p class="hint">此节为研究备忘，用来看规则如何呈现，不是已开放的每日信号推送。</p>
         <div class="quotes-head">
-          <h2 class="block-title">买卖点</h2>
+          <h2 class="block-title">规则演示</h2>
           <p class="hint" id="tips-stamp"></p>
         </div>
         <ol class="feed tip-feed" id="tip-feed">
-          <li class="feed-msg">正在加载买卖点…</li>
+          <li class="feed-msg">正在加载规则演示…</li>
         </ol>
       </section>
 
@@ -153,12 +163,16 @@
       <header class="view-head">
         <div>
           <h1>策略回测报告展示</h1>
-          <p class="lede">当前只展示 <code>QUSHIIZIYOU_BTCUSDT_V6.py</code> 的<strong>卡玛实盘</strong>全样本回测（约 +65.8% / 胜率 73.3%）：权益曲线、四类买卖点示意与样本内外对照。其它脚本回测暂不展示。</p>
+          <p class="lede">记录对象是 <code>QUSHIIZIYOU_BTCUSDT_V6.py</code> 的研究规则：触发条件如何写成。其它脚本回测暂不展示。</p>
         </div>
       </header>
+      <p class="research-banner">回测未通过风控，仅作研究记录</p>
+      <aside class="risk-note" role="note">
+        <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+      </aside>
       <section class="diagram-block" id="diagram-block">
         <div class="quotes-head">
-          <h2 class="block-title">买卖点示意与回测图</h2>
+          <h2 class="block-title">规则演示与回测图</h2>
           <p class="hint" id="diagram-stamp"></p>
         </div>
         <div class="diagram-grid" id="diagram-grid">
@@ -195,14 +209,14 @@
         <header class="view-head" style="padding:0;margin:0 0 12px;border:0">
           <div>
             <h2 class="block-title">附：预警流</h2>
-            <p class="hint">SAMPLE 不是实时成交；实盘推送后会标 LIVE。</p>
+            <p class="hint">SAMPLE 不是实时成交。来源标 LIVE 只表示记录标记，不表示已通过风控。</p>
           </div>
           <div class="filter-stack">
             <div class="filter-row">
               <span class="filter-label">频道</span>
               <div class="filters" id="alert-filters" role="group" aria-label="预警频道">
                 <button type="button" class="chip is-on" data-channel="all">全部</button>
-                <button type="button" class="chip" data-channel="trade">开平仓</button>
+                <button type="button" class="chip" data-channel="trade">规则触发</button>
                 <button type="button" class="chip" data-channel="monitor">选股监控</button>
                 <button type="button" class="chip" data-channel="system">系统</button>
               </div>
@@ -216,6 +230,9 @@
             </div>
           </div>
         </header>
+        <aside class="risk-note" role="note">
+          <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+        </aside>
         <aside class="pipeline" id="alert-heartbeat" data-status="unknown" aria-live="polite">
           <span class="pl-kicker">预警</span>
           <span class="pl-line">正在读取预警流…</span>
@@ -268,9 +285,9 @@
           <article class="plan-card">
             <p class="suite-kicker">A · 核心</p>
             <h3>五饼二鱼研究台</h3>
-            <p>策略回测报告、买卖点看板、选股池、脚本心跳。面向专业投资者的定制化投研工程与专属看板交付。</p>
+            <p>策略回测报告、规则演示、选股池、脚本心跳。面向专业投资者的定制化投研工程与专属看板交付。</p>
             <ul>
-              <li>高净利回测报告上墙</li>
+              <li>回测未通过风控，仅作研究记录</li>
               <li>监控 / 预警 / 运行态</li>
               <li>按品种·周期·风控定制</li>
             </ul>
@@ -413,7 +430,7 @@
       <section class="plan-block">
         <h2>八、团队能力与壁垒</h2>
         <ul class="plan-list">
-          <li>已上线公网研究台与真实回测报告展示能力（可打开「策略回测报告」验证）。</li>
+          <li>已上线公网研究台。策略回测未通过风控，仅作研究记录。</li>
           <li>量化脚本、邮件预警、静态 CDN 发布链路已跑通，交付不是从零讲故事。</li>
           <li>AI 赋能编码与运维文档，边际成本低于传统外包工作室。</li>
           <li>壁垒在「投研懂行 + 能上线 + 能运维」，而不是单一卖 VPN 或卖云。</li>
@@ -436,9 +453,93 @@
         <p>留下机构、预算区间与感兴趣的业务线（研究台 / 云主机 / VPN / 远程环境 / 运维包）。我们回复档期、合同要点与认筹方式。</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#lead">登记众筹意向</a>
-          <a class="btn btn-ghost" href="#live">先看回测实力</a>
+          <a class="btn btn-ghost" href="#live">查看研究记录</a>
           <a class="btn btn-ghost" href="#contact">电话 / 邮件 / 微信</a>
         </div>
+      </section>
+    </section>
+
+    <section id="view-subscribe" class="view">
+      <header class="view-head plan-head">
+        <div>
+          <p class="section-kicker">Subscription</p>
+          <h1>低成本投资助理</h1>
+          <p class="lede">出售工具和方法。信号规则写清楚，脚本可以按你的条件定制；是否投资，由你自己决定。</p>
+        </div>
+        <div class="plan-cta-rail">
+          <a class="btn btn-primary" href="#contact">定制脚本咨询</a>
+        </div>
+      </header>
+
+      <section class="plan-hero-stats" aria-label="订阅要点">
+        <article><span>定位</span><b>低成本投资助理</b></article>
+        <article><span>提供</span><b>工具与方法</b></article>
+        <article><span>决策</span><b>客户自己决定是否投资</b></article>
+        <article><span>每日信号</span><b>即将上线</b></article>
+      </section>
+
+      <section class="plan-block" id="pricing">
+        <h2>价格</h2>
+        <p>两档都是工具与方法的使用费。每日信号推送尚未开放，不在当前交付里。</p>
+        <div class="plan-grid price-grid">
+          <article class="plan-card price-card">
+            <p class="suite-kicker">月费</p>
+            <p class="price-num">¥99</p>
+            <p>首单 6 折。</p>
+          </article>
+          <article class="plan-card price-card">
+            <p class="suite-kicker">年费</p>
+            <p class="price-num">¥1188</p>
+            <p>再送 2 个月。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="plan-block">
+        <h2>提供什么</h2>
+        <div class="plan-grid">
+          <article class="plan-card">
+            <h3>信号规则透明</h3>
+            <p>说明信号怎么算出来的：周期、指标、阈值和触发条件写在规则里，计算过程可以核对。</p>
+            <p class="suite-go"><a href="#signal-rules">查看规则说明</a></p>
+          </article>
+          <article class="plan-card">
+            <h3>定制脚本</h3>
+            <p>按你的条件编写脚本，输入、过滤和输出格式单独约定。脚本是工具，用来执行你写好的规则。</p>
+          </article>
+          <article class="plan-card">
+            <h3>决策在客户</h3>
+            <p>客户自己决定是否投资。规则触发只说明条件成立，行动与否由你判断。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="plan-block" id="signal-push">
+        <h2>每日信号推送 <span class="soon-flag">即将上线</span></h2>
+        <p>每日信号推送尚未开放，只在某一策略通过风险审批之后才会打开。当前订阅不会收到每日推送，本页也不提供正在推送的信号。</p>
+        <aside class="risk-note" role="note">
+          <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+        </aside>
+      </section>
+
+      <section class="plan-block" id="signal-rules">
+        <h2>信号怎么算出来</h2>
+        <ol class="plan-list">
+          <li><strong>先定规则。</strong>写明周期、指标、阈值，以及哪些条件同时成立才触发。</li>
+          <li><strong>再跑计算。</strong>脚本只按这套规则读取输入并给出是否触发。</li>
+          <li><strong>结果可核对。</strong>同一套输入得到同一套触发结果；规则若有变更，会单独说明。</li>
+          <li><strong>你来决定。</strong>触发只说明规则成立。是否采取行动，由客户自己决定。</li>
+        </ol>
+        <p>站内的<a href="#home">邮件预警</a>和<a href="#tips">规则演示</a>是研究备忘，用来看一条规则如何呈现，不是已经上线的每日信号推送。</p>
+        <aside class="risk-note" role="note">
+          <p><strong>风险提示：</strong>历史信号不代表未来表现，不构成投资建议，投资有风险，决策自负。</p>
+        </aside>
+      </section>
+
+      <section class="plan-block plan-close subscribe-cta" id="script-consult">
+        <h2>定制脚本咨询</h2>
+        <p>想把你的规则做成可运行脚本，从这里开始。联系页已有表单、邮件和电话。</p>
+        <a class="btn btn-primary" href="#contact">定制脚本咨询</a>
       </section>
     </section>
 
@@ -479,6 +580,7 @@
             <select name="interest">
               <option value="">请选择</option>
               <option value="众筹意向登记">众筹意向登记</option>
+              <option value="定制脚本咨询">定制脚本咨询</option>
               <option value="定制策略落地">定制策略落地</option>
               <option value="AI赋能研究台">AI 赋能研究台</option>
               <option value="海外云服务器">海外云服务器</option>
@@ -501,6 +603,6 @@
   </footer>
 
   <script src="./js/kline.js?v=20260910b" defer></script>
-  <script src="./js/app.js?v=20260916c" defer></script>
+  <script src="./js/app.js?v=20261013d" defer></script>
 </body>
 </html>
