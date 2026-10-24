@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:18:03+00:00",
+  "updated_at": "2026-10-24T16:18:59+00:00",
   "count": 7,
   "runners": [
     {
@@ -8,8 +8,8 @@
       "name": "s_v3_binance_monitor",
       "script": "s_v3_binance_monitor.py",
       "status": "running",
-      "last_message": "[S-monitor] cycle=10725 matched=0/21 elapsed=51.8s",
-      "updated_at": "2026-10-24T16:13:47+00:00",
+      "last_message": "[S-monitor] cycle=10726 matched=0/21 elapsed=61.1s",
+      "updated_at": "2026-10-24T16:18:59+00:00",
       "started_at": "2026-09-09T23:45:00+00:00",
       "venue": "Binance",
       "notes": "PyCharm 运行配置 s_v3_binance_monitor。示例心跳。"
