@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-31T08:47:49+00:00",
+  "updated_at": "2026-10-31T08:48:31+00:00",
   "count": 7,
   "runners": [
     {
@@ -44,8 +44,8 @@
       "name": "crypto_monitor",
       "script": "monitor.py",
       "status": "waiting",
-      "last_message": "[monitor] 16:47:09 币池为空，等待 scanner 更新 …",
-      "updated_at": "2026-10-31T08:47:16+00:00",
+      "last_message": "[monitor] 16:48:24 币池为空，等待 scanner 更新 …",
+      "updated_at": "2026-10-31T08:48:31+00:00",
       "started_at": "2026-10-08T14:52:43+00:00",
       "venue": "加密"
     },
