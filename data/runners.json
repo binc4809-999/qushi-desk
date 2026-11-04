@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T07:40:05+00:00",
+  "updated_at": "2026-11-04T07:40:53+00:00",
   "count": 8,
   "runners": [
+    {
+      "id": "macd_crypto_bot_no_squeeze",
+      "name": "macd_crypto_bot_no_squeeze",
+      "script": "macd_crypto_bot_no_squeeze.py",
+      "status": "running",
+      "last_message": "[MACD no-squeeze] cycle=37844 2026-11-04 15:39:16 symbols=21 LIVE",
+      "updated_at": "2026-11-04T07:40:53+00:00",
+      "started_at": "2026-09-09T23:50:00+00:00",
+      "venue": "Binance",
+      "notes": "PyCharm 运行配置 macd_crypto_bot_no_squeeze。加密货币。示例心跳。"
+    },
     {
       "id": "scanner_pile",
       "name": "底部堆量",
@@ -23,17 +34,6 @@
       "started_at": "2026-09-09T23:45:00+00:00",
       "venue": "Binance",
       "notes": "PyCharm 运行配置 s_v3_binance_monitor。示例心跳。"
-    },
-    {
-      "id": "macd_crypto_bot_no_squeeze",
-      "name": "macd_crypto_bot_no_squeeze",
-      "script": "macd_crypto_bot_no_squeeze.py",
-      "status": "running",
-      "last_message": "[MACD no-squeeze] cycle=37843 2026-11-04 15:37:01 symbols=21 LIVE",
-      "updated_at": "2026-11-04T07:38:39+00:00",
-      "started_at": "2026-09-09T23:50:00+00:00",
-      "venue": "Binance",
-      "notes": "PyCharm 运行配置 macd_crypto_bot_no_squeeze。加密货币。示例心跳。"
     },
     {
       "id": "zhangdiesudubang",
