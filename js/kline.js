@@ -479,7 +479,7 @@
         }
         ctx.closePath();
         ctx.fill();
-        const label = m.label || (side === "buy" ? "买" : side === "sell" ? "卖" : "警");
+        const label = m.label || (side === "buy" ? "做多条件" : side === "sell" ? "平仓条件" : "预警");
         ctx.font = "11px Segoe UI, PingFang SC, sans-serif";
         const tw = ctx.measureText(label).width;
         const lx = Math.min(x + 8, w - pad.r - tw - 10);

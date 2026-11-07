@@ -3,65 +3,30 @@
   "sample": true,
   "solo": true,
   "updated_at": "2026-09-06T12:00:00+00:00",
-  "filter_note": "仅展示 QUSHIIZIYOU_BTCUSDT_V6.py · 卡玛实盘全样本回测（约 +65.8%）",
+  "filter_note": "QUSHIIZIYOU_BTCUSDT_V6.py · 回测未通过风控，仅作研究记录",
   "venues": [
     {
       "id": "btc-v6-calmar",
       "title": "QUSHIIZIYOU_BTCUSDT_V6",
-      "lede": "2023-07-19 ~ 2026-07-21 · Binance BTCUSDT · 卡玛参数 · 开平各 0.05% · 下一根开盘进 / 移动止损隔根生效 · 冷却 1 根 5M · 每 30 分钟最多 3 笔。全样本钱包 16580（净利 +6580）；样本外净利率 +4.92%（回撤 10.87%）。",
+      "lede": "2023-07-19 ~ 2026-07-21 · Binance BTCUSDT。回测未通过风控，仅作研究记录。",
       "symbols": [
         {
           "name": "BTC",
           "instId": "BTCUSDT",
           "exchange": "Binance",
           "script": "QUSHIIZIYOU_BTCUSDT_V6.py",
-          "script_path": "实盘包_20260906_BTC_SOL/QUSHIIZIYOU_BTCUSDT_V6.py",
+          "script_path": "研究包_20260906_BTC_SOL/QUSHIIZIYOU_BTCUSDT_V6.py",
           "status": "sample",
-          "status_label": "卡玛实盘回测",
+          "status_label": "回测未通过风控，仅作研究记录",
           "featured": true,
           "rule": "价突破 V6 · 止损 3.4% / 止盈 3.5% / 锁盈触发 1.6% / 锁定 +0.8% / 锁后止盈 20% / 5x",
-          "ret_pct": 65.8,
-          "ann_pct": 18.32,
-          "maxdd_pct": 8.15,
-          "calmar": 2.25,
-          "sharpe": 1.18,
-          "trades": 101,
-          "wins": 74,
-          "losses": 27,
-          "winrate": 73.3,
-          "payoff": 0.85,
-          "net_pnl": 6580.0,
-          "avg_win": 156.09,
-          "avg_loss": -184.1,
-          "init": 10000.0,
-          "final": 16580.0,
           "range": "2023-07-19 ~ 2026-07-21",
           "params": "SL 3.4% · TP 3.5% · 锁盈触发 1.6% · 锁定 +0.8% · 锁后止盈 20% · 杠杆 5x · fee/side 5bps · 不停机",
           "by_signal": [
-            {
-              "signal": "30B",
-              "n": 62,
-              "pnl": 2532.0,
-              "winrate": 79.0
-            },
-            {
-              "signal": "5B",
-              "n": 13,
-              "pnl": 888.0,
-              "winrate": 69.2
-            },
-            {
-              "signal": "30K",
-              "n": 13,
-              "pnl": 3992.0,
-              "winrate": 84.6
-            },
-            {
-              "signal": "5K",
-              "n": 13,
-              "pnl": -831.0,
-              "winrate": 38.5
-            }
+            { "signal": "30B" },
+            { "signal": "5B" },
+            { "signal": "30K" },
+            { "signal": "5K" }
           ],
           "reasons": {
             "SL_LOCK": 66,
@@ -69,13 +34,11 @@
             "TP": 8
           },
           "notes": [
-            "全样本：净利率 +65.8% · 胜率 73.3% · 回撤 8.15% · 夏普 1.18 · 卡玛 2.25 · 手续费 582",
-            "样本内：+59.28% · 胜率 78.6% · 回撤 4.03% · 70 笔",
-            "样本外（自 2025-07-22）：+4.92% · 胜率 60.0% · 回撤 10.87% · 35 笔（全样本好看，样本外约束更紧）",
-            "平仓结构：锁盈止损 66 · 初始止损 27 · 止盈 8。高胜率主要来自锁盈小赢堆叠。"
+            "回测未通过风控，仅作研究记录。",
+            "规则按周期、指标和阈值计算是否触发。"
           ],
           "last_signal": {
-            "action": "卡玛实盘全样本终点",
+            "action": "研究记录终点",
             "ts": "2026-07-21T00:00:00+00:00",
             "live": false
           }

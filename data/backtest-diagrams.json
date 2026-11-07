@@ -1,75 +1,15 @@
 {
   "schema_version": 1,
   "updated_at": "2026-09-06T12:00:00+00:00",
-  "note": "卡玛实盘 · QUSHIIZIYOU_BTCUSDT_V6.py · BTC +65.8% / 胜率 73.3%",
+  "note": "QUSHIIZIYOU_BTCUSDT_V6.py · 回测未通过风控，仅作研究记录",
   "solo": true,
   "script": "QUSHIIZIYOU_BTCUSDT_V6.py",
   "items": [
     {
-      "id": "btc-calmar-equity",
-      "kind": "equity",
-      "title": "权益曲线 · BTCUSDT 卡玛实盘",
-      "subtitle": "全样本 · 净利 +6580 · 收益 65.8% · 胜率 73.3%",
-      "venue": "Binance",
-      "symbol": "BTCUSDT",
-      "script": "QUSHIIZIYOU_BTCUSDT_V6.py",
-      "net_pnl": 6580.0,
-      "ret_pct": 65.8,
-      "maxdd_pct": 8.15,
-      "trades": 101,
-      "range": "2023-07-19 ~ 2026-07-21",
-      "equity_curve": [
-        [
-          "2023-07-19",
-          10000.0
-        ],
-        [
-          "2023-12-31",
-          9946.0
-        ],
-        [
-          "2024-06-30",
-          12593.0
-        ],
-        [
-          "2024-12-31",
-          12490.0
-        ],
-        [
-          "2025-06-30",
-          15175.0
-        ],
-        [
-          "2025-12-31",
-          14415.0
-        ],
-        [
-          "2026-07-21",
-          16580.0
-        ]
-      ]
-    },
-    {
-      "id": "btc-metrics-bars",
-      "kind": "bars",
-      "title": "全样本关键指标",
-      "subtitle": "净利率 / 回撤 / 胜率 / 卡玛",
-      "venue": "指标",
-      "symbol": "BTC",
-      "bars": {
-        "ret": 65.8,
-        "dd": 8.15,
-        "winrate": 73.3,
-        "calmar": 2.25
-      },
-      "ret_pct": 65.8,
-      "maxdd_pct": 8.15
-    },
-    {
       "id": "sig-30b",
       "kind": "signal",
-      "title": "买卖点示意 · 30B 做多",
-      "subtitle": "全样本 +25.32% 净利率 · 62 笔 · 胜率 79%",
+      "title": "规则触发：做多条件 · 30B",
+      "subtitle": "回测未通过风控，仅作研究记录",
       "venue": "信号",
       "symbol": "30B",
       "signal": "30B",
@@ -77,110 +17,50 @@
       "steps": [
         "4H 方向过滤通过",
         "30M：EMA13 已跌破 EMA55（深度回调）",
-        "最新价向上突破 EMA13 + 预估放量 → 开多",
-        "多数以锁盈止损小赢离场（抬高胜率）"
+        "最新价向上突破 EMA13，且预估放量，记为做多条件"
       ]
     },
     {
       "id": "sig-5b",
       "kind": "signal",
-      "title": "买卖点示意 · 5B 做多",
-      "subtitle": "全样本 +8.88% · 13 笔 · 胜率 69.2%",
+      "title": "规则触发：做多条件 · 5B",
+      "subtitle": "回测未通过风控，仅作研究记录",
       "venue": "信号",
       "symbol": "5B",
       "signal": "5B",
       "side": "buy",
       "steps": [
         "4H 方向过滤通过",
-        "5M 最新价突破 EMA5 + 预估放量 → 开多"
+        "5M 最新价突破 EMA5，且预估放量，记为做多条件"
       ]
     },
     {
       "id": "sig-30k",
       "kind": "signal",
-      "title": "买卖点示意 · 30K 做空",
-      "subtitle": "全样本 +39.92% · 13 笔 · 胜率 84.6%（主引擎）",
+      "title": "规则触发：平仓条件 · 30K",
+      "subtitle": "回测未通过风控，仅作研究记录",
       "venue": "信号",
       "symbol": "30K",
       "signal": "30K",
       "side": "sell",
       "steps": [
         "4H 向下 / 乖离过滤",
-        "30M 最新价跌破 EMA13 + 预估放量 → 开空",
-        "样本外仍是正贡献（约 +16.6%）"
+        "30M 最新价跌破 EMA13，且预估放量，记为平仓条件"
       ]
     },
     {
       "id": "sig-5k",
       "kind": "signal",
-      "title": "买卖点示意 · 5K 做空",
-      "subtitle": "全样本 −8.31% · 13 笔 · 胜率 38.5%（拖后腿）",
+      "title": "规则触发：平仓条件 · 5K",
+      "subtitle": "回测未通过风控，仅作研究记录",
       "venue": "信号",
       "symbol": "5K",
       "signal": "5K",
       "side": "sell",
       "steps": [
         "4H 方向过滤通过",
-        "5M 最新价跌破 EMA5 + 预估放量 → 开空",
-        "扣费后期望为负，实盘建议关闭或降权"
+        "5M 最新价跌破 EMA5，且预估放量，记为平仓条件"
       ]
-    },
-    {
-      "id": "trade-is",
-      "kind": "trade",
-      "title": "样本内账本示意",
-      "subtitle": "至 2025-07-21 · +59.28% · 胜率 78.6% · 回撤 4.03%",
-      "venue": "样本内",
-      "symbol": "BTCUSDT",
-      "signal": "IS",
-      "side": "buy",
-      "exit_side": "sell",
-      "dir": "long",
-      "entry": 10000.0,
-      "exit": 15928.0,
-      "entry_time": "2023-07-19",
-      "exit_time": "2025-07-21",
-      "pnl": 5928.0,
-      "ret_pct": 59.28,
-      "reason": "70 笔"
-    },
-    {
-      "id": "trade-oos",
-      "kind": "trade",
-      "title": "样本外账本示意",
-      "subtitle": "自 2025-07-22 · +4.92% · 胜率 60.0% · 回撤 10.87%",
-      "venue": "样本外",
-      "symbol": "BTCUSDT",
-      "signal": "OOS",
-      "side": "buy",
-      "exit_side": "sell",
-      "dir": "long",
-      "entry": 10000.0,
-      "exit": 10492.0,
-      "entry_time": "2025-07-22",
-      "exit_time": "2026-07-21",
-      "pnl": 492.0,
-      "ret_pct": 4.92,
-      "reason": "35 笔 · 约束更紧"
-    },
-    {
-      "id": "trade-30k",
-      "kind": "trade",
-      "title": "信号贡献示意 · 30K",
-      "subtitle": "全样本净利率 +39.92% · 期望/笔约 +307",
-      "venue": "30K",
-      "symbol": "BTCUSDT",
-      "signal": "30K",
-      "side": "sell",
-      "exit_side": "buy",
-      "dir": "short",
-      "entry": 65000.0,
-      "exit": 52000.0,
-      "entry_time": "样本成交示意",
-      "exit_time": "锁盈/止盈",
-      "pnl": 3992.0,
-      "ret_pct": 39.92,
-      "reason": "主引擎"
     }
   ]
 }
