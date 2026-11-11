@@ -1,8 +1,18 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-11T07:39:48+00:00",
+  "updated_at": "2026-11-11T07:40:10+00:00",
   "count": 8,
   "runners": [
+    {
+      "id": "scanner_pile",
+      "name": "底部堆量",
+      "script": "scanner_bottom_pile.py",
+      "status": "running",
+      "last_message": "[pile] 开始选股",
+      "updated_at": "2026-11-11T07:40:10+00:00",
+      "started_at": "2026-11-02T07:40:04+00:00",
+      "venue": "A股"
+    },
     {
       "id": "macd_crypto_bot_no_squeeze",
       "name": "macd_crypto_bot_no_squeeze",
@@ -59,16 +69,6 @@
       "started_at": "2026-09-10T01:10:00+00:00",
       "venue": "A股",
       "notes": "C:\\Users\\user\\stock_convergence\\monitor.py。PyCharm 运行配置 monitor。页面不能自动发现 IDE，需本进程调用 publisher.write_runner.heartbeat(..., push=True)。"
-    },
-    {
-      "id": "scanner_pile",
-      "name": "底部堆量",
-      "script": "scanner_bottom_pile.py",
-      "status": "idle",
-      "last_message": "[pile] 空池",
-      "updated_at": "2026-11-10T07:53:27+00:00",
-      "started_at": "2026-11-02T07:40:04+00:00",
-      "venue": "A股"
     },
     {
       "id": "crypto_scanner",
