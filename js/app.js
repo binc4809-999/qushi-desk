@@ -67,9 +67,13 @@ const HASH_ROUTE = {
   runners: { view: "live", tab: "home", scroll: "runner-block" },
   crowdfund: { view: "crowdfund", tab: "home", top: true },
   plan: { view: "crowdfund", tab: "home", top: true },
+  subscribe: { view: "subscribe", tab: "subscribe", top: true },
+  pricing: { view: "subscribe", tab: "subscribe", scroll: "pricing" },
+  "signal-rules": { view: "subscribe", tab: "subscribe", scroll: "signal-rules" },
+  "signal-push": { view: "subscribe", tab: "subscribe", scroll: "signal-push" },
   contact: { view: "contact", tab: "contact", top: true },
 };
-const SIDE_LABEL = { buy: "买入", sell: "卖出", alert: "预警" };
+const SIDE_LABEL = { buy: "规则触发：做多条件", sell: "规则触发：平仓条件", alert: "预警" };
 
 async function loadJson(path) {
   const res = await fetch(path, { cache: "default" });
@@ -128,7 +132,10 @@ function setView(name, opts = {}) {
   $$(".view").forEach((v) => v.classList.toggle("is-on", v.id === `view-${name}`));
   const tab = opts.tab || name;
   $$(".tab").forEach((t) => t.classList.toggle("is-on", t.dataset.hash === tab));
-  document.body.classList.toggle("is-marketing", name === "home" || name === "contact" || name === "crowdfund");
+  document.body.classList.toggle(
+    "is-marketing",
+    name === "home" || name === "contact" || name === "crowdfund" || name === "subscribe",
+  );
   document.body.dataset.view = name;
   if (name !== "live") closeDetail({ restoreFocus: false });
   if (name === "desk") {
@@ -212,13 +219,13 @@ function renderTicker() {
   const row = (live.length ? live : ordered.slice(0, 3))
     .map((a) => `${esc(a.symbol)} · ${esc(pick(a, "action", "title"))}`)
     .join("    ·    ");
-  $("#ticker").textContent = row || "暂无买卖点";
+  $("#ticker").textContent = row || "暂无规则触发";
 }
 
 function emptyTipMessage(total, visible) {
   if (state.tipsError) return state.tipsError;
-  if (!total) return "暂无买卖点。脚本写入 data/tips.json 后刷新即可。";
-  if (!visible) return "该筛选下暂无买卖点。可改选「全部」。";
+  if (!total) return "暂无规则触发。脚本写入 data/tips.json 后刷新即可。";
+  if (!visible) return "该筛选下暂无规则触发。可改选「全部」。";
   return "";
 }
 
@@ -240,7 +247,7 @@ function tipCard(t) {
     </div>
     <h2>${esc(t.name || t.symbol || "未命名")}</h2>
     ${t.message ? `<p class="card-body">${esc(t.message)}</p>` : ""}
-    <p class="tip-script">脚本 <strong>${esc(script)}</strong>${scriptId && scriptId !== script ? ` · ${esc(scriptId)}` : ""}${t.price != null ? ` · 价 ${esc(t.price)}` : ""}</p>
+    <p class="tip-script">脚本 <strong>${esc(script)}</strong>${scriptId && scriptId !== script ? ` · ${esc(scriptId)}` : ""}${t.price != null ? ` · 示意价 ${esc(t.price)}` : ""}</p>
   </li>`;
 }
 
@@ -252,7 +259,7 @@ function renderTipTally() {
   const sell = rows.filter((t) => t.side === "sell").length;
   const alert = rows.filter((t) => (t.side || "alert") === "alert").length;
   host.textContent = rows.length
-    ? `当前 ${buy} 买 · ${sell} 卖 · ${alert} 预警`
+    ? `规则触发：做多条件 ${buy} · 平仓条件 ${sell} · 预警 ${alert}`
     : "";
 }
 
@@ -657,9 +664,9 @@ function openDetail(id) {
 
 const STATUS_LABEL = { success: "成功", failed: "失败", running: "运行中" };
 const KIND_LABEL = {
-  open: "开仓",
-  close: "平仓",
-  fill: "成交",
+  open: "规则触发",
+  close: "规则触发",
+  fill: "规则触发",
   tp: "止盈",
   sl: "止损",
   monitor: "监控",
@@ -668,12 +675,13 @@ const KIND_LABEL = {
   data: "数据",
 };
 const MARKET_LABEL = { all: "全部", cn: "A股", crypto: "加密", us: "美股" };
-const CHANNEL_LABEL = { trade: "开平仓", monitor: "选股监控", system: "系统" };
+const CHANNEL_LABEL = { trade: "规则触发", monitor: "选股监控", system: "系统" };
 const SEV_LABEL = { signal: "信号", risk: "风险", info: "信息", system: "系统" };
+const RESEARCH_RECORD_LABEL = "回测未通过风控，仅作研究记录";
 const STRAT_STATUS_LABEL = {
-  live: "实盘",
+  live: RESEARCH_RECORD_LABEL,
   paused: "暂停",
-  sample: "样例",
+  sample: RESEARCH_RECORD_LABEL,
   watch: "观察",
   research: "研究",
 };
@@ -982,7 +990,8 @@ function lastSignalFor(s, venue) {
 
 function stratStatus(s) {
   const status = String(s.status || (s.sample ? "sample" : "")).toLowerCase();
-  const label = pick(s, "status_label") || STRAT_STATUS_LABEL[status] || status || "—";
+  let label = pick(s, "status_label") || STRAT_STATUS_LABEL[status] || status || "—";
+  if (/实盘|卡玛|胜率|年化|回撤|收益率/.test(String(label))) label = RESEARCH_RECORD_LABEL;
   return { status: status || "watch", label };
 }
 
@@ -1012,49 +1021,12 @@ function isHighProfitStrat(s, data) {
   return false;
 }
 
-function equitySvg(points, w = 520, h = 160) {
-  if (!points?.length) return "";
-  const vals = points.map((p) => Number(p[1]));
-  const min = Math.min(...vals);
-  const max = Math.max(...vals);
-  const span = max - min || 1;
-  const pad = 12;
-  const coords = points.map((p, i) => {
-    const x = pad + (i / Math.max(points.length - 1, 1)) * (w - pad * 2);
-    const y = h - pad - ((Number(p[1]) - min) / span) * (h - pad * 2);
-    return [x, y];
-  });
-  const line = coords.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
-  const area = `${line} L${coords[coords.length - 1][0].toFixed(1)},${h - pad} L${coords[0][0].toFixed(1)},${h - pad} Z`;
-  const last = vals[vals.length - 1];
-  const first = vals[0];
-  const up = last >= first;
-  const stroke = up ? "#3d9a78" : "#c45c4a";
-  const fill = up ? "rgba(61,154,120,0.18)" : "rgba(196,92,74,0.18)";
-  return `<svg class="eq-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="权益曲线">
-    <path d="${area}" fill="${fill}"></path>
-    <path d="${line}" fill="none" stroke="${stroke}" stroke-width="2.2"></path>
-  </svg>`;
+function equitySvg() {
+  return "";
 }
 
-function barsSvg(bars) {
-  if (!bars) return "";
-  const rows = [
-    bars.ret != null ? ["收益%", bars.ret, bars.ret >= 0] : null,
-    bars.dd != null ? ["回撤%", Math.abs(bars.dd), false] : null,
-    bars.winrate != null ? ["胜率%", bars.winrate, true] : null,
-    bars.calmar != null ? ["卡玛", bars.calmar, bars.calmar >= 0] : null,
-    bars.sharpe != null && bars.calmar == null ? ["Sharpe", bars.sharpe, bars.sharpe >= 0] : null,
-  ].filter(Boolean);
-  if (!rows.length) return "";
-  const max = Math.max(...rows.map((r) => Math.abs(r[1])), 1);
-  return `<div class="bar-chart">${rows
-    .map(([label, val, good]) => {
-      const pct = Math.min(100, (Math.abs(val) / max) * 100);
-      const cls = good ? "up" : "down";
-      return `<div class="bar-row"><span>${esc(label)}</span><div class="bar-track"><i class="${cls}" style="width:${pct}%"></i></div><b class="${cls}">${num(val, 2)}</b></div>`;
-    })
-    .join("")}</div>`;
+function barsSvg() {
+  return "";
 }
 
 function signalSchematicSvg(d, w = 520, h = 168) {
@@ -1068,8 +1040,8 @@ function signalSchematicSvg(d, w = 520, h = 168) {
     : "M40,40 C110,42 150,55 200,70 C250,88 300,105 360,120 C410,132 450,140 490,145";
   const markX = 330;
   const markY = buy ? 55 : 120;
-  const label = buy ? "BUY" : "SELL";
-  const steps = (d.steps || []).slice(0, 4);
+  const label = buy ? "做多条件" : "平仓条件";
+  const steps = (d.steps || []).filter((s) => !hidesPerformanceClaim(s)).slice(0, 4);
   const stepText = steps
     .map((s, i) => `<text x="40" y="${148 + i * 0}" opacity="0">${esc(s)}</text>`)
     .join("");
@@ -1085,58 +1057,28 @@ function signalSchematicSvg(d, w = 520, h = 168) {
   <ol class="signal-steps">${steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>`;
 }
 
-function tradeSchematicSvg(d, w = 520, h = 160) {
-  const entry = Number(d.entry);
-  const exit = Number(d.exit);
-  if (!Number.isFinite(entry) || !Number.isFinite(exit)) return "";
-  const long = String(d.dir || "long") === "long";
-  const pad = 18;
-  const midY = h / 2;
-  // synthetic path: start near entry, end at exit with mild curve
-  const y0 = long ? midY + 28 : midY - 28;
-  const y1 = long ? (exit >= entry ? midY - 36 : midY + 36) : exit <= entry ? midY + 36 : midY - 36;
-  const x0 = pad + 20;
-  const x1 = w - pad - 20;
-  const xm = (x0 + x1) / 2;
-  const path = `M${x0},${y0} Q${xm},${(y0 + y1) / 2 - (long ? 18 : -18)} ${x1},${y1}`;
-  const up = (d.pnl ?? 0) >= 0;
-  const stroke = up ? "#3d9a78" : "#c45c4a";
-  const buyLabel = long ? "开多" : "开空";
-  const sellLabel = long ? "平多" : "平空";
-  return `<svg class="eq-svg trade-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="成交示意">
-    <rect x="0" y="0" width="${w}" height="${h}" fill="rgba(0,0,0,0.18)"></rect>
-    <path d="${path}" fill="none" stroke="${stroke}" stroke-width="2.4"></path>
-    <circle cx="${x0}" cy="${y0}" r="6" fill="#3d9a78"></circle>
-    <circle cx="${x1}" cy="${y1}" r="6" fill="#c45c4a"></circle>
-    <text x="${x0 + 10}" y="${y0 - 10}" fill="#3d9a78" font-size="11">${buyLabel} ${num(entry, 1)}</text>
-    <text x="${Math.max(pad, x1 - 120)}" y="${y1 - 10}" fill="#c45c4a" font-size="11">${sellLabel} ${num(exit, 1)}</text>
-    <text x="40" y="24" fill="rgba(232,228,220,0.55)" font-size="11">${esc(d.signal || "")} · PnL ${num(d.pnl, 1)} · ${esc(d.reason || "")}</text>
-  </svg>`;
+function tradeSchematicSvg() {
+  return "";
+}
+
+function hidesPerformanceClaim(text) {
+  return /胜率|卡玛|回撤|年化|收益率|净利|实盘|夏普|PnL|%/.test(String(text || ""));
 }
 
 function diagramCard(d) {
-  const bits = [];
-  if (d.net_pnl != null) bits.push(`净利 ${num(d.net_pnl, 0)}`);
-  if (d.ret_pct != null && d.kind !== "trade") bits.push(`收益 ${num(d.ret_pct, 2, "%")}`);
-  if (d.maxdd_pct != null) bits.push(`回撤 ${num(d.maxdd_pct, 2, "%")}`);
-  if (d.trades != null) bits.push(`${d.trades} 笔`);
-  if (d.kind === "trade" && d.pnl != null) bits.push(`PnL ${num(d.pnl, 1)}`);
-  let chart = "";
-  if (d.kind === "signal") chart = signalSchematicSvg(d);
-  else if (d.kind === "trade") chart = tradeSchematicSvg(d);
-  else if (d.kind === "bars" || d.bars) chart = barsSvg(d.bars);
-  else if (d.equity_curve?.length) chart = equitySvg(d.equity_curve);
-  else chart = barsSvg(d.bars);
-  const pill = d.kind === "signal" ? "信号示意" : d.kind === "trade" ? "样本成交" : d.venue || "回测";
-  return `<article class="diagram-card kind-${esc(d.kind || "equity")}">
+  if (d.kind !== "signal") return "";
+  const chart = signalSchematicSvg(d);
+  const subtitle = String(d.subtitle || "");
+  const safeSubtitle = hidesPerformanceClaim(subtitle) ? "" : subtitle;
+  return `<article class="diagram-card kind-${esc(d.kind || "signal")}">
     <div class="diagram-top">
-      <span class="pill sample">${esc(pill)}</span>
+      <span class="pill sample">规则示意</span>
       <span class="sub">${esc(d.symbol || "")}</span>
     </div>
     <h3>${esc(d.title)}</h3>
-    <p class="sub">${esc(d.subtitle || d.range || "")}</p>
+    ${safeSubtitle ? `<p class="sub">${esc(safeSubtitle)}</p>` : ""}
     ${chart}
-    ${bits.length ? `<p class="strat-metrics">${esc(bits.join(" · "))}</p>` : ""}
+    <p class="sub">${esc(RESEARCH_RECORD_LABEL)}</p>
   </article>`;
 }
 
@@ -1155,40 +1097,22 @@ function renderDiagrams() {
     host.innerHTML = `<p class="feed-msg">暂无回测图示。可写入 data/backtest-diagrams.json。</p>`;
     return;
   }
-  const items = data.solo
-    ? data.items || []
-    : (data.items || []).filter((d) => {
-        if (d.kind === "signal" || d.kind === "trade") return true;
-        if (d.net_pnl != null && d.net_pnl >= (data.min_net_pnl ?? 2000)) return true;
-        if (d.ret_pct != null && d.ret_pct >= (data.min_ret_pct ?? 30)) return true;
-        return false;
-      });
+  const items = (data.items || []).filter((d) => d.kind === "signal");
   if (stamp) {
     const bits = [];
+    bits.push(RESEARCH_RECORD_LABEL);
     if (data.script) bits.push(data.script);
-    else if (data.note) bits.push(String(data.note).slice(0, 24));
     if (data.updated_at) bits.push(`数据 ${fmtShanghai(data.updated_at) || String(data.updated_at).slice(0, 19)}`);
     bits.push(`${items.length} 张图示`);
     stamp.textContent = bits.join(" · ");
   }
   host.innerHTML = items.length
     ? items.map(diagramCard).join("")
-    : `<p class="feed-msg">暂无达到净利门槛的图示。</p>`;
+    : `<p class="feed-msg">暂无规则示意。</p>`;
 }
 
-function bySignalTable(rows) {
-  if (!rows?.length) return "";
-  const body = rows
-    .map(
-      (r) => `<tr>
-      <td>${esc(r.signal)}</td>
-      <td>${r.n != null ? esc(r.n) : "—"}</td>
-      <td class="${Number(r.pnl) >= 0 ? "up" : "down"}">${r.pnl != null ? num(r.pnl, 1) : "—"}</td>
-      <td>${r.winrate != null ? num(r.winrate, 1, "%") : "—"}</td>
-    </tr>`
-    )
-    .join("");
-  return `<table class="bt-table"><thead><tr><th>信号</th><th>笔数</th><th>净利</th><th>胜率</th></tr></thead><tbody>${body}</tbody></table>`;
+function bySignalTable() {
+  return "";
 }
 
 function reasonsLine(reasons) {
@@ -1197,21 +1121,8 @@ function reasonsLine(reasons) {
   return bits.length ? `<p class="strat-extra"><span class="kicker">离场结构</span> ${esc(bits.join(" · "))}</p>` : "";
 }
 
-function monthlyMini(monthly) {
-  if (!monthly || typeof monthly !== "object") return "";
-  const entries = Object.entries(monthly);
-  if (!entries.length) return "";
-  const vals = entries.map(([, v]) => Number(v));
-  const max = Math.max(...vals.map(Math.abs), 1);
-  const bars = entries
-    .map(([k, v]) => {
-      const n = Number(v);
-      const h = Math.max(4, Math.round((Math.abs(n) / max) * 36));
-      const cls = n >= 0 ? "up" : "down";
-      return `<i class="${cls}" title="${esc(k)}: ${num(n, 1)}" style="height:${h}px"></i>`;
-    })
-    .join("");
-  return `<div class="month-bars" aria-label="月度盈亏"><span class="kicker">月度</span><div class="month-track">${bars}</div></div>`;
+function monthlyMini() {
+  return "";
 }
 
 function renderSymbol(s, venue) {
@@ -1228,32 +1139,21 @@ function renderSymbol(s, venue) {
     const liveBit = sig.live ? "LIVE" : "SAMPLE";
     sigLine = `${title}${when ? ` · ${when}（上海）` : ""} · ${liveBit}`;
   }
-  const bits = [];
-  const pnl = stratNetPnl(s);
-  if (pnl != null) bits.push(`净利 ${num(pnl, 0)}`);
-  if (s.ret_pct != null) bits.push(`收益 ${num(s.ret_pct, 2, "%")}`);
-  if (s.ann_pct != null) bits.push(`年化 ${num(s.ann_pct, 2, "%")}`);
-  if (s.maxdd_pct != null) bits.push(`回撤 ${num(s.maxdd_pct, 2, "%")}`);
-  if (s.trades != null) bits.push(`${s.trades} 笔`);
-  if (s.winrate != null) bits.push(`胜率 ${num(s.winrate, 1, "%")}`);
-  if (s.payoff != null) bits.push(`盈亏比 ${num(s.payoff, 2)}`);
-  if (s.sharpe != null) bits.push(`夏普 ${num(s.sharpe, 2)}`);
-  if (s.calmar != null) bits.push(`卡玛 ${num(s.calmar, 2)}`);
-  if (s.pf != null) bits.push(`PF ${num(s.pf, 2)}`);
-  const notes = (s.notes || []).slice(0, 3).map((n) => `<li>${esc(n)}</li>`).join("");
+  const notes = (s.notes || [])
+    .filter((n) => !hidesPerformanceClaim(n))
+    .slice(0, 3)
+    .map((n) => `<li>${esc(n)}</li>`)
+    .join("");
   return `<article class="strat-card status-${esc(status)} is-detail">
     <div class="strat-top">
       <span class="pill ${esc(status === "live" ? "live" : status === "sample" ? "sample" : status)}">${esc(label)}</span>
       <span class="tag venue">${esc([venueName, inst].filter(Boolean).join(" · "))}</span>
     </div>
     <h2>${esc(s.name)}${script ? ` · ${esc(script)}` : ""}</h2>
+    <p class="sub">${esc(RESEARCH_RECORD_LABEL)}</p>
     ${rule ? `<p class="strat-rule">${esc(rule)}</p>` : ""}
     ${s.params && s.params !== rule ? `<p class="strat-extra"><span class="kicker">参数</span> ${esc(s.params)}</p>` : ""}
-    <p class="strat-signal"><span class="kicker">最近信号</span> ${esc(sigLine)}</p>
-    ${bits.length ? `<p class="strat-metrics">${esc(bits.join(" · "))}</p>` : ""}
-    ${bySignalTable(s.by_signal)}
-    ${reasonsLine(s.reasons)}
-    ${monthlyMini(s.monthly)}
+    <p class="strat-signal"><span class="kicker">最近记录</span> ${esc(String(sigLine).replace(/实盘|卡玛/g, "").trim())}</p>
     ${notes ? `<ul class="bt-notes">${notes}</ul>` : ""}
   </article>`;
 }
@@ -1276,22 +1176,20 @@ function renderStrats() {
   const venues = (data.venues || [{ id: "okx", title: "OKX", symbols: data.symbols || [] }])
     .map((v) => ({
       ...v,
-      symbols: data.solo
-        ? v.symbols || []
-        : (v.symbols || []).filter((s) => isHighProfitStrat(s, data)),
+      symbols: v.symbols || [],
     }))
     .filter((v) => (v.symbols || []).length);
   const count = venues.reduce((n, v) => n + (v.symbols || []).length, 0);
   if (stamp) {
     const bits = [];
-    if (data.filter_note) bits.push(data.filter_note);
-    else if (data.sample) bits.push("示例回测，脚本可覆盖");
+    bits.push(RESEARCH_RECORD_LABEL);
+    if (data.sample) bits.push("研究记录，脚本可覆盖");
     if (data.updated_at) bits.push(`数据 ${fmtShanghai(data.updated_at) || data.updated_at}`);
     bits.push(`${count} 份报告`);
     stamp.textContent = bits.join(" · ");
   }
   if (!count) {
-    host.innerHTML = `<p class="feed-msg">暂无达到净利门槛的回测报告。</p>`;
+    host.innerHTML = `<p class="feed-msg">暂无研究记录。</p>`;
     return;
   }
   host.innerHTML = venues
@@ -1300,7 +1198,7 @@ function renderStrats() {
       if (!cards) return "";
       return `<section class="venue">
         <h2>${esc(v.title || v.id || "策略")}</h2>
-        ${v.lede ? `<p class="lede">${esc(v.lede)}</p>` : ""}
+        ${v.lede && !hidesPerformanceClaim(v.lede) ? `<p class="lede">${esc(v.lede)}</p>` : `<p class="lede">${esc(RESEARCH_RECORD_LABEL)}</p>`}
         <div class="strat-grid ${data.solo ? "solo" : ""}">${cards}</div>
       </section>`;
     })
@@ -1358,7 +1256,7 @@ function renderRunnerStrip() {
   if (state.runnersError && !state.runners.length) {
     html = `<span class="pl-kicker">脚本</span><span class="pl-error">${esc(state.runnersError)}</span>`;
   } else if (!state.runners.length) {
-    html = `<span class="pl-kicker">脚本</span><span class="pl-line">暂无进程心跳。脚本调用 write_runner.heartbeat() 后会出现在实盘页。</span>`;
+    html = `<span class="pl-kicker">脚本</span><span class="pl-line">暂无进程心跳。脚本调用 write_runner.heartbeat() 后会出现在研究记录页。</span>`;
   } else {
     const c = runnerCounts();
     const bits = [];
@@ -1375,7 +1273,7 @@ function renderRunnerStrip() {
       `<span class="pl-status">${esc(bits.join(" · ") || `${state.runners.length} 个`)}</span>`,
       line ? `<span class="pl-summary">${esc(latest.name || latest.id)} · ${esc(line)}</span>` : "",
       sample ? `<span class="pl-note">示例心跳</span>` : "",
-      `<span class="pl-note">点此看实盘页</span>`,
+      `<span class="pl-note">点此看研究记录</span>`,
     ].join("");
   }
   hosts.forEach((host) => {
@@ -1554,13 +1452,13 @@ async function refreshTips() {
     const bucket = Math.floor(Date.now() / (state.meta?.poll_ms || 30000));
     const join = url.includes("?") ? "&" : "?";
     const data = await loadJson(`${url}${join}t=${bucket}`);
-    applyTips(data, "买卖点加载失败：无法读取 data/tips.json");
+    applyTips(data, "规则演示加载失败：无法读取 data/tips.json");
     renderTips();
     renderTicker();
   } catch (err) {
     console.warn("[tips]", err);
     if (!state.tips.length) {
-      state.tipsError = `买卖点加载失败：${err.message}`;
+      state.tipsError = `规则演示加载失败：${err.message}`;
       renderTips();
       renderTicker();
     }
@@ -1661,7 +1559,7 @@ function renderHomeProof() {
   host.innerHTML = [
     `<li><a href="#tips">演示 · ${state.tips.length} 条信号</a></li>`,
     `<li><a href="#pool">演示 · 选股池 ${poolN} 只</a></li>`,
-    `<li><a href="#live">高净利回测可阅</a></li>`,
+    `<li><a href="#live">研究回测记录</a></li>`,
     `<li><a href="#runners">${running} 路策略运行中</a></li>`,
   ].join("");
 }
@@ -1813,7 +1711,7 @@ async function boot() {
     state.runnersMeta = runners;
     state.runnersError = "脚本状态加载失败：无法读取 data/runners.json";
   }
-  applyTips(tips, "买卖点加载失败：无法读取 data/tips.json");
+  applyTips(tips, "规则演示加载失败：无法读取 data/tips.json");
   applyPools(pools, "选股池加载失败：无法读取 data/pools.json");
   applyCharts(charts, "K 线上下文加载失败：无法读取 data/charts.json");
   state.contact = contact || {};
