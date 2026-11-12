@@ -1,8 +1,18 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T07:40:01+00:00",
+  "updated_at": "2026-11-12T07:40:09+00:00",
   "count": 8,
   "runners": [
+    {
+      "id": "scanner_pile",
+      "name": "底部堆量",
+      "script": "scanner_bottom_pile.py",
+      "status": "running",
+      "last_message": "[pile] 开始选股",
+      "updated_at": "2026-11-12T07:40:09+00:00",
+      "started_at": "2026-11-02T07:40:04+00:00",
+      "venue": "A股"
+    },
     {
       "id": "macd_crypto_bot_no_squeeze",
       "name": "macd_crypto_bot_no_squeeze",
@@ -59,16 +69,6 @@
       "updated_at": "2026-11-12T07:39:28+00:00",
       "started_at": "2026-10-08T14:52:43+00:00",
       "venue": "加密"
-    },
-    {
-      "id": "scanner_pile",
-      "name": "底部堆量",
-      "script": "scanner_bottom_pile.py",
-      "status": "idle",
-      "last_message": "[pile] 共选出 12 只",
-      "updated_at": "2026-11-11T08:41:15+00:00",
-      "started_at": "2026-11-02T07:40:04+00:00",
-      "venue": "A股"
     },
     {
       "id": "crypto_scanner",
