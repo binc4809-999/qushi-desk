@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-13T08:40:51+00:00",
+  "updated_at": "2026-11-13T08:41:01+00:00",
   "count": 8,
   "runners": [
     {
@@ -24,16 +24,6 @@
       "started_at": "2026-09-09T23:45:00+00:00",
       "venue": "Binance",
       "notes": "PyCharm 运行配置 s_v3_binance_monitor。示例心跳。"
-    },
-    {
-      "id": "scanner_pile",
-      "name": "底部堆量",
-      "script": "scanner_bottom_pile.py",
-      "status": "running",
-      "last_message": "[pile] 开始选股",
-      "updated_at": "2026-11-13T07:40:09+00:00",
-      "started_at": "2026-11-02T07:40:04+00:00",
-      "venue": "A股"
     },
     {
       "id": "zhangdiesudubang",
@@ -69,6 +59,16 @@
       "updated_at": "2026-11-13T08:39:06+00:00",
       "started_at": "2026-10-08T14:52:43+00:00",
       "venue": "加密"
+    },
+    {
+      "id": "scanner_pile",
+      "name": "底部堆量",
+      "script": "scanner_bottom_pile.py",
+      "status": "idle",
+      "last_message": "[pile] 共选出 134 只",
+      "updated_at": "2026-11-13T08:41:01+00:00",
+      "started_at": "2026-11-02T07:40:04+00:00",
+      "venue": "A股"
     },
     {
       "id": "crypto_scanner",
